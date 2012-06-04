@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/fill"
+    android:orientation="vertical" >
+	<TextView 
+	    android:layout_alignParentTop="true"
+	    android:text="ZooTracker"
+	    android:textSize="20dip"
+	    style="@style/fill_width"
+	    />
+	<RelativeLayout android:id="@+id/LoginContainer"
+	    style="@style/fill_width_partial"
+	    android:layout_centerInParent="true">	 
+	       <TextView 
+	           android:id="@+id/Welcome"
+	           android:layout_alignParentTop="true"
+	           android:layout_centerHorizontal="true"
+	           android:text="Welcome to ZooTracker!"
+	           android:layout_marginBottom="10dip"
+	           android:textSize="15dip"
+	           style="@style/wrap"
+	           />
+	       <EditText 
+	           android:layout_below="@id/Welcome"
+	           android:id="@+id/Email"
+	           android:hint="Email"
+	           style="@style/fill_width_partial"
+	           android:inputType="textEmailAddress"
+	           />
+	       <EditText 
+	           android:layout_below="@id/Email"
+	           android:id="@+id/Password"
+	           android:hint="Password"
+	           style="@style/fill_width_partial"
+	           android:inputType="textPassword"
+	           />
+	       <Button 
+	           android:layout_below="@id/Password"
+	           android:id="@+id/LoginButton"
+	           android:text="Login"
+	           android:layout_alignParentRight="true"
+	           style="@style/wrap"
+	           android:layout_marginRight="30dip"
+	           />
+	       <Button 
+	           android:layout_below="@+id/Password"
+	           android:layout_alignParentLeft="true"
+	           android:id="@+id/SignUp"
+	           android:text="Sign Up"
+	           android:layout_marginLeft="30dip"
+	           style="@style/wrap"
+	           />
+	       <CheckBox 
+	           android:layout_below="@id/SignUp"
+	           android:id="@+id/RememberMe"
+	           android:text="Remember Me"
+	           android:layout_marginTop="20dip"
+	           style="@style/fill_width_partial"
+	           />
+	</RelativeLayout>
+</RelativeLayout>

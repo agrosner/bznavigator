@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/wrap">
+    <RelativeLayout 
+        style="@style/wrap">
+        <TextView 
+       		android:id="@+id/Text"
+       		android:layout_alignParentTop="true"
+        	android:text="You are here"
+        	android:textColor="@android:color/black"
+        	android:paddingBottom="20dip"
+        	android:textSize="20dip"
+        	style="@style/wrap"
+        	/>
+    	<ImageView
+    	    android:layout_below="@id/Text"
+	        android:id="@+id/Arrow"
+        	android:src="@drawable/downarrow"
+        	style="@style/wrap"
+        	android:layout_centerHorizontal="true"
+        />    
+    </RelativeLayout>
+    
+
+</FrameLayout>
