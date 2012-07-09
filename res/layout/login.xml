@@ -3,7 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/fill"
     android:orientation="vertical" 
-    android:background="@color/abs__background_holo_light"
+    android:background="@drawable/background_holo_light"
     >
    
 	<RelativeLayout android:id="@+id/LoginContainer"
@@ -15,6 +15,7 @@
 	           android:layout_alignParentTop="true"
 	           android:layout_centerHorizontal="true"
 	           android:text="ZooTracker"
+	           android:background="@drawable/edit_text_holo_light"
 	           android:textColor="@color/forestgreen"
 	           android:textSize="35dip"
 	           style="@style/wrap"
@@ -24,30 +25,22 @@
 	           android:id="@+id/Email"
 	           android:hint="Email"
 	           style="@style/fill_width_partial"
-	           android:background="@android:color/transparent"
+	           android:textColor="@color/forestgreen"
+	           android:background="@drawable/edit_text_holo_light"
 	           android:inputType="textEmailAddress"
 	           android:layout_marginBottom="5dip"
 	           android:layout_marginTop="30dip"
 	           
 	           />
-	       <View 
-	           android:layout_below="@id/Email"
-	           android:id="@+id/Underline"
-	           style="@style/underline"
-	           />
 	       <EditText 
 	           android:layout_marginTop="20dip"
-	           android:layout_below="@id/Underline"
+	           android:layout_below="@id/Email"
 	           android:id="@+id/Password"
-	           android:background="@android:color/transparent"
+	           android:textColor="@color/forestgreen"
+	           android:background="@drawable/edit_text_holo_light"
 	           android:hint="Password"
 	           style="@style/fill_width_partial"
 	           android:inputType="textPassword"
-	           />
-	        <View 
-	           android:layout_below="@id/Password"
-	           android:id="@+id/Underlinetwo"
-	           style="@style/underline"
 	           />
 	</RelativeLayout>
 
@@ -58,13 +51,14 @@
 	  	android:layout_below="@id/LoginContainer"
 	  	android:text="Remember Me"
 	  	android:textColor="@color/forestgreen"
+	  	android:button="@drawable/btn_checkbox_holo_light"
 	    />
 	<Button
 	    android:id="@+id/LoginButton"
 	    style="@style/fill_width_partial"
 	    android:layout_below="@id/RememberMe"
 	    android:layout_centerHorizontal="true"
-	    android:background="@drawable/appwidget_bg_clickable"
+	    android:background="@drawable/btn_default_holo_light"
 	    android:text="Login"
 	    android:textColor="@color/forestgreen"
 	    android:textSize="25dip" />
