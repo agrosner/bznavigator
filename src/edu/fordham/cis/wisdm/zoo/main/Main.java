@@ -1,25 +1,34 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
-import com.google.android.maps.MapActivity;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import cis.fordham.edu.wisdm.messages.MessageBuilder;
+import cis.fordham.edu.wisdm.utils.Operations;
+
+import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
 
-import edu.fordham.cis.wisdm.utils.view.Operations;
 import edu.fordham.cis.wisdm.zoo.map.MyLocOverlay;
 
-import android.app.Activity;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 /**
@@ -27,7 +36,7 @@ import android.widget.Toast;
  * @author Andrew Grosner
  * @version 1.0
  */
-public class Main extends MapActivity implements OnClickListener{
+public class Main extends SherlockFragmentActivity implements OnClickListener, OnNavigationListener, OnMenuItemClickListener{
 
 	//manages location changes
 	private LocationManager lManager = null;
@@ -43,32 +52,39 @@ public class Main extends MapActivity implements OnClickListener{
 	
 	private long GPSUpdate = 20000;
 	
-	//the action bar buttons
-	private ImageButton[] actions = new ImageButton[4];
-	
+	//the email of the user logged in
 	private String email = null;
 	
 	 @Override
 	 public void onCreate(Bundle savedInstanceState) {
 		 super.onCreate(savedInstanceState);
-	     setContentView(R.layout.dashboard);
-	        
+	     setContentView(R.layout.map);
+	     
+	     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	     
 	     email = getIntent().getStringExtra("email");
 	     
 	     setUpView();
 	     start();
+	     
+	     
 	 }
 	 
-	 /**
-	  * Adds the menu to screen when option button is pressed
-	  */
-	 @Override
-	 public boolean onCreateOptionsMenu(Menu menu){
-		 MenuInflater inflater = getMenuInflater();
-		 inflater.inflate(R.layout.menu, menu);
-		 return true;
-	 }
-	 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu){
+		
+		
+		menu.add("Search").setOnMenuItemClickListener(this).setIcon(getResources().getDrawable(R.drawable.ic_action_search)).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		menu.add("News").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		menu.add("Settings").setOnMenuItemClickListener(this).setIcon(getResources().getDrawable(R.drawable.ic_action_overflow))
+		.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		
+		return super.onCreateOptionsMenu(menu);
+	}
+		
 	 @Override
 	 public boolean onOptionsItemSelected(MenuItem item){
 		 switch(item.getItemId()){
@@ -97,6 +113,8 @@ public class Main extends MapActivity implements OnClickListener{
 		 
 	 }
 	 
+	 
+	 
 	 @Override
 	 public void onDestroy(){
 		 super.onDestroy();
@@ -106,23 +124,20 @@ public class Main extends MapActivity implements OnClickListener{
 	 }
 	 
 	 private void setUpView(){
-		 
+
 		 lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		  
 		 map = (MapView) findViewById(R.id.Map);
-		 map.setBuiltInZoomControls(true);
+		 map.setBuiltInZoomControls(false);
+		 map.setSatellite(true);
 		 
 		 mapControl = map.getController();
 		 mapControl.setZoom(17);
 		 
 		 me = new MyLocOverlay(this,this, map);
+		 me.disableMarker();
 		 startLocationUpdates();
 			
-		 int id[] = {R.id.Logout, R.id.Search, R.id.Photos, R.id.Settings};
-		 Operations.findImageButtonViewsByIds(this, actions, id);
-		 Operations.setOnClickListeners(this, actions);
-		 
-		 
 	 }
 	 
 	 
@@ -165,9 +180,6 @@ public class Main extends MapActivity implements OnClickListener{
 		 location.putExtra("email", email);
 		 startService(location);
 		 
-		
-		 
-		 
 		 //TODO: add nearby overlay of zoo to map
 		 
 	 }
@@ -188,13 +200,28 @@ public class Main extends MapActivity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){
-			case R.id.Logout:
-				finish();
-				break;
 			case R.id.Settings:
-
 				break;
 		}
 	}
-	
+
+	@Override
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onMenuItemClick(MenuItem item) {
+		if(item.getTitle().equals("Settings")){
+			
+		} else if(item.getTitle().equals("News")){
+			
+		} else if (item.getTitle().equals("Search")){
+			
+		}
+
+		return false;
+	}
+
 }

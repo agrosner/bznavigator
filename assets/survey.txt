@@ -1,0 +1,21 @@
++++++
+TITLE:What is your age?
+TYPE:Text Entry
+CHOICE:NUMBERS ONLY
+-----
++++++
+TITLE:Gender
+TYPE:Radio Buttons
+CHOICE:Male
+CHOICE:Female
+-----
++++++
+TITLE:Is This Your First Time?
+TYPE:Radio Buttons
+CHOICE:Yes
+CHOICE:No
+-----
++++++
+TITLE:What is your email?
+TYPE:Text Entry
+-----

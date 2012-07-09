@@ -27,6 +27,7 @@ public class GFile extends BufferedWriter{
 	//the root where file is stored
 	private static File root =null;
 	
+	//the values of the GPS reading
 	private String[] values = new String[8];
 	
 	/**

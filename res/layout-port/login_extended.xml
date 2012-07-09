@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout 
+    style="@style/fill" xmlns:android="http://schemas.android.com/apk/res/android">
+   	
+    <include layout="@layout/login">
+    	
+	</include>
+	<ImageView 
+       android:id="@+id/WisdmLogo"
+       style="@style/wrap"
+       android:src="@drawable/wisdmsmall"
+       android:layout_alignParentBottom="true"
+       android:layout_marginBottom="10dip"
+       android:layout_centerHorizontal="true"
+        />
+    <Button
+        android:id="@+id/SignUp"
+        style="@style/ics_button"
+        android:drawableTop="@drawable/ic_action_user_add"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/WisdmLogo"
+        android:text="Sign Up" />
+    
+</RelativeLayout>	

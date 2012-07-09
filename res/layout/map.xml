@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/fill">    
+    <FrameLayout 
+        android:id="@+id/Frame"
+        style="@style/fill">
+        <com.google.android.maps.MapView
+        	android:id="@+id/Map"
+        	style="@style/fill"
+        	android:enabled="true"
+        	android:clickable="true"
+        	android:apiKey="@string/AndrewLaptopKey"       
+    	/>
+    </FrameLayout>   
+    
+    
+</RelativeLayout>

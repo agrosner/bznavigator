@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/fill_width_partial"
+    android:orientation="vertical" >
+    
+    <TextView 
+        android:layout_alignParentTop="true"
+        android:id="@+id/Title"
+        android:text="Title"
+        android:textSize="25dip"
+        style="@style/fill_width"
+        android:textColor="@color/androidblue"
+        android:gravity="center"
+        />
+	<Button 
+	    android:layout_below="@id/Title"
+	    android:layout_marginTop="20dip"
+	    android:id="@+id/Remember"
+	    android:text="Remember Me"
+	    android:textSize="20dip"
+	    style="@style/ics_button"
+	    android:layout_width="fill_parent"
+	    android:gravity="center"
+	    />
+    <Button 
+	    android:layout_below="@id/Remember"
+	    android:id="@+id/DontRemember"
+	    android:text="Don't Rememeber Me"
+	  	android:textSize="20dip"
+	    style="@style/ics_button"
+	    android:layout_width="fill_parent"
+	    android:gravity="center"
+	    />
+     <Button 
+	    android:layout_below="@id/DontRemember"
+	    android:id="@+id/Later"
+	    android:text="Maybe Later"
+	    style="@style/ics_button"
+	    android:textSize="20dip"
+	    android:layout_width="fill_parent"
+	    android:gravity="center"
+	    />
+    
+</RelativeLayout>

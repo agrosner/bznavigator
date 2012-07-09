@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Login Screen Piece -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/fill"
+    android:orientation="vertical" 
+    android:background="@color/abs__background_holo_light"
+    >
+   
+	<RelativeLayout android:id="@+id/LoginContainer"
+	    style="@style/fill_width_partial"
+	    android:layout_centerHorizontal="true"
+	    >	 
+	       <TextView 
+	           android:id="@+id/Welcome"
+	           android:layout_alignParentTop="true"
+	           android:layout_centerHorizontal="true"
+	           android:text="ZooTracker"
+	           android:textColor="@color/forestgreen"
+	           android:textSize="35dip"
+	           style="@style/wrap"
+	           />
+	       <EditText 
+	           android:layout_below="@id/Welcome"
+	           android:id="@+id/Email"
+	           android:hint="Email"
+	           style="@style/fill_width_partial"
+	           android:background="@android:color/transparent"
+	           android:inputType="textEmailAddress"
+	           android:layout_marginBottom="5dip"
+	           android:layout_marginTop="30dip"
+	           
+	           />
+	       <View 
+	           android:layout_below="@id/Email"
+	           android:id="@+id/Underline"
+	           style="@style/underline"
+	           />
+	       <EditText 
+	           android:layout_marginTop="20dip"
+	           android:layout_below="@id/Underline"
+	           android:id="@+id/Password"
+	           android:background="@android:color/transparent"
+	           android:hint="Password"
+	           style="@style/fill_width_partial"
+	           android:inputType="textPassword"
+	           />
+	        <View 
+	           android:layout_below="@id/Password"
+	           android:id="@+id/Underlinetwo"
+	           style="@style/underline"
+	           />
+	</RelativeLayout>
+
+	<CheckBox 
+	    android:id="@+id/RememberMe"
+	    style="@style/fill_width_partial"
+	    android:layout_marginTop="10dip"
+	  	android:layout_below="@id/LoginContainer"
+	  	android:text="Remember Me"
+	  	android:textColor="@color/forestgreen"
+	    />
+	<Button
+	    android:id="@+id/LoginButton"
+	    style="@style/fill_width_partial"
+	    android:layout_below="@id/RememberMe"
+	    android:layout_centerHorizontal="true"
+	    android:background="@drawable/appwidget_bg_clickable"
+	    android:text="Login"
+	    android:textColor="@color/forestgreen"
+	    android:textSize="25dip" />
+	 
+</RelativeLayout>

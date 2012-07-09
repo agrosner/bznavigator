@@ -151,7 +151,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 			
 		}, GPSUpdate, GPSUpdate);
 		
-		GPS[0].storeLocation(lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+		//GPS[0].storeLocation(lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
 	}
 	
 	private void stopTimer(){
@@ -171,7 +171,6 @@ public class LocationUpdateService extends Service implements LocationListener{
 	@Override
 	public void onLocationChanged(Location location) {
 		GPS[0].storeLocation(location);
-		
 	}
 	@Override
 	public void onProviderDisabled(String provider) {}

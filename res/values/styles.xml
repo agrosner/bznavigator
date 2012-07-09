@@ -9,8 +9,8 @@
         <item name="android:layout_width">fill_parent</item>
     </style>
     <style name="fill_width_partial" parent="fill_width">
-        <item name="android:layout_marginLeft">30dip</item>
-        <item name="android:layout_marginRight">30dip</item>
+        <item name="android:layout_marginLeft">10dip</item>
+        <item name="android:layout_marginRight">10dip</item>
     </style>
     
     <style name="wrap">
@@ -20,11 +20,22 @@
     
     <style name="imagebutton" parent="wrap">
         <item name="android:padding">5dip</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    
+    <style name="ics_button" parent="wrap">
+        <item name="android:background">@drawable/appwidget_dark_bg_clickable</item>
+        <item name="android:textColor">@color/androidblue</item>
     </style>
     
     <style name="margin_leftright" parent="imagebutton">
         <item name="android:layout_marginLeft">10dip</item>
         <item name="android:layout_marginRight">10dip</item>
+    </style>
+    
+    <style name="underline" parent="wrap">
+        <item name="android:background">@color/lightgreen</item>
+        <item name="android:layout_height">4dip</item>
     </style>
     
 </resources>
