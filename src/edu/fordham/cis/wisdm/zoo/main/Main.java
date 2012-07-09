@@ -1,11 +1,5 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-import cis.fordham.edu.wisdm.messages.MessageBuilder;
-import cis.fordham.edu.wisdm.utils.Operations;
-
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -16,19 +10,12 @@ import com.google.android.maps.MapView;
 
 import edu.fordham.cis.wisdm.zoo.map.MyLocOverlay;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 /**
@@ -61,6 +48,7 @@ public class Main extends SherlockFragmentActivity implements OnClickListener, O
 	     setContentView(R.layout.map);
 	     
 	     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	     this.getSupportActionBar().setTitle("Survey");
 	     
 	     email = getIntent().getStringExtra("email");
 	     

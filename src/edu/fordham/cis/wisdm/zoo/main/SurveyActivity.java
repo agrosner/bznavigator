@@ -116,7 +116,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener{
         	filter += next + "\n";        	
         }
 		this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
+		this.getSupportActionBar().setTitle("Sign Out");
 	}
 	
 	 /**

@@ -59,7 +59,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
     	Operations.findEditTextViewsByIds(this, fields, ids);
     	
     	rememberMe = (CheckBox) findViewById(R.id.RememberMe);
-    	boolean fill = Preference.getBoolean("edu.fordham.cis.wisdm.zoo.rememberme", false);
+    	boolean fill = Preference.getBoolean(REMEMBER_ME_LOC, false);
     	if(fill){
     		String email = Preference.getString("edu.fordham.cis.wisdm.zoo.email", "");
     		fields[0].setText(email);
