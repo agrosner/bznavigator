@@ -1,21 +1,33 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
+import java.util.List;
+
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 
+import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
+import de.appetites.android.menuItemSearchAction.SearchPerformListener;
+
 import edu.fordham.cis.wisdm.zoo.map.MyLocOverlay;
 
+import android.annotation.TargetApi;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.SearchView.OnQueryTextListener;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 /**
@@ -23,7 +35,7 @@ import android.widget.Toast;
  * @author Andrew Grosner
  * @version 1.0
  */
-public class Map extends SherlockFragmentActivity implements OnClickListener, OnNavigationListener, OnMenuItemClickListener{
+public class Map extends SherlockFragmentActivity implements OnClickListener, OnNavigationListener, OnMenuItemClickListener, SearchPerformListener{
 
 	//manages location changes
 	private LocationManager lManager = null;
@@ -41,6 +53,10 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 	
 	//the email of the user logged in
 	private String email = null;
+
+	//the search bar widget
+	private SearchView mSearchView;
+
 	
 	 @Override
 	 public void onCreate(Bundle savedInstanceState) {
@@ -60,19 +76,20 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 	 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
-		menu.add("Search").setOnMenuItemClickListener(this).setIcon(getResources().getDrawable(R.drawable.ic_action_search)).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
-                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add("News").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+		MenuItemSearchAction menuItem = new MenuItemSearchAction(this.getApplication(), menu, this, getResources().getDrawable(R.drawable.ic_action_search));
+		menuItem.setTextColor(getResources().getColor(R.color.forestgreen));
+		
+		menu.add("News").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add("About").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add("Settings").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		
-		
 		return super.onCreateOptionsMenu(menu);
 	}
-		
+	
+	
 	 @Override
 	 public boolean onOptionsItemSelected(MenuItem item){
 		 switch(item.getItemId()){
@@ -205,11 +222,13 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 			
 		} else if(item.getTitle().equals("News")){
 			
-		} else if (item.getTitle().equals("Search")){
-			
 		}
-
 		return false;
+	}
+
+	@Override
+	public void performSearch(String query) {
+		
 	}
 
 }
