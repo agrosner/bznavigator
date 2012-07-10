@@ -1,14 +1,10 @@
-package edu.fordham.cis.wisdm.zoo.main;
+package edu.fordham.cis.netlab.zoo;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
-
-import com.actionbarsherlock.app.SherlockActivity;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -31,7 +27,7 @@ import android.widget.TextView;
  * @author Isaac
  * @version 1.0
  */
-public class SurveyActivity extends SherlockActivity implements OnClickListener, OnSeekBarChangeListener {
+public class SurveyDemoActivity extends Activity implements OnClickListener, OnSeekBarChangeListener {
 	
 	//loading spinner and survey submission wait?
 	ProgressDialog pd;
@@ -74,7 +70,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.survey);
+        setContentView(R.layout.main);
         
         scroll = (ScrollView)this.findViewById(R.id.scroll);
         
@@ -231,7 +227,8 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 				complete.setTextSize(20);
 				complete.setText("Survey Complete!\nData String:\n" + cumulative);
 				mainlayout.addView(complete);
-				startActivity(new Intent(this, Map.class));
+				pd = ProgressDialog.show(this, "Submitting survey...", 
+						"Thank you!");
 			}
 		}
 	}

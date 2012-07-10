@@ -17,8 +17,9 @@
         <Button
            android:id="@+id/start"
            android:text="Start!"
-           style="@style/ics_button"
-           android:background="@drawable/appwidget_bg_clickable"
+           style="@style/wrap"
+           android:textColor="@color/forestgreen"
+           android:background="@drawable/btn_default_holo_light"
            android:layout_width="fill_parent"
            />
     </LinearLayout>	
