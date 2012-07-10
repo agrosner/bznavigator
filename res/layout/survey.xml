@@ -22,5 +22,10 @@
            android:background="@drawable/btn_default_holo_light"
            android:layout_width="fill_parent"
            />
+        <Button 
+            android:id="@+id/skip"
+            style="@style/splash_button"
+            android:text="Skip"
+            />
     </LinearLayout>	
 </ScrollView>

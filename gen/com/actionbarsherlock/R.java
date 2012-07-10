@@ -1011,8 +1011,10 @@ containing a value of this type.
     public static final class id {
         public static final int ActionBar=0x7f05003a;
         public static final int Arrow=0x7f050037;
+        public static final int ButtonTable=0x7f050050;
         public static final int DontRemember=0x7f05004c;
         public static final int Email=0x7f050041;
+        public static final int Exhibits=0x7f050051;
         public static final int Frame=0x7f050038;
         public static final int Later=0x7f05004d;
         public static final int LoginButton=0x7f050044;
@@ -1020,10 +1022,12 @@ containing a value of this type.
         public static final int Logout=0x7f05003b;
         public static final int Map=0x7f050039;
         public static final int MarkerToggle=0x7f050049;
+        public static final int News=0x7f050053;
         public static final int Password=0x7f050042;
         public static final int Photos=0x7f05003d;
         public static final int Remember=0x7f05004b;
         public static final int RememberMe=0x7f050043;
+        public static final int Restrooms=0x7f050052;
         public static final int Satellite=0x7f050048;
         public static final int Search=0x7f05003c;
         public static final int Settings=0x7f05003e;
@@ -1062,7 +1066,7 @@ containing a value of this type.
         public static final int abs__title=0x7f05001b;
         public static final int abs__titleDivider=0x7f05001c;
         public static final int abs__up=0x7f05000b;
-        public static final int action_search=0x7f050055;
+        public static final int action_search=0x7f05005b;
         public static final int alertTitle=0x7f05002c;
         public static final int contentPanel=0x7f05002e;
         public static final int customPanel=0x7f050031;
@@ -1070,24 +1074,26 @@ containing a value of this type.
         public static final int homeAsUp=0x7f050006;
         public static final int icon=0x7f05002b;
         public static final int listMode=0x7f050002;
-        public static final int mainlayout=0x7f050050;
+        public static final int mainlayout=0x7f050055;
         public static final int message=0x7f050030;
         public static final int normal=0x7f050001;
         public static final int parentPanel=0x7f050027;
         public static final int progress=0x7f050032;
         public static final int progress_number=0x7f050034;
         public static final int progress_percent=0x7f050033;
-        public static final int scroll=0x7f05004f;
+        public static final int scroll=0x7f050054;
         public static final int scrollView=0x7f05002f;
-        public static final int selector=0x7f050054;
+        public static final int selector=0x7f05005a;
         public static final int showCustom=0x7f050008;
         public static final int showHome=0x7f050005;
         public static final int showTitle=0x7f050007;
-        public static final int start=0x7f050051;
+        public static final int skip=0x7f050057;
+        public static final int splash_main=0x7f05004f;
+        public static final int start=0x7f050056;
         public static final int status_text=0x7f05004e;
         public static final int tabMode=0x7f050003;
-        public static final int tabsLayout=0x7f050052;
-        public static final int tabsText=0x7f050053;
+        public static final int tabsLayout=0x7f050058;
+        public static final int tabsText=0x7f050059;
         public static final int titleDivider=0x7f05002d;
         public static final int titleDividerTop=0x7f050029;
         public static final int title_container=0x7f050035;
@@ -1318,8 +1324,9 @@ containing a value of this type.
         public static final int fill_width_partial=0x7f0b007b;
         public static final int ics_button=0x7f0b007e;
         public static final int imagebutton=0x7f0b007d;
-        public static final int margin_leftright=0x7f0b007f;
-        public static final int underline=0x7f0b0080;
+        public static final int margin_leftright=0x7f0b0080;
+        public static final int splash_button=0x7f0b007f;
+        public static final int underline=0x7f0b0081;
         public static final int wrap=0x7f0b007c;
     }
     public static final class xml {

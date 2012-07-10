@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
      <style name="fill">
         <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_width">fill_parent</item>
@@ -26,6 +26,13 @@
     <style name="ics_button" parent="wrap">
         <item name="android:background">@drawable/appwidget_dark_bg_clickable</item>
         <item name="android:textColor">@color/androidblue</item>
+    </style>
+    
+    <style name="splash_button" parent="fill_width">
+        <item name="android:textColor">@color/forestgreen</item>
+        <item name="android:textSize">20dip</item>
+        <item name="android:paddingTop">15dip</item>
+        <item name="android:paddingBottom">15dip</item>
     </style>
     
     <style name="margin_leftright" parent="imagebutton">

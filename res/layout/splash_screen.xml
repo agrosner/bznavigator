@@ -1,8 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:id="@+id/splash_main">
     
-    
+    <TableLayout 
+        android:id="@+id/ButtonTable"
+        style="@style/fill_width_partial"
+        android:layout_centerInParent="true"
+        android:stretchColumns="*"
+        >
+        <TableRow>
+            <Button 
+                android:id="@+id/Exhibits"
+                style="@style/splash_button"
+                android:text="Exhibits"
+                />
+            <Button 
+                android:id="@+id/Restrooms"
+                style="@style/splash_button"
+                android:text="Restrooms"
+                />
+        </TableRow>
+        <TableRow>
+            <Button 
+                android:id="@+id/Map"
+                style="@style/splash_button"
+                android:text="View Map"
+                />
+            <Button 
+                android:id="@+id/News"
+                style="@style/splash_button"
+                android:text="News"
+                />
+        </TableRow>
+        
+    </TableLayout>
 
 </RelativeLayout>

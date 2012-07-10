@@ -86,6 +86,7 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 		menu.add("Settings").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		
+		
 		return super.onCreateOptionsMenu(menu);
 	}
 	

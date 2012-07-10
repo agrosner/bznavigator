@@ -7,11 +7,16 @@ import java.util.Scanner;
 import com.actionbarsherlock.app.SherlockActivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -26,6 +31,7 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author Isaac
@@ -56,15 +62,19 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	//start survey
 	Button start;
 	
+	private Button skip;
+	
 	//survey field name/question
 	TextView title;
 	
-	//SLIDER ADDITION
 	//text view to display seek bar progress (if survey field is of type seek bar)
 	TextView progressdisplay;
 	
 	//response data from each survey field (to be sent to server for analysis)
 	String cumulative;
+	
+	//list of responses, corresponds with indexes of 'surveyfields' questions
+	ArrayList<String> responses;
 	
 	//separators for survey fields in a text display
 	static final String FIELD_START = "+++++";
@@ -84,9 +94,13 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         qindex = 0;
         
         cumulative = "";
+        responses = new ArrayList<String>();
         
         start = (Button)this.findViewById(R.id.start);
         start.setOnClickListener(this);
+        
+        skip = (Button) this.findViewById(R.id.skip);
+        skip.setOnClickListener(this);
         
         ct = new Button(this);
         ct.setText("Continue");
@@ -129,7 +143,6 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     	while(in.hasNextLine()){
     		next = in.nextLine();
     		if(next.length() >= 6 && next.substring(0, 6).equals("TITLE:")){
-    			//SLIDER ADDITION
     			mainlayout.removeView(title);
     			title = new TextView(this);
     			title.setTextSize(20);
@@ -146,7 +159,6 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 					mainlayout.addView(Tet);
 					break;
     			}
-    			//SLIDER ADDITION
     			if(type.equals("Seek Bar")){
     				SeekBar Tsb = new SeekBar(this);
     				if(in.hasNextLine()){
@@ -189,37 +201,43 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		//start survey
 		if(v.equals(start)){
 			setQuestion(surveyfields.get(qindex));
+		} else if(v.equals(skip)){
+			startActivity(new Intent(this, SplashScreenActivity.class));
 		}
 		
 		//submit entered data and display next survey field
 		if(v.equals(ct)){
 			
+			//string of current response
+			String response = "";
+			
+			responses.add("");
+			
 			//add entered data from widgets to cumulative data string
 			for(int i = 0; i < mainlayout.getChildCount(); i++){
 				if(mainlayout.getChildAt(i).getClass().equals(TextView.class)){
-					//SLIDER ADDITION
 					if(!(mainlayout.getChildAt(i).equals(progressdisplay)))
-						cumulative += ((TextView)mainlayout.getChildAt(i)).getText() + "=";
+						response += ((TextView)mainlayout.getChildAt(i)).getText() + "=";
 				}
 				else if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
-					cumulative += ((EditText)mainlayout.getChildAt(i)).getText() + ",";
+					response += ((EditText)mainlayout.getChildAt(i)).getText() + ",";
 				}
 				else if(mainlayout.getChildAt(i).getClass().equals(RadioGroup.class)){
 					RadioGroup Trg = (RadioGroup)mainlayout.getChildAt(i);
 					for(int k = 0; k < Trg.getChildCount(); k++)
 						if(((RadioButton)Trg.getChildAt(k)).isChecked())
-							cumulative += ((RadioButton)Trg.getChildAt(k)).getText() + ",";
+							response += ((RadioButton)Trg.getChildAt(k)).getText() + ",";
 				}
 				else if(mainlayout.getChildAt(i).getClass().equals(CheckBox.class)){
 					if(((CheckBox)mainlayout.getChildAt(i)).isChecked())
-						cumulative += ((CheckBox)mainlayout.getChildAt(i)).getText() + ",";
+						response += ((CheckBox)mainlayout.getChildAt(i)).getText() + ",";
 				}
-				//SLIDER ADDITION
 				else if(mainlayout.getChildAt(i).getClass().equals(SeekBar.class)){
-					cumulative += ((SeekBar)mainlayout.getChildAt(i)).getProgress() + ",";
+					response += ((SeekBar)mainlayout.getChildAt(i)).getProgress() + ",";
 				}
 			}
-			cumulative += ";";
+			response += ";";
+			responses.set(qindex, response);
 			
 			if(qindex < surveyfields.size() - 1){
 				qindex++;
@@ -229,6 +247,9 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 				mainlayout.removeAllViews();
 				TextView complete = new TextView(this);
 				complete.setTextSize(20);
+				cumulative = "";
+				for(String s: responses)
+					cumulative += s;
 				complete.setText("Survey Complete!\nData String:\n" + cumulative);
 				mainlayout.addView(complete);
 				startActivity(new Intent(this, Map.class));
@@ -236,7 +257,6 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		}
 	}
 
-	//SLIDER ADDITION
 	@Override
 	public void onProgressChanged(SeekBar sb, int arg1, boolean arg2) {
 		progressdisplay.setText("" + sb.getProgress());
@@ -250,5 +270,36 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	@Override
 	public void onStopTrackingTouch(SeekBar sb) {
 		
+	}
+	
+	@Override
+	public void onBackPressed(){
+		if(qindex > 0){
+			qindex--;
+			setQuestion(surveyfields.get(qindex));
+		}
+		else{
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			
+			builder.setCancelable(false);
+			builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					finish();
+				}
+			});
+			builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					dialog.cancel();
+				}
+			});
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
 	}
 }
