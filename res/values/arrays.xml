@@ -3,4 +3,11 @@
     <string-array name="action_bar">
         <item>Settings</item>
     </string-array>
+    
+    <string-array name="splash_list">
+        <item>Exhibits</item>
+        <item>Restrooms</item>
+        <item>View Map</item>
+        <item>News</item>
+    </string-array>
 </resources>

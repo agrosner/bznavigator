@@ -35,7 +35,7 @@ import android.widget.Toast;
  * @author Andrew Grosner
  * @version 1.0
  */
-public class Map extends SherlockFragmentActivity implements OnClickListener, OnNavigationListener, OnMenuItemClickListener, SearchPerformListener{
+public class Map extends SherlockFragmentActivity implements OnClickListener, OnNavigationListener, SearchPerformListener{
 
 	//manages location changes
 	private LocationManager lManager = null;
@@ -64,7 +64,7 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 	     setContentView(R.layout.map);
 	     
 	     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-	     this.getSupportActionBar().setTitle("Survey");
+	     this.getSupportActionBar().setTitle("Home");
 	     
 	     email = getIntent().getStringExtra("email");
 	     
@@ -74,21 +74,6 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 	     
 	 }
 	 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu){
-		MenuItemSearchAction menuItem = new MenuItemSearchAction(this.getApplication(), menu, this, getResources().getDrawable(R.drawable.ic_action_search));
-		menuItem.setTextColor(getResources().getColor(R.color.forestgreen));
-		
-		menu.add("News").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
-                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add("About").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
-                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add("Settings").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
-                | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		
-		
-		return super.onCreateOptionsMenu(menu);
-	}
 	
 	
 	 @Override
@@ -119,6 +104,14 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 		 
 	 }
 	 
+	 @Override
+	 public boolean onCreateOptionsMenu(Menu menu){
+		MenuItemSearchAction menuItem = new MenuItemSearchAction(this, menu, this, getResources().getDrawable(R.drawable.ic_action_search));
+		menuItem.setTextColor(getResources().getColor(R.color.forestgreen));
+		
+		return super.onCreateOptionsMenu(menu); 
+		 
+	 }
 	 
 	 
 	 @Override
@@ -217,18 +210,11 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 		return false;
 	}
 
-	@Override
-	public boolean onMenuItemClick(MenuItem item) {
-		if(item.getTitle().equals("Settings")){
-			
-		} else if(item.getTitle().equals("News")){
-			
-		}
-		return false;
-	}
+
 
 	@Override
 	public void performSearch(String query) {
+		// TODO Auto-generated method stub
 		
 	}
 
