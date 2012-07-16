@@ -61,7 +61,7 @@ public class Map extends SherlockFragmentActivity implements OnClickListener, On
 	 @Override
 	 public void onCreate(Bundle savedInstanceState) {
 		 super.onCreate(savedInstanceState);
-	     setContentView(R.layout.map);
+	    // setContentView(R.layout.map);
 	     
 	     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	     this.getSupportActionBar().setTitle("Home");

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.SherlockActivity;
 
 import android.app.Activity;
@@ -12,6 +13,8 @@ import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
@@ -27,11 +30,27 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+/*
+ * TODO
+ * 
+ * save responses to survey questions
+ * so that they are still displayed
+ * when back button is pressed
+ * 
+ * add text entry option for radio
+ * buttons in survey maker such that
+ * user can enter data in "other" choice
+ * 
+ * prevent activity reset when screen
+ * configuration is changed
+ */
 
 /**
  * @author Isaac
@@ -39,42 +58,41 @@ import android.widget.Toast;
  */
 public class SurveyActivity extends SherlockActivity implements OnClickListener, OnSeekBarChangeListener {
 	
-	//loading spinner and survey submission wait?
-	ProgressDialog pd;
-	Thread thread;
-	
 	//reads from survey data file
-	Scanner in;
+	private Scanner in;
 	
 	//layout to/from which to write/read
-	LinearLayout mainlayout;
-	ScrollView scroll;
+	private LinearLayout mainlayout;
+	private ScrollView scroll;
+	private RelativeLayout whole;
 	
 	//list of survey fields to be displayed
-	ArrayList<String> surveyfields;
+	private ArrayList<String> surveyfields;
 	
 	//to keep track of which survey field is displayed currently/next
-	int qindex;
+	private int qindex;
 	
 	//continue to next survey field
-	Button ct;	
+	private Button cont;	
 	
 	//start survey
-	Button start;
-	
+	private Button start;
 	private Button skip;
 	
+	//survey completion progress bar
+	private SeekBar completion;
+	
 	//survey field name/question
-	TextView title;
+	private TextView title;
 	
 	//text view to display seek bar progress (if survey field is of type seek bar)
-	TextView progressdisplay;
+	private TextView progressdisplay;
 	
 	//response data from each survey field (to be sent to server for analysis)
-	String cumulative;
+	private String cumulative;
 	
 	//list of responses, corresponds with indexes of 'surveyfields' questions
-	ArrayList<String> responses;
+	private ArrayList<String> responses;
 	
 	//separators for survey fields in a text display
 	static final String FIELD_START = "+++++";
@@ -85,10 +103,13 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.survey);
+       // this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         
         scroll = (ScrollView)this.findViewById(R.id.scroll);
         
         mainlayout = (LinearLayout)this.findViewById(R.id.mainlayout);
+        
+        whole = (RelativeLayout)this.findViewById(R.id.whole);
                 
         surveyfields = new ArrayList<String>();
         qindex = 0;
@@ -96,17 +117,19 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         cumulative = "";
         responses = new ArrayList<String>();
         
+        title = (TextView)this.findViewById(R.id.title);
+        
         start = (Button)this.findViewById(R.id.start);
         start.setOnClickListener(this);
         
         skip = (Button) this.findViewById(R.id.skip);
         skip.setOnClickListener(this);
         
-        ct = new Button(this);
-        ct.setText("Continue");
-        ct.setHeight(LayoutParams.WRAP_CONTENT);
-        ct.setWidth(LayoutParams.FILL_PARENT);
-        ct.setOnClickListener(this);
+        cont = (Button)this.findViewById(R.id.cont);
+        cont.setOnClickListener(this);
+        
+        completion = (SeekBar)this.findViewById(R.id.completion);
+        completion.setOnSeekBarChangeListener(this);
         
         try {
 			in = new Scanner(this.getAssets().open("survey.txt"));
@@ -115,7 +138,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		}
         
         
-        //parse survey fields from data file to list of survey fields (for easy access/mod)
+        //parse survey fields from data file to arraylist of survey fields (for easy access/mod)
         String filter = "";
         String next = "";
         while(in.hasNextLine()){
@@ -131,6 +154,9 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         	filter += next + "\n";        	
         }
         
+        completion.setMax(surveyfields.size());
+        completion.setProgress(qindex);
+        
     }
     
     //set widgets/layout for specified survey field
@@ -143,11 +169,10 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     	while(in.hasNextLine()){
     		next = in.nextLine();
     		if(next.length() >= 6 && next.substring(0, 6).equals("TITLE:")){
-    			mainlayout.removeView(title);
-    			title = new TextView(this);
+    			//mainlayout.removeView(title);
     			title.setTextSize(20);
     			title.setText("" + next.substring(6));
-    			mainlayout.addView(title);
+    			//mainlayout.addView(title);
     		}
     		else if(next.length() >= 5 && next.substring(0, 5).equals("TYPE:")){
     			type = next.substring(5);
@@ -191,8 +216,9 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     			}
     		}
     	}
+    	cont.setVisibility(View.VISIBLE);
+    	completion.setVisibility(View.VISIBLE);
     	mainlayout.addView(rg);
-    	mainlayout.addView(ct);
     }
 
 	@Override
@@ -206,7 +232,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		}
 		
 		//submit entered data and display next survey field
-		if(v.equals(ct)){
+		if(v.equals(cont)){
 			
 			//string of current response
 			String response = "";
@@ -214,12 +240,9 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			responses.add("");
 			
 			//add entered data from widgets to cumulative data string
+			response += title.getText() + "=";
 			for(int i = 0; i < mainlayout.getChildCount(); i++){
-				if(mainlayout.getChildAt(i).getClass().equals(TextView.class)){
-					if(!(mainlayout.getChildAt(i).equals(progressdisplay)))
-						response += ((TextView)mainlayout.getChildAt(i)).getText() + "=";
-				}
-				else if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
+				if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
 					response += ((EditText)mainlayout.getChildAt(i)).getText() + ",";
 				}
 				else if(mainlayout.getChildAt(i).getClass().equals(RadioGroup.class)){
@@ -239,12 +262,16 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			response += ";";
 			responses.set(qindex, response);
 			
+			
 			if(qindex < surveyfields.size() - 1){
 				qindex++;
 				setQuestion(surveyfields.get(qindex));
 			}
 			else{
+				qindex++;
 				mainlayout.removeAllViews();
+				cont.setVisibility(View.GONE);
+				completion.setVisibility(View.GONE);
 				TextView complete = new TextView(this);
 				complete.setTextSize(20);
 				cumulative = "";
@@ -252,54 +279,77 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 					cumulative += s;
 				complete.setText("Survey Complete!\nData String:\n" + cumulative);
 				mainlayout.addView(complete);
-				startActivity(new Intent(this, Map.class));
+				startActivity(new Intent(this, SplashScreenActivity.class));
 			}
+			
+			//increment progress
+			completion.setProgress(qindex);
 		}
+		
 	}
 
 	@Override
 	public void onProgressChanged(SeekBar sb, int arg1, boolean arg2) {
-		progressdisplay.setText("" + sb.getProgress());
+		if(sb.equals(completion))
+			//reset progress
+			completion.setProgress(qindex);
+		else
+			progressdisplay.setText("" + sb.getProgress());
 	}
 
 	@Override
 	public void onStartTrackingTouch(SeekBar sb) {
 		
+		//display progress (textually)
+		if(sb.equals(completion)){
+			double pct = (double)completion.getProgress() / (double)completion.getMax();
+			pct *= 100;
+			Toast.makeText(this, "Survey is " + (int)(pct) + "% complete!",
+					Toast.LENGTH_SHORT).show();
+		}
+		
 	}
 
 	@Override
 	public void onStopTrackingTouch(SeekBar sb) {
-		
+		if(sb.equals(completion));
+			//reset progress
+			completion.setProgress(qindex);
 	}
 	
 	@Override
 	public void onBackPressed(){
+		
+		//go back to previous survey question
 		if(qindex > 0){
 			qindex--;
 			setQuestion(surveyfields.get(qindex));
+			completion.setProgress(qindex);
 		}
 		else{
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			
-			builder.setCancelable(false);
-			builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
+			message.setTitle("Quit Survey?");
+			message.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					// TODO Auto-generated method stub
 					finish();
 				}
 			});
-			builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			message.setNegativeButton("No", new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					// TODO Auto-generated method stub
-					dialog.cancel();
+					
 				}
 			});
-			AlertDialog alert = builder.create();
-			alert.show();
+			
+			message.create().show();
 		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig){
+		
 	}
 }

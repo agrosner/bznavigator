@@ -1,21 +1,89 @@
 +++++
 TITLE:What is your age?
-TYPE:Text Entry
-CHOICE:NUMBERS ONLY
+TYPE:Seek Bar
+CHOICE:100
 -----
 +++++
-TITLE:Gender
+TITLE:What is your sex?
 TYPE:Radio Buttons
 CHOICE:Male
 CHOICE:Female
 -----
 +++++
-TITLE:Is This Your First Time?
+TITLE:How many times have you visited the Bronx Zoo in the past year?
+TYPE:Radio Buttons
+CHOICE:0
+CHOICE:1
+CHOICE:2
+CHOICE:3
+CHOICE:4
+CHOICE:5
+-----
++++++
+TITLE:Are you a member of the Bronx Zoo?
 TYPE:Radio Buttons
 CHOICE:Yes
 CHOICE:No
 -----
 +++++
-TITLE:What is your email?
-TYPE:Text Entry
+TITLE:How many are in your group today?
+TYPE:Seek Bar
+CHOICE:10
+-----
++++++
+TITLE:Do you have any of the following with you?
+TYPE:Check Boxes
+CHOICE:Stroller
+CHOICE:Wheelchair
+-----
++++++
+TITLE:Where do you live?
+TYPE:Radio Buttons
+CHOICE:Bronx
+CHOICE:Brooklyn
+CHOICE:Manhattan
+CHOICE:Queens
+CHOICE:Staten Island
+CHOICE:West Chester
+CHOICE:Other
+-----
++++++
+TITLE:How did you get here today?
+TYPE:Radio Buttons
+CHOICE:Drive and park
+CHOICE:Public transportation
+-----
++++++
+TITLE:Scroll Test
+TYPE:Radio Buttons
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
+CHOICE:x
 -----

@@ -1,6 +1,8 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
@@ -11,32 +13,48 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
+import cis.fordham.edu.wisdm.messages.MessageBuilder;
+import cis.fordham.edu.wisdm.utils.Operations;
+
+import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.google.android.maps.MapView;
 
 
-public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener{
+public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener{
 
 	private ImageButton home;
 	
 	private static ArrayListFragment list;
 	private static RestroomsFragment restroom;
+	private static MapView map;
 	
 	private static FragmentTransaction mTransaction;
+	
+	private static RelativeLayout splashScreen;
+	
+	//determine whether tablet or not to optimize screen real estate 
+	private boolean isLargeScreen = false;
 	
 	
 	@Override
 	public void onCreate(Bundle instance){
 		super.onCreate(instance);
+		setContentView(R.layout.splash_screen);
 		
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
 		
@@ -54,21 +72,61 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		home.setOnClickListener(this);
 		
 		restroom = new RestroomsFragment();
-    	
+		list = (ArrayListFragment) this.getSupportFragmentManager().findFragmentById(R.id.listfragment);
+		list.getListView().setOnItemClickListener(this);
 		
-		// Create the list fragment and add it as our sole content.
-        if (getSupportFragmentManager().findFragmentById(android.R.id.content) == null) {
-            list = new ArrayListFragment();
-            mTransaction.add(android.R.id.content, list).commit();
-        }
+		splashScreen = (RelativeLayout) findViewById(R.id.splashrel);
+		
+        //init map objects
+    	map = (MapView) findViewById(R.id.Map);
         
-       /* DisplayMetrics display = new DisplayMetrics();
+        DisplayMetrics display = new DisplayMetrics();
         this.getWindowManager().getDefaultDisplay().getMetrics(display);
         int width = display.widthPixels;
         
-        if(width>=500){
-        	//this.getSupportFragmentManager().beginTransaction().add(R.layout.map, new Map());
-        }*/
+        if(width>=1000){
+        	LayoutParams lp = new LayoutParams((width/4), LayoutParams.FILL_PARENT);
+        	list.getView().setLayoutParams(lp);
+        	isLargeScreen = true;
+        	//mTransaction.add(android.R.id.content, restroom);
+        } else{
+        	Operations.removeView(map);
+        	
+        }
+        
+        
+	}
+	
+	@Override
+	public void onBackPressed(){
+		if(!list.getView().isShown()){
+			showList();
+			if(map.isShown() && !isLargeScreen){
+				Operations.removeView(map);
+			}
+		} else{
+		
+			//ask user whether quit or not
+			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
+			message.setTitle("Quit?");
+			message.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+				
+				
+			});
+			message.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					
+				}
+			});
+			message.create().show();
+		}
 	}
 	
 	@Override
@@ -95,49 +153,54 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 	
 	
-	public static class ArrayListFragment extends SherlockListFragment {
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
-			inflater.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
-            
-			setListAdapter(new ArrayAdapter<String>(getActivity(),
-	                    android.R.layout.simple_list_item_1, this.getResources().getStringArray(R.array.splash_list)));
-			return inflater.inflate(R.layout.splash_screen, container, false);
-		}
-		
-		
-        @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
-          
-        }
-
-        @Override
-        public void onListItemClick(ListView l, View v, int position, long id) {
-            if(position == 0){
-            	
-            } else if(position ==1){
-            	mTransaction.remove(list).commit();
-            	mTransaction.add(android.R.id.content, restroom).commit();
-            } else if(position == 2){
-            	this.getActivity().startActivity(new Intent(this.getActivity(), Map.class));
-            } else if (position == 3){
-            	
-            }
-        }
-    }
-
+	
 
 
 	@Override
 	public void onClick(View v) {
 		if(v.getId() == 1){
-			if(!list.isVisible() && restroom.isVisible()){
-				mTransaction.remove(restroom).commit();
-				mTransaction.add(android.R.id.content, list).commit();
+			showList();
+			if(map.isShown() && !isLargeScreen){
+				Operations.removeView(map);
 			}
 		}
 		
+	}
+	
+	private void showList(){
+		if(!list.getView().isShown()){
+			Operations.addView(list.getView());
+		} 
+		if(!list.isVisible()){
+			FragmentTransaction mTransaction = this.getSupportFragmentManager().beginTransaction();
+			mTransaction.replace(android.R.id.content, list);
+			mTransaction.addToBackStack("list").commit();
+		}
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
+		switch(position){
+		case 0:
+			
+			break;
+		case 1:
+			
+			break;
+		case 2:
+			if(!isLargeScreen && !map.isShown() && list.isAdded()){
+				Operations.addView(map);
+				FragmentTransaction mTransaction = this.getSupportFragmentManager().beginTransaction();
+				
+				Operations.removeView(list.getView());
+				
+			}
+			break;
+			
+		case 3:
+			
+			break;
+		}
 	}
 
 
