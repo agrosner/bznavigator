@@ -70,7 +70,6 @@ public class LocationUpdateService extends Service implements LocationListener{
 		
 		if(!openFiles()){
 			Log.e(TAG, "Root cannot write");
-			Map.displayMessage(this, "Root cannot write");
 			stopLocation();
 			stopSelf();
 		}

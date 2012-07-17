@@ -31,7 +31,6 @@
         </activity>
         <activity android:name=".SurveyActivity"></activity>
         <activity android:name=".SplashScreenActivity"></activity>
-        <activity android:name=".Map"></activity>
         <activity android:name=".NewsActivity"></activity>
         <activity android:name=".Settings"></activity>
         <service android:name=".LocationUpdateService"></service>
