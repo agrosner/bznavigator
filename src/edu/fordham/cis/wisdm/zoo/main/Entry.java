@@ -9,11 +9,15 @@ import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 public class Entry extends SherlockActivity implements OnClickListener{
     /** Called when the activity is first created. */
@@ -49,6 +53,19 @@ public class Entry extends SherlockActivity implements OnClickListener{
      * Loads up widgets into memory
      */
     private void setUpView(){
+    	boolean largeScreen = false;
+    	
+    	DisplayMetrics display = new DisplayMetrics();
+    	this.getWindowManager().getDefaultDisplay().getMetrics(display);
+    	double x = Math.pow(display.widthPixels/display.xdpi,2);
+        double y = Math.pow(display.heightPixels/display.ydpi,2);
+        double screenInches = Math.sqrt(x+y);
+       
+    	if(screenInches >=7){
+    		largeScreen = true;
+    	}
+    	
+    	
     	//set up buttons
     	int id[] = {R.id.SignUp, R.id.LoginButton};
     	Operations.findButtonViewsByIds(this, buttons, id);
@@ -67,6 +84,17 @@ public class Entry extends SherlockActivity implements OnClickListener{
     	}
     	
     	this.getSupportActionBar().hide();
+    	
+    	//play around with widgets and resize them
+    	if(largeScreen){
+    		int newWidth = display.widthPixels/2;
+    		
+    		RelativeLayout loginScreen =  (RelativeLayout) findViewById(R.id.login);
+    		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(newWidth, LayoutParams.WRAP_CONTENT);
+    		params.addRule(RelativeLayout.CENTER_IN_PARENT);
+    		loginScreen.setLayoutParams(params);
+    		
+    	}
     	
     }
     

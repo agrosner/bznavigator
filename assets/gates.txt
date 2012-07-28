@@ -1,0 +1,4 @@
+Place Name,drawable_file_name,latitude,longitude,
+Southern Boulevard Gate,ic_action_globe,40.8487178590902,-73.88226653019697,
+Fordham Road Gate,ic_action_globe,40.85533930241017,-73.87740107451621,
+Bronx River Gate,ic_action_globe,40.8530138254522,-73.87434485388629,

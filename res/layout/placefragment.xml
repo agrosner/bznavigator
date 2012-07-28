@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/fill">    
+
+    <TextView 
+        android:layout_alignParentTop="true"
+        android:id="@+id/title"
+        android:textSize="30dip"
+        android:layout_marginBottom="20dip"
+        android:layout_marginTop="20dip"
+        style="@style/fill_width"
+        android:gravity="center"
+        android:text="Exhibit Lookup"
+        />
+    
+    <ScrollView 
+        android:layout_below="@id/title"
+        android:id="@+id/exhibitListContainer"
+        style="@style/fill"
+        >
+        <LinearLayout
+            android:id="@+id/exhibitList"
+            style="@style/wrap"
+            android:orientation="vertical">
+                        
+        </LinearLayout>
+        
+        
+    </ScrollView>
+    
+</RelativeLayout>

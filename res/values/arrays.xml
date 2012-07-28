@@ -8,8 +8,11 @@
         <item>View Map</item>
         <item>News</item>
         <item>Store</item>
+        <item>Special Exhibits</item>
         <item>Food</item>
         <item>Exhibits</item>
         <item>Restrooms</item>
+        <item>Gates</item>
+        <item>Parking Lots</item>
     </string-array>
 </resources>

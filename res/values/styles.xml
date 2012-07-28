@@ -34,7 +34,6 @@
         <item name="android:paddingTop">15dip</item>
         <item name="android:paddingBottom">15dip</item>
     </style>
-    
     <style name="margin_leftright" parent="imagebutton">
         <item name="android:layout_marginLeft">10dip</item>
         <item name="android:layout_marginRight">10dip</item>

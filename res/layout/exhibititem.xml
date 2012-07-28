@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   style="@style/fill_width"
+   android:background="@drawable/button_holo"
+   android:padding="20dip"
+   android:clickable="true">    
+
+	<ImageView 
+	    android:id="@+id/image"
+	    android:layout_alignParentLeft="true"
+	    style="@style/wrap"
+	    />
+	<TextView 
+	    android:layout_toRightOf="@id/image"
+	    android:id="@+id/title"
+	    android:text="View All On Map"
+	    android:textSize="20dip"
+	    style="@style/fill_width_partial"
+	    android:layout_centerVertical="true"
+	    />
+    <TextView 
+        android:id="@+id/distancetext"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="0ft"
+        style="@style/wrap"
+        />
+    
+</RelativeLayout>

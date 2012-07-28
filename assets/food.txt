@@ -1,0 +1,4 @@
+Place Name,drawable_file_name,latitude,longitude,
+Asia Plaza,ic_action_globe,40.84521947197312,-73.8763459565456,
+Dancing Crane Cafe,ic_action_globe,40.84981318777317,-73.8804628591757,
+Somba Village,ic_action_globe,40.84762271986474,-73.87833912437185,
