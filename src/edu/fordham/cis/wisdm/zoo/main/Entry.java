@@ -37,6 +37,8 @@ public class Entry extends SherlockActivity implements OnClickListener{
 	//private CheckBox rememberMe;
 	private AlertDialog loginDialog;
 	
+	public static boolean largeScreen;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +64,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
      * Loads up widgets into memory
      */
     private void setUpView(){
-    	boolean largeScreen = false;
+    	largeScreen = false;
     	
     	DisplayMetrics display = new DisplayMetrics();
     	this.getWindowManager().getDefaultDisplay().getMetrics(display);
