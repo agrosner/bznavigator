@@ -17,7 +17,7 @@
         android:theme="@style/Theme.HoloEverywhereLight.Sherlock.ForceOverflow"
         >
         <uses-library android:name="com.google.android.maps"/>
-   
+    
         <activity
             android:name=".Entry"
             >

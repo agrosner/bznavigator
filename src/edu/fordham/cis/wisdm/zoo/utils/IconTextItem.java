@@ -25,7 +25,6 @@ public class IconTextItem extends LinearLayout{
 		
 		text = (TextView) layout.findViewById(R.id.name);
 		text.setText(title);
-		text.setTextSize(20);
 		
 		addView(layout);
 	}

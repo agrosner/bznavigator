@@ -19,10 +19,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.maps.GeoPoint;
@@ -89,7 +92,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		//parent layout
 		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, container, false);
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
-		exhibitList.addView(createExhibitItem(getActivity(), inflater, container, 0, "ic_action_location", null, "", this, false));
+		exhibitList.addView(createExhibitItem(getActivity(), inflater, container, 0, "ic_action_location", "View All On Map", "", this, false));
 		
 		String fName = "";
 		
@@ -138,9 +141,13 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 */
 	public static RelativeLayout createExhibitItem(Activity act, LayoutInflater inflater, ViewGroup container, int id, 
 			String drawablePath, String title, String distance, OnClickListener mListener, boolean wrap){
-		RelativeLayout exhibitItem = (RelativeLayout) inflater.inflate(R.layout.exhibititem, container, false);
-		exhibitItem.setId(id);
-		exhibitItem.setOnClickListener(mListener);
+		View v = inflater.inflate(R.layout.exhibititem, container, false);
+		RelativeLayout exhibitItem = (RelativeLayout) v.findViewById(R.id.mainrel);
+		final RelativeLayout expandBar = (RelativeLayout) v.findViewById(R.id.expandLayout);
+		Operations.removeView(expandBar);
+		
+		TextView titleText = (TextView) exhibitItem.findViewById(R.id.title);
+		titleText.setText(title);
 		
 		//if request to not fill, will request smaller size
 		if(wrap && SplashScreenActivity.isLargeScreen){
@@ -153,15 +160,34 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 			image.setBackgroundDrawable(act.getResources().getDrawable(drawableId));
 		}
 		
-		if(title!=null){
-			TextView titleText = (TextView) exhibitItem.findViewById(R.id.title);
-			titleText.setText(title);
+		//if not displaying as search bar option
+		if(!wrap && !title.equals("View All On Map")){
+			
+			Button locate = (Button) expandBar.findViewById(R.id.locate);
+			locate.setOnClickListener(mListener);
+			locate.setId(id);
+
+			exhibitItem.setOnClickListener(new OnClickListener(){
+				boolean isShown = true;
+				
+				@Override
+				public void onClick(View v) {
+					Operations.addRemoveView(expandBar, isShown);
+					isShown = !isShown;
+				}
+				
+			});
+		} else{
+			exhibitItem.setId(id);
+			exhibitItem.setOnClickListener(mListener);
 		}
 		
 		if(!distance.equals("")){
 			TextView distText = (TextView) exhibitItem.findViewById(R.id.distancetext);
 			distText.setText(distance);
 		}
+		
+		
 		
 		return exhibitItem;
 	}

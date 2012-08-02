@@ -2,28 +2,21 @@ package edu.fordham.cis.wisdm.zoo.main;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
-
 import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.SherlockActivity;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -37,26 +30,11 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-/*
- * TODO
- * 
- * save responses to survey questions
- * so that they are still displayed
- * when back button is pressed
- * 
- * add text entry option for radio
- * buttons in survey maker such that
- * user can enter data in "other" choice
- * 
- * prevent activity reset when screen
- * configuration is changed
- */
-
 /**
  * @author Isaac
  * @version 1.0
  */
-public class SurveyActivity extends SherlockActivity implements OnClickListener, OnSeekBarChangeListener {
+public class SurveyActivity extends SherlockActivity implements OnClickListener, OnSeekBarChangeListener, OnTouchListener {
 	
 	//reads from survey data file
 	private Scanner in;
@@ -78,6 +56,10 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	//start survey
 	private Button start;
 	private Button skip;
+	
+	//other options
+	private RadioButton other;
+	private EditText otherentry;
 	
 	//survey completion progress bar
 	private SeekBar completion;
@@ -103,7 +85,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.survey);
-       // this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         
         scroll = (ScrollView)this.findViewById(R.id.scroll);
         
@@ -127,7 +109,12 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         
         cont = (Button)this.findViewById(R.id.cont);
         cont.setOnClickListener(this);
-        
+                
+        other = new RadioButton(this);
+        otherentry = new EditText(this);
+        otherentry.setOnTouchListener(this);
+        otherentry.setVisibility(View.GONE);
+                
         completion = (SeekBar)this.findViewById(R.id.completion);
         completion.setOnSeekBarChangeListener(this);
         
@@ -164,15 +151,15 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     	mainlayout.removeAllViewsInLayout();
     	in = new Scanner(fielddata);
     	RadioGroup rg = new RadioGroup(this);
+    	other.setEnabled(false);
+    	other.setSelected(false);
     	String type = "";
     	String next = "";
     	while(in.hasNextLine()){
     		next = in.nextLine();
     		if(next.length() >= 6 && next.substring(0, 6).equals("TITLE:")){
-    			//mainlayout.removeView(title);
     			title.setTextSize(20);
     			title.setText("" + next.substring(6));
-    			//mainlayout.addView(title);
     		}
     		else if(next.length() >= 5 && next.substring(0, 5).equals("TYPE:")){
     			type = next.substring(5);
@@ -205,9 +192,18 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     		}
     		else if(next.length() >= 7 && next.substring(0, 7).equals("CHOICE:")){
     			if(type.equals("Radio Buttons")){
-    				RadioButton Trb = new RadioButton(this);
-    				Trb.setText(next.substring(7));
-    				rg.addView(Trb);
+    				if(next.substring(7).equals("OTHER")){    					
+    					other = new RadioButton(this);
+    					other.setOnClickListener(this);
+    					other.setText("Other");
+    					other.setEnabled(true);
+    					rg.addView(other);    					
+    				}
+    				else{
+    					RadioButton Trb = new RadioButton(this);
+    					Trb.setText(next.substring(7));
+    					rg.addView(Trb);
+    				}
     			}
     			else if(type.equals("Check Boxes")){
     				CheckBox Tcb = new CheckBox(this);
@@ -219,11 +215,30 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     	cont.setVisibility(View.VISIBLE);
     	completion.setVisibility(View.VISIBLE);
     	mainlayout.addView(rg);
+    	if(other.isEnabled())
+    		mainlayout.addView(otherentry);
+    	if(responses.size() > qindex)
+    		reloadResponses();
     }
 
 	@Override
 	public void onClick(View v) {
 		
+		//keyboard manipulation
+		InputMethodManager imm = (InputMethodManager)getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+		
+		//display keyboard when 'other' is selected
+		if(v.equals(other)){
+			otherentry.setVisibility(View.VISIBLE);
+			otherentry.requestFocus();
+			imm.showSoftInput(otherentry, InputMethodManager.SHOW_IMPLICIT);
+		}
+		else{
+			otherentry.setVisibility(View.INVISIBLE);
+			imm.hideSoftInputFromWindow(otherentry.getWindowToken(), 0);
+		}
+				
 		//start survey
 		if(v.equals(start)){
 			setQuestion(surveyfields.get(qindex));
@@ -233,23 +248,35 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		
 		//submit entered data and display next survey field
 		if(v.equals(cont)){
+			imm.hideSoftInputFromWindow(otherentry.getWindowToken(), 0);
 			
 			//string of current response
 			String response = "";
 			
-			responses.add("");
+			if(responses.size()<= qindex)
+				responses.add("");
 			
 			//add entered data from widgets to cumulative data string
 			response += title.getText() + "=";
 			for(int i = 0; i < mainlayout.getChildCount(); i++){
 				if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
-					response += ((EditText)mainlayout.getChildAt(i)).getText() + ",";
+					if(mainlayout.getChildAt(i).equals(otherentry)){
+						if(other.isChecked()){
+							response += otherentry.getText() + ",";
+							otherentry.setText("");
+						}
+					}
+					else
+						response += ((EditText)mainlayout.getChildAt(i)).getText() + ",";
 				}
 				else if(mainlayout.getChildAt(i).getClass().equals(RadioGroup.class)){
 					RadioGroup Trg = (RadioGroup)mainlayout.getChildAt(i);
 					for(int k = 0; k < Trg.getChildCount(); k++)
-						if(((RadioButton)Trg.getChildAt(k)).isChecked())
-							response += ((RadioButton)Trg.getChildAt(k)).getText() + ",";
+						if(((RadioButton)Trg.getChildAt(k)).isChecked()){
+							if(!((RadioButton)Trg.getChildAt(k)).equals(other)){
+								response += ((RadioButton)Trg.getChildAt(k)).getText() + ",";
+							}
+						}
 				}
 				else if(mainlayout.getChildAt(i).getClass().equals(CheckBox.class)){
 					if(((CheckBox)mainlayout.getChildAt(i)).isChecked())
@@ -261,8 +288,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			}
 			response += ";";
 			responses.set(qindex, response);
-			
-			
+						
 			if(qindex < surveyfields.size() - 1){
 				qindex++;
 				setQuestion(surveyfields.get(qindex));
@@ -272,6 +298,8 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 				mainlayout.removeAllViews();
 				cont.setVisibility(View.GONE);
 				completion.setVisibility(View.GONE);
+				other.setSelected(false);
+				other.setEnabled(false);
 				TextView complete = new TextView(this);
 				complete.setTextSize(20);
 				cumulative = "";
@@ -279,11 +307,13 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 					cumulative += s;
 				complete.setText("Survey Complete!\nData String:\n" + cumulative);
 				mainlayout.addView(complete);
-				startActivity(new Intent(this, SplashScreenActivity.class));
+				//startActivity(new Intent(this, SplashScreenActivity.class));
 			}
 			
 			//increment progress
 			completion.setProgress(qindex);
+			
+			
 		}
 		
 	}
@@ -325,10 +355,12 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			qindex--;
 			setQuestion(surveyfields.get(qindex));
 			completion.setProgress(qindex);
+			
+			reloadResponses();
 		}
 		else{
 			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
-			message.setTitle("Quit Survey?");
+			message.setTitle("No previous questions! Quit Survey?");
 			message.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -348,8 +380,59 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		}
 	}
 	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig){
+	//TODO clean up this function?
+	//resets/displays answers to current survey field from 'responses' list
+	public void reloadResponses(){
 		
+		//string of response(s) to current survey field
+		String Tresponse = responses.get(qindex).substring(
+				responses.get(qindex).indexOf('=') + 1, responses.get(qindex).indexOf(';'));
+		
+		//parsed list of response(s) to current survey field
+		ArrayList<String> Tresponses = new ArrayList<String>(
+				Arrays.asList(Tresponse.split(",")));
+		
+		//traverse widgets on screen, check list of responses to see condition
+		//of widget (text, empty, checked/unchecked), set widget accordingly
+		for(int i = 0; i < mainlayout.getChildCount(); i++){
+			if(mainlayout.getChildAt(i).getClass().equals(CheckBox.class)){
+				for(String s: Tresponses){
+					if(s.equals(((CheckBox)mainlayout.getChildAt(i)).getText()))
+						((CheckBox)mainlayout.getChildAt(i)).setChecked(true);
+				}
+			}
+			else if(mainlayout.getChildAt(i).getClass().equals(RadioGroup.class)){
+				RadioGroup Trg = (RadioGroup)mainlayout.getChildAt(i);
+				for(int k = 0; k < Trg.getChildCount(); k++)
+					for(String s: Tresponses)
+						if(s.equals(((RadioButton)Trg.getChildAt(k)).getText()))
+							((RadioButton)Trg.getChildAt(k)).setChecked(true);
+			}
+			else if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
+				for(String s: Tresponses){
+					if(other.isEnabled()){
+						other.setChecked(true);
+						otherentry.setVisibility(View.VISIBLE);
+						otherentry.setText(s);
+					}
+				}
+			}			
+			if(mainlayout.getChildAt(i).getClass().equals(SeekBar.class)){
+				for(String s: Tresponses){
+					((SeekBar)mainlayout.getChildAt(i)).setProgress(Integer.parseInt(s));
+					progressdisplay.setText(s);
+				}
+			}
+		}
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		
+		//select 'other' button if edit text is touched
+		if(v.equals(otherentry)){
+			other.setChecked(true);
+		}
+		return false;
 	}
 }

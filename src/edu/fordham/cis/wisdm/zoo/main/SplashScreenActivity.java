@@ -206,7 +206,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		mapControl = map.getController();
 		mapControl.setZoom(17);
 		
-		places = new PlaceOverlay(getResources().getDrawable(R.drawable.pin), this, map);
+		places = new PlaceOverlay(getResources().getDrawable(R.drawable.location), this, map);
 		
 		me = new MyLocationOverlay(this, map);
 		startLocationUpdates();

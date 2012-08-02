@@ -7,6 +7,7 @@
         android:id="@+id/image"
         style="@style/wrap"
         android:padding="15dip"
+        android:background="@drawable/ic_action_location"
         android:layout_marginTop="10dip"
         />
 	<TextView 
@@ -14,6 +15,7 @@
 	    style="@style/fill_width"
 	    android:padding="10dip"
 	    android:text="Name"
+	    android:textSize="20dip"
 	    android:layout_marginLeft="10dip"
 	    />
     

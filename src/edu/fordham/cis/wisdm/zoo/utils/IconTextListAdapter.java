@@ -13,6 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+/**
+ * Adapter that uses IconTextItems and inflates them for use as adapter in ListFragment
+ * @author Andrew Grosner
+ * @version 1.0
+ */
 public class IconTextListAdapter extends BaseAdapter {
 
 	private List<IconTextItem> mItems = new ArrayList<IconTextItem>();

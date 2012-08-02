@@ -47,12 +47,24 @@
 
 	<CheckBox 
 	    android:id="@+id/RememberMe"
-	    style="@style/fill_width_partial"
+	    style="@style/wrap"
 	    android:layout_marginTop="10dip"
 	  	android:layout_below="@id/LoginContainer"
 	  	android:text="Remember Me"
 	  	android:textColor="@color/forestgreen"
 	  	android:button="@drawable/btn_checkbox_holo_light"
+	    />
+	<Button 
+	    android:layout_marginTop="10dip"
+	  	android:layout_below="@id/LoginContainer"
+	  	android:id="@+id/GuestLogin"
+	  	android:layout_alignParentRight="true"
+	  	android:layout_marginRight="10dip"
+	    style="@style/wrap"
+	    android:text="Guest Login"
+	    android:textColor="@color/forestgreen"
+	  	android:background="@drawable/btn_default_holo_light"
+	  		    
 	    />
 	<Button
 	    android:id="@+id/LoginButton"

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
    style="@style/fill_width"
+   android:id="@+id/mainrel"
    android:background="@drawable/button_holo"
    android:padding="20dip"
    android:clickable="true">    
@@ -13,17 +14,38 @@
 	<TextView 
 	    android:layout_toRightOf="@id/image"
 	    android:id="@+id/title"
-	    android:text="View All On Map"
 	    android:textSize="20dip"
 	    style="@style/fill_width_partial"
-	    android:layout_centerVertical="true"
+	    android:layout_alignParentTop="true"
 	    />
     <TextView 
         android:id="@+id/distancetext"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
+        android:layout_alignParentTop="true"
         android:text="0ft"
         style="@style/wrap"
         />
+    <RelativeLayout 
+        android:id="@+id/expandLayout"
+        style="@style/fill_width"
+        android:layout_below="@id/title"
+        android:layout_marginTop="10dip"
+        >
+        <Button
+        	android:layout_alignParentLeft="true"
+        	android:id="@+id/content"
+            android:text="Information"
+            android:drawableLeft="@drawable/ic_action_info"
+        	style="@style/wrap"
+        />
+        <Button 
+            android:layout_alignParentRight="true"
+            android:id="@+id/locate"
+        	android:text="Locate"
+        	android:drawableLeft="@drawable/ic_action_location"
+            style="@style/wrap"
+            />
+        
+    </RelativeLayout>
     
 </RelativeLayout>
