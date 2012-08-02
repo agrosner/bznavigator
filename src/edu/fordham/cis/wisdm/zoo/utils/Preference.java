@@ -36,4 +36,8 @@ public class Preference {
 	public static boolean getBoolean(String loc, boolean defVal){
 		return sprefs.getBoolean(loc, defVal);
 	}
+	
+	public static String getEmail(){
+		return getString("edu.fordham.cis.wisdm.zoo.email", "");
+	}
 }

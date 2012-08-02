@@ -33,10 +33,13 @@ import edu.fordham.cis.wisdm.zoo.main.R;
  */
 public class PlaceOverlay extends ItemizedOverlay<OverlayItem>{
 	
+	//list of place overlays
 	private ArrayList<PlaceItem> mOverlays = new ArrayList<PlaceItem>();
 	
+	//calling activity
 	private Activity act;
 	
+	//mapview its displayed on 
 	private MapView map;
 	/**
 	 * Constructor
@@ -44,6 +47,8 @@ public class PlaceOverlay extends ItemizedOverlay<OverlayItem>{
 	 */
 	public PlaceOverlay(Drawable marker){
 		super(boundCenterBottom(marker));
+		setLastFocusedIndex(-1);
+		populate();
 	}
 	
 	/**
@@ -52,9 +57,9 @@ public class PlaceOverlay extends ItemizedOverlay<OverlayItem>{
 	 * @param marker
 	 */
 	public PlaceOverlay(Drawable marker, Activity act, MapView map){
-		super(boundCenterBottom(marker));
+		this(marker);
 		this.act = act;
-		this.map = map;
+		this.map = map; 
 	}
 	
 	/**
@@ -63,21 +68,50 @@ public class PlaceOverlay extends ItemizedOverlay<OverlayItem>{
 	 */
 	public void addOverlay(PlaceItem i){
 		mOverlays.add(new PlaceItem(i));
+		setLastFocusedIndex(-1);
 		populate();
 	}
 	
+	/**
+	 * Removes the overlay and its bubble
+	 * @param overlay
+	 */
 	public void removeOverlay(PlaceItem overlay) {
 		map.removeView(overlay.getBubble());
         mOverlays.remove(overlay);
+        setLastFocusedIndex(-1);
         populate();
     }
 	
+	public boolean isEmpty(){
+		return mOverlays.isEmpty();
+	}
+
+	/**
+	 * Returns and removes the first item off the list
+	 * @return
+	 */
+	public PlaceItem poll(){
+		PlaceItem place =  mOverlays.get(0);
+		mOverlays.remove(0);
+		setLastFocusedIndex(-1);
+		populate();
+		return place;
+	}
+	
+	/**
+	 * Erases this list
+	 */
 	public void clear(){
 		mOverlays.clear();
+		setLastFocusedIndex(-1);
 		populate();
 	}
 
-	
+	/**
+	 * Adds a list of places to the list (only if the place hasn't already been added) 
+	 * @param places
+	 */
 	public void addOverlayList(LinkedList<PlaceItem> places){
 		for(int i =0; i < places.size(); i++){
 			PlaceItem place = places.get(i);
@@ -127,9 +161,9 @@ public class PlaceOverlay extends ItemizedOverlay<OverlayItem>{
 		
 		if(!i.isMenuShowing()){
 		
+			//loads the bubble view into memory
 			final View bubble = act.getLayoutInflater().inflate(R.layout.exhibitoverlay, (ViewGroup)parent, false);
-			//load viewparent of the map and inflate the bubble onto the map
-			//use local variable Bubble so multiple can be removed
+			
 			bubble.setOnClickListener(new OnClickListener(){
 				
 				@Override
@@ -149,6 +183,7 @@ public class PlaceOverlay extends ItemizedOverlay<OverlayItem>{
 			TextView text = (TextView) f.findViewById(R.id.name);
 			text.setText(i.getTitle());
 			
+			//distance text
 			TextView dist = (TextView) f.findViewById(R.id.distance);
 			dist.setText(i.getSnippet()+" ft");
 			

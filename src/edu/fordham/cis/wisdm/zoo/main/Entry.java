@@ -48,6 +48,15 @@ public class Entry extends SherlockActivity implements OnClickListener{
         setUpView();
     }
     
+    @Override
+    public void onDestroy(){
+    	super.onDestroy();
+    	
+    	//called to stop when application is quit for now
+    	//TODO: have it shut off automatically
+    	this.stopService(new Intent(this, LocationUpdateService.class));
+    }
+    
     
     /*
      * Loads up widgets into memory

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -17,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -87,7 +89,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		//parent layout
 		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, container, false);
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
-		exhibitList.addView(createExhibitItem(inflater, container, 0, "ic_action_location", null, ""));
+		exhibitList.addView(createExhibitItem(getActivity(), inflater, container, 0, "ic_action_location", null, "", this, false));
 		
 		String fName = "";
 		
@@ -102,7 +104,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		title.setText(fName.replace("-", " "));
 		
 		fName+=".txt";
-		readInFile(inflater, container, fName, exhibitList);	
+		readInFile(getActivity(), inflater, container, fName, exhibitList, points, this, false);	
 	}
 
 	@Override
@@ -124,23 +126,31 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	
 	/**
 	 * Builds the layout for listing nearby exhibits with title, distance, and custom image
+	 * @param act
 	 * @param inflater
 	 * @param container
 	 * @param id
-	 * @param drawableId
+	 * @param drawablePath
 	 * @param title
 	 * @param distance
+	 * @param mListener
 	 * @return
 	 */
-	private RelativeLayout createExhibitItem(LayoutInflater inflater, ViewGroup container, int id, String drawablePath, String title, String distance){
+	public static RelativeLayout createExhibitItem(Activity act, LayoutInflater inflater, ViewGroup container, int id, 
+			String drawablePath, String title, String distance, OnClickListener mListener, boolean wrap){
 		RelativeLayout exhibitItem = (RelativeLayout) inflater.inflate(R.layout.exhibititem, container, false);
 		exhibitItem.setId(id);
-		exhibitItem.setOnClickListener(this);
+		exhibitItem.setOnClickListener(mListener);
+		
+		//if request to not fill, will request smaller size
+		if(wrap && SplashScreenActivity.isLargeScreen){
+			exhibitItem.setLayoutParams(new LayoutParams(SplashScreenActivity.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
+		}
 		
 		if(!drawablePath.equals("0")){
 			ImageView image = (ImageView) exhibitItem.findViewById(R.id.image);
-			int drawableId = getActivity().getResources().getIdentifier(drawablePath, "drawable", this.getActivity().getPackageName());
-			image.setBackgroundDrawable(getResources().getDrawable(drawableId));
+			int drawableId = act.getResources().getIdentifier(drawablePath, "drawable", act.getPackageName());
+			image.setBackgroundDrawable(act.getResources().getDrawable(drawableId));
 		}
 		
 		if(title!=null){
@@ -157,14 +167,30 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	}
 	
 	/**
+	 * Builds the layout for listing nearby exhibits with title, distance, and custom image using placeitem
+	 * @param act
+	 * @param inflater
+	 * @param container
+	 * @param id
+	 * @param place
+	 * @param mListener
+	 * @param wrap
+	 * @return
+	 */
+	public static RelativeLayout createExhibitItem(Activity act, LayoutInflater inflater, ViewGroup container, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
+		return createExhibitItem(act, inflater, container, id, place.getDrawablePath(), place.getTitle(), calculateDistance(SplashScreenActivity.myLocation, place.getPoint()), mListener, wrap);
+	}
+	
+	/**
 	 * Reads in the place file into memory
-	 * General format explained within the place file
+	 * General format explained within place files /assets/
 	 * @param fName
 	 */
-	private void readInFile(LayoutInflater inflater, ViewGroup container, String fName, LinearLayout exhibitList){
+	public static void readInFile(Activity act, LayoutInflater inflater, ViewGroup container, String fName, LinearLayout exhibitList,
+			LinkedList<PlaceItem> points, OnClickListener onclick, boolean wrap){
 		
 		try {
-			Scanner read = new Scanner(this.getActivity().getAssets().open(fName));
+			Scanner read = new Scanner(act.getAssets().open(fName));
 			int idIndex = -1;
 			while(read.hasNextLine()){
 				String line = read.nextLine();
@@ -177,12 +203,49 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 						int lat = (int) (Double.valueOf(lineArray[2])*1E6);
 						int lon = (int) (Double.valueOf(lineArray[3])*1E6);
 						distance = calculateDistance(SplashScreenActivity.myLocation, lineArray[2], lineArray[3]);
-						points.add(new PlaceItem(new GeoPoint(lat, lon), lineArray[0], String.valueOf(distance)));
+						points.add(new PlaceItem(new GeoPoint(lat, lon), lineArray[0], String.valueOf(distance), lineArray[1]));
 						int index = findIndex(exhibitList, Integer.valueOf(distance));
-						exhibitList.addView(createExhibitItem(inflater, container, idIndex, lineArray[1], lineArray[0], distance+"ft"), index);
+						if(exhibitList!=null)
+							exhibitList.addView(createExhibitItem(act, inflater, container, idIndex, lineArray[1], lineArray[0], distance+"ft", onclick, wrap), index);
 					} else{
-						exhibitList.addView(createExhibitItem(inflater, container, idIndex, lineArray[1], lineArray[0], distance+"ft"));
+						if(exhibitList!=null)
+							exhibitList.addView(createExhibitItem(act, inflater, container, idIndex, lineArray[1], lineArray[0], distance+"ft", onclick, wrap));
 					}
+				}
+			}
+			read.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * Purely reads in data to list of points
+	 * @see readInFile(Activity act, LayoutInflater inflater, ViewGroup container, String fName, LinearLayout exhibitList,
+			LinkedList<PlaceItem> points, OnClickListener onclick)
+	 * @param act
+	 * @param fName
+	 * @param points
+	 */
+	public static void readInFile(Activity act, String fName, LinkedList<PlaceItem> points){
+		try {
+			Scanner read = new Scanner(act.getAssets().open(fName));
+			int idIndex = -1;
+			while(read.hasNextLine()){
+				String line = read.nextLine();
+				idIndex++;
+				if(idIndex!=0){
+					String[] lineArray = line.split(",");
+					//	TODO: add latitude, longitude coordinates
+					String distance = "0";
+					if(lineArray.length>=4){
+						int lat = (int) (Double.valueOf(lineArray[2])*1E6);
+						int lon = (int) (Double.valueOf(lineArray[3])*1E6);
+						distance = calculateDistance(SplashScreenActivity.myLocation, lineArray[2], lineArray[3]);
+						points.add(new PlaceItem(new GeoPoint(lat, lon), lineArray[0], String.valueOf(distance), lineArray[1]));
+					} 
 				}
 			}
 			read.close();
@@ -199,7 +262,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 * @param distance
 	 * @return
 	 */
-	private int findIndex(LinearLayout exhibitList, int distance){
+	private static int findIndex(LinearLayout exhibitList, int distance){
 		int index = 0;
 		for(int i =0; i < exhibitList.getChildCount(); i++){
 			RelativeLayout view = (RelativeLayout) exhibitList.getChildAt(i);
@@ -216,8 +279,9 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	}
 	
 	/**
-	 * Updates the nearby location items' distance from current location
+	 *Calculates distance between a geopoint and two coordinate strings and returns human-readable string
 	 * @param currentLoc
+	 * @return "<?>ft"
 	 */
 	public static String calculateDistance(GeoPoint currentLoc, String latitude, String longitude){
 		if(currentLoc!=null){
@@ -238,6 +302,15 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		}
 	}
 	
+	/**
+	 * Calculates distance between two geopoints and returns human-readable string
+	 * @param current
+	 * @param toThis
+	 * @return "<?>ft"
+	 */
+	public static String calculateDistance(GeoPoint current, GeoPoint toThis){
+		return calculateDistance(current, String.valueOf(toThis.getLatitudeE6()/1E6), String.valueOf(toThis.getLongitudeE6()/1E6));
+	}
 	
 	
 	

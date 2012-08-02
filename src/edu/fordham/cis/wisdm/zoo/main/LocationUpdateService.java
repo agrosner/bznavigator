@@ -1,13 +1,17 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import edu.fordham.cis.wisdm.zoo.file.GFile;
+import edu.fordham.cis.wisdm.zoo.file.GPSReader;
+import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
+import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import android.app.Service;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
@@ -25,7 +29,7 @@ import android.util.Log;
  */
 public class LocationUpdateService extends Service implements LocationListener{
 
-	public static String TAG = "Location";
+	public static String TAG = "LocationUpdateService";
 	
 	//manages location updates
 	private LocationManager lManager = null;
@@ -34,23 +38,25 @@ public class LocationUpdateService extends Service implements LocationListener{
 	private long GPSUpdate = 20000;
 	
 	//GPS file objects
-	private GFile[]	 GPS = new GFile[2];
-		
-	//root dir for the files
-	private File root = new File(Environment.getExternalStorageDirectory(), ".zt");
+	private static GPSWriter[] files = new GPSWriter[2];
+	
+	private GPSReader reader;
 	
 	//Timer that writes GPS data to file
 	private Timer timer;
 	
 	//email string
-	private String email;
-	
+	private static String email;
+	  
 	private PowerManager pManager;
 	private PowerManager.WakeLock wLock;
+	
+	private static final String fName = "gps";
 	
 	@Override
 	public void onCreate(){
 		super.onCreate();
+		Log.v(TAG, "Service started");
 		
 		//establish wakelock to keep CPU running while user is logged in
 		pManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -63,12 +69,12 @@ public class LocationUpdateService extends Service implements LocationListener{
 	public void onStart(Intent i, int startid){
 		super.onStart(i, startid);
 		
-		email = i.getStringExtra("email");
+		email = Preference.getEmail();
 		
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		startLocation();
 		
-		if(!openFiles()){
+		if(!openFiles(this)){
 			Log.e(TAG, "Root cannot write");
 			stopLocation();
 			stopSelf();
@@ -83,15 +89,30 @@ public class LocationUpdateService extends Service implements LocationListener{
 		super.onDestroy();
 		stopLocation();
 		stopTimer();
+		//stream();
 		closeFiles();
 		wLock.release();
+		Log.d(TAG, "Service Stopped");
 		stopSelf();
+	}
+	
+	/**
+	 * Stores first fix from mylocation overlay
+	 * @param l
+	 */
+	public static void storeFirstLocation(Location l, ContextWrapper wrapper){
+		boolean success = false;
+		if (files[0] == null){
+			success = openFiles(wrapper);
+		}
+		if(success)files[0].storeLocation(l);
 	}
 	
 	private void startLocation(){
 		if (lManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 			lManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSUpdate, 0, this);
-		} else if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+		}
+		if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
 			lManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, GPSUpdate, 0, this);
 		} else{
 			Log.v(TAG, "Locational services are not available");
@@ -105,18 +126,36 @@ public class LocationUpdateService extends Service implements LocationListener{
 	/**
 	 * Initializes and opens files for writing
 	 */
-	private boolean openFiles(){
-		root.mkdirs();
-		if(!root.canWrite())
-			return false;
+	private static boolean openFiles(ContextWrapper wrapper){
+		
 		try {
-			GPS[0] = new GFile("gps.g", root);
-			GPS[1] = new GFile("gps2.g", root);
-			return true;
+			files[0] = new GPSWriter(email, wrapper.openFileOutput(fName + "1.txt", Context.MODE_APPEND));
+			files[1] = new GPSWriter(email,wrapper.openFileOutput(fName + "1.txt", Context.MODE_APPEND));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
+		}
+		if(files[0] == null || files[1]==null) return false;
+		
+		return true;
+	}
+	
+	/**
+	 * Streams data to the server
+	 * TODO: send data to server
+	 */
+	private void stream(){
+		try {
+			reader = new GPSReader(this.openFileInput(fName+"1.txt"));
+			reader.sendData(TAG);
+			reader.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -124,14 +163,13 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 * Closes files
 	 */
 	private void closeFiles(){
-		try {
-			GPS[0].close();
-			GPS[1].close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NullPointerException n){
-			n.printStackTrace();
+		for(int i =0; i < files.length; i++){
+			try {
+				files[i].close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -142,7 +180,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 			@Override
 			public void run() {
 				try{
-					GPS[0].writeLocation();
+					files[0].writeLocation(TAG);
 				} catch (NullPointerException n){
 					n.printStackTrace();
 				}
@@ -169,7 +207,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 
 	@Override
 	public void onLocationChanged(Location location) {
-		GPS[0].storeLocation(location);
+		files[0].storeLocation(location);
 	}
 	@Override
 	public void onProviderDisabled(String provider) {}

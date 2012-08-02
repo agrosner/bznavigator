@@ -17,7 +17,7 @@
         />
     <Button
         android:id="@+id/SignUp"
-        style="@style/ics_button"
+        style="@style/wrap"
         android:drawableTop="@drawable/ic_action_user_add"
         android:layout_alignParentTop="true"
       	android:layout_alignParentRight="true"

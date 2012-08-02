@@ -18,8 +18,11 @@ public class PlaceItem extends OverlayItem{
 	
 	private View bubble = null;
 	
-	public PlaceItem(GeoPoint point, String title, String snippet) {
+	private String drawablePath = null;
+	
+	public PlaceItem(GeoPoint point, String title, String snippet, String drawablePath) {
 		super(point, title, snippet);
+		this.setDrawablePath(drawablePath);
 	}
 
 	/**
@@ -52,6 +55,14 @@ public class PlaceItem extends OverlayItem{
 
 	public void setAdded(boolean isAdded) {
 		this.isAdded = isAdded;
+	}
+
+	public String getDrawablePath() {
+		return drawablePath;
+	}
+
+	public void setDrawablePath(String drawablePath) {
+		this.drawablePath = drawablePath;
 	}
 
 	
