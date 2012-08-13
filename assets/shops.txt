@@ -1,0 +1,5 @@
+Place Name,drawable_file_name,latitude,longitude,
+Asia Shops,ic_action_globe,40.84513294721246,-73.87689562908898,
+Discover the Wild Shop,ic_action_globe,40.85166957263136,-73.8799495229483,
+Bronx Zoo Store,ic_action_globe,40.85024177815284,-73.88004416694058,
+Crossroads Shop,ic_action_globe,40.85084625845251,-73.87787136124531,

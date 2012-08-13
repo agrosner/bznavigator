@@ -16,7 +16,7 @@ public class ArrayListFragment extends SherlockListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
 		View v = inflater.inflate(R.layout.arraylist, container, false);
 		
-		int[] drawables = {R.drawable.ic_action_map, R.drawable.ic_action_document, R.drawable.ic_action_tshirt, R.drawable.ic_action_ticket, R.drawable.ic_action_restaurant, R.drawable.ic_action_globe, R.drawable.ic_action_happy, R.drawable.ic_action_exit, R.drawable.ic_action_car};
+		int[] drawables = {R.drawable.ic_action_map, R.drawable.ic_action_document, R.drawable.ic_action_tshirt, R.drawable.ic_action_ticket, R.drawable.ic_action_restaurant, R.drawable.ic_action_globe, R.drawable.ic_action_happy, R.drawable.ic_action_exit, R.drawable.ic_action_car, R.drawable.ic_action_armchair};
 		IconTextListAdapter icontextlist=  new IconTextListAdapter(this.getActivity(), R.array.splash_list, drawables);
 		
 		

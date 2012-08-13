@@ -62,6 +62,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		pManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		wLock = pManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "myTag");
 		wLock.acquire();
+		
 				
 	}
 	
@@ -69,7 +70,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 	public void onStart(Intent i, int startid){
 		super.onStart(i, startid);
 		
-		email = Preference.getEmail();
+		email = i.getExtras().getString("email");
 		
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		startLocation();

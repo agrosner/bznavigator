@@ -144,16 +144,16 @@ public class PlaceOverlay extends ItemizedOverlay<OverlayItem>{
 	
 	@Override
 	protected boolean onTap(int index){
-		addBubble(index, map);
+		toggle(index, map);
 		return true;
 	}
 	
 	/**
-	 * Adds the bubble above each point
+	 * Toggles the bubble above each point
 	 * @param index
 	 * @param map
 	 */
-	public void addBubble(int index, final MapView map){
+	public void toggle(int index, final MapView map){
 		//acquire current overlay element
 		final PlaceItem i = mOverlays.get(index);
 		

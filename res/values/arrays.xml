@@ -7,12 +7,13 @@
     <string-array name="splash_list">
         <item>View Map</item>
         <item>News</item>
-        <item>Store</item>
+        <item>Shops</item>
         <item>Special Exhibits</item>
         <item>Food</item>
         <item>Exhibits</item>
         <item>Restrooms</item>
         <item>Gates</item>
         <item>Parking Lots</item>
+        <item>Administration</item>
     </string-array>
 </resources>

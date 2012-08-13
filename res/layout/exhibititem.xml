@@ -12,19 +12,21 @@
 	    style="@style/wrap"
 	    />
 	<TextView 
-	    android:layout_toRightOf="@id/image"
-	    android:id="@+id/title"
-	    android:textSize="20dip"
-	    style="@style/fill_width_partial"
-	    android:layout_alignParentTop="true"
-	    />
-    <TextView 
         android:id="@+id/distancetext"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:text="0ft"
         style="@style/wrap"
         />
+	<TextView 
+	    android:layout_toRightOf="@id/image"
+	    android:layout_toLeftOf="@id/distancetext"
+	    android:id="@+id/title"
+	    android:textSize="20dip"
+	    style="@style/fill_width_partial"
+	    android:layout_alignParentTop="true"
+	    />
+    
     <RelativeLayout 
         android:id="@+id/expandLayout"
         style="@style/fill_width"

@@ -80,12 +80,19 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	static final String FIELD_START = "+++++";
 	static final String FIELD_END = "-----";	
 	
+	private static String email = null;
+	private static Intent splash;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.survey);
         //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        
+        email = this.getIntent().getExtras().getString("email");
+        splash = new Intent(this, SplashScreenActivity.class);
+        splash.putExtra("email", email);
         
         scroll = (ScrollView)this.findViewById(R.id.scroll);
         
@@ -197,11 +204,12 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     					other.setOnClickListener(this);
     					other.setText("Other");
     					other.setEnabled(true);
-    					rg.addView(other);    					
+    					rg.addView(other);
     				}
     				else{
     					RadioButton Trb = new RadioButton(this);
     					Trb.setText(next.substring(7));
+    					Trb.setOnClickListener(this);
     					rg.addView(Trb);
     				}
     			}
@@ -243,51 +251,14 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		if(v.equals(start)){
 			setQuestion(surveyfields.get(qindex));
 		} else if(v.equals(skip)){
-			startActivity(new Intent(this, SplashScreenActivity.class));
+			startActivity(splash);
 		}
 		
 		//submit entered data and display next survey field
 		if(v.equals(cont)){
 			imm.hideSoftInputFromWindow(otherentry.getWindowToken(), 0);
 			
-			//string of current response
-			String response = "";
-			
-			if(responses.size()<= qindex)
-				responses.add("");
-			
-			//add entered data from widgets to cumulative data string
-			response += title.getText() + "=";
-			for(int i = 0; i < mainlayout.getChildCount(); i++){
-				if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
-					if(mainlayout.getChildAt(i).equals(otherentry)){
-						if(other.isChecked()){
-							response += otherentry.getText() + ",";
-							otherentry.setText("");
-						}
-					}
-					else
-						response += ((EditText)mainlayout.getChildAt(i)).getText() + ",";
-				}
-				else if(mainlayout.getChildAt(i).getClass().equals(RadioGroup.class)){
-					RadioGroup Trg = (RadioGroup)mainlayout.getChildAt(i);
-					for(int k = 0; k < Trg.getChildCount(); k++)
-						if(((RadioButton)Trg.getChildAt(k)).isChecked()){
-							if(!((RadioButton)Trg.getChildAt(k)).equals(other)){
-								response += ((RadioButton)Trg.getChildAt(k)).getText() + ",";
-							}
-						}
-				}
-				else if(mainlayout.getChildAt(i).getClass().equals(CheckBox.class)){
-					if(((CheckBox)mainlayout.getChildAt(i)).isChecked())
-						response += ((CheckBox)mainlayout.getChildAt(i)).getText() + ",";
-				}
-				else if(mainlayout.getChildAt(i).getClass().equals(SeekBar.class)){
-					response += ((SeekBar)mainlayout.getChildAt(i)).getProgress() + ",";
-				}
-			}
-			response += ";";
-			responses.set(qindex, response);
+			this.uploadCurrentResponses();
 						
 			if(qindex < surveyfields.size() - 1){
 				qindex++;
@@ -307,7 +278,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 					cumulative += s;
 				complete.setText("Survey Complete!\nData String:\n" + cumulative);
 				mainlayout.addView(complete);
-				//startActivity(new Intent(this, SplashScreenActivity.class));
+				startActivity(splash);
 			}
 			
 			//increment progress
@@ -316,6 +287,46 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			
 		}
 		
+	}
+	
+	public void uploadCurrentResponses(){
+		//add entered data from widgets to cumulative data string
+		if(responses.size() <= qindex)
+			responses.add("");
+		
+		//string of current response
+		String response = "";
+		response += title.getText() + "=";
+		for(int i = 0; i < mainlayout.getChildCount(); i++){
+			if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
+				if(mainlayout.getChildAt(i).equals(otherentry)){
+					if(other.isChecked()){
+						response += otherentry.getText() + ",";
+						otherentry.setText("");
+					}
+				}
+				else
+					response += ((EditText)mainlayout.getChildAt(i)).getText() + ",";
+			}
+			else if(mainlayout.getChildAt(i).getClass().equals(RadioGroup.class)){
+				RadioGroup Trg = (RadioGroup)mainlayout.getChildAt(i);
+				for(int k = 0; k < Trg.getChildCount(); k++)
+					if(((RadioButton)Trg.getChildAt(k)).isChecked()){
+						if(!((RadioButton)Trg.getChildAt(k)).equals(other)){
+							response += ((RadioButton)Trg.getChildAt(k)).getText() + ",";
+						}
+					}
+			}
+			else if(mainlayout.getChildAt(i).getClass().equals(CheckBox.class)){
+				if(((CheckBox)mainlayout.getChildAt(i)).isChecked())
+					response += ((CheckBox)mainlayout.getChildAt(i)).getText() + ",";
+			}
+			else if(mainlayout.getChildAt(i).getClass().equals(SeekBar.class)){
+				response += ((SeekBar)mainlayout.getChildAt(i)).getProgress() + ",";
+			}
+		}
+		response += ";";
+		responses.set(qindex, response);
 	}
 
 	@Override
@@ -350,6 +361,8 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	@Override
 	public void onBackPressed(){
 		
+		this.uploadCurrentResponses();
+		
 		//go back to previous survey question
 		if(qindex > 0){
 			qindex--;
@@ -380,9 +393,13 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		}
 	}
 	
-	//TODO clean up this function?
+	//TODO clean up this function? also, 'other' checked by default if no response
 	//resets/displays answers to current survey field from 'responses' list
 	public void reloadResponses(){
+		
+		//set to true if a radio button is checked; prevents 'other' from adopting
+		//the checked radio's text/status
+		boolean radioSet = false;
 		
 		//string of response(s) to current survey field
 		String Tresponse = responses.get(qindex).substring(
@@ -405,18 +422,20 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 				RadioGroup Trg = (RadioGroup)mainlayout.getChildAt(i);
 				for(int k = 0; k < Trg.getChildCount(); k++)
 					for(String s: Tresponses)
-						if(s.equals(((RadioButton)Trg.getChildAt(k)).getText()))
+						if(s.equals(((RadioButton)Trg.getChildAt(k)).getText())){
 							((RadioButton)Trg.getChildAt(k)).setChecked(true);
+							radioSet = true;
+						}
 			}
 			else if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
 				for(String s: Tresponses){
-					if(other.isEnabled()){
+					if(other.isEnabled() && !radioSet){
 						other.setChecked(true);
 						otherentry.setVisibility(View.VISIBLE);
 						otherentry.setText(s);
 					}
 				}
-			}			
+			}
 			if(mainlayout.getChildAt(i).getClass().equals(SeekBar.class)){
 				for(String s: Tresponses){
 					((SeekBar)mainlayout.getChildAt(i)).setProgress(Integer.parseInt(s));

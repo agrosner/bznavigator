@@ -1,0 +1,5 @@
+Place Name,drawable_file_name,latitude,longitude,
+Restroom1,ic_action_globe,40.84837877635697,-73.87751423345692,
+Restroom3,ic_action_globe,40.84827345399696,-73.88029305585574,
+Restrooms4,ic_action_globe,40.84499498357644,-73.87689870305307,
+Restroom2,ic_action_globe,40.85063335284102,-73.87791640949708,

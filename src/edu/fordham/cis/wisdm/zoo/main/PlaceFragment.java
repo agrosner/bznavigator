@@ -9,9 +9,11 @@ import java.util.Scanner;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -32,6 +34,11 @@ import com.google.android.maps.GeoPoint;
 
 import edu.fordham.cis.wisdm.zoo.map.PlaceItem;
 
+/**
+ * These fragments represent different, sorted locations. Each will display individual locations from a specified file and option to view all on the map.
+ * @author Andrew Grosner
+ * @version 1.0
+ */
 public class PlaceFragment extends SherlockFragment implements OnClickListener{
 
 	public static int TYPE_EXHIBITS = 0;
@@ -40,19 +47,40 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	
 	public static int TYPE_SPECIAL = 2;
 	
+	public static int TYPE_SHOPS = 3;
+	
+	public static int TYPE_ADMIN = 4;
 
 	public static double METERS_TO_FT = 3.28084;
 	
+	/**
+	 * The type of this fragment
+	 */
 	private int type = 0;
 	
+	/**
+	 * The parent layout widget of the XML file
+	 */
 	private RelativeLayout exhibit = null;
 	
+	/**
+	 * The view that holds all of the child placeitem views
+	 */
 	private LinearLayout exhibitList = null;
 	
+	/**
+	 * The layout inflater for the view of this fragment
+	 */
 	private LayoutInflater inflater = null;
 	
+	/**
+	 * Container of this fragment
+	 */
 	private ViewGroup container = null;
 	
+	/**
+	 * The places that will be put onto the map
+	 */
 	private LinkedList<PlaceItem> points = new LinkedList<PlaceItem>();
 	
 	/**
@@ -92,6 +120,9 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		//parent layout
 		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, container, false);
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
+		if(type == TYPE_SHOPS){
+			exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, false));
+		}
 		exhibitList.addView(createExhibitItem(getActivity(), inflater, container, 0, "ic_action_location", "View All On Map", "", this, false));
 		
 		String fName = "";
@@ -102,6 +133,10 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 			fName = "food";
 		} else if(type == TYPE_SPECIAL){
 			fName = "special-exhibits";
+		} else if(type == TYPE_SHOPS){
+			fName = "shops";
+		} else if(type == TYPE_ADMIN){
+			fName = "admin";
 		}
 		TextView title = (TextView) exhibit.findViewById(R.id.title);
 		title.setText(fName.replace("-", " "));
@@ -113,15 +148,18 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		
+		//load up splashscreenactivity's instance
 		SplashScreenActivity act = (SplashScreenActivity) this.getActivity();
 		FragmentTransaction mTransaction = this.getFragmentManager().beginTransaction();
 		int id = v.getId();
 		
-		if(id != 0){
+		if(id > 0){
 			PlaceItem place = points.get(id-1);
 			act.showMap(mTransaction, this.getView(), place);
-		} else{
+		} else if(id == 0){
 			act.showMap(mTransaction, this.getView(), points);
+		} else if(id == -1){
+			getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.bronxzoostore.com")));
 		}
 			
 		
@@ -161,7 +199,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		}
 		
 		//if not displaying as search bar option
-		if(!wrap && !title.equals("View All On Map")){
+		if(!wrap && !title.equals("View All On Map") &&!title.equals("Visit Store Website")){
 			
 			Button locate = (Button) expandBar.findViewById(R.id.locate);
 			locate.setOnClickListener(mListener);
@@ -204,7 +242,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 * @return
 	 */
 	public static RelativeLayout createExhibitItem(Activity act, LayoutInflater inflater, ViewGroup container, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
-		return createExhibitItem(act, inflater, container, id, place.getDrawablePath(), place.getTitle(), calculateDistance(SplashScreenActivity.myLocation, place.getPoint()), mListener, wrap);
+		return createExhibitItem(act, inflater, container, id, place.getDrawablePath(), place.getTitle(), calculateDistance(SplashScreenActivity.myLocation, place.getPoint()) +"ft", mListener, wrap);
 	}
 	
 	/**
@@ -229,10 +267,13 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 						int lat = (int) (Double.valueOf(lineArray[2])*1E6);
 						int lon = (int) (Double.valueOf(lineArray[3])*1E6);
 						distance = calculateDistance(SplashScreenActivity.myLocation, lineArray[2], lineArray[3]);
-						points.add(new PlaceItem(new GeoPoint(lat, lon), lineArray[0], String.valueOf(distance), lineArray[1]));
+						
+						PlaceItem place = new PlaceItem(new GeoPoint(lat, lon), lineArray[0], String.valueOf(distance), lineArray[1]);
+						points.add(place);
+						
 						int index = findIndex(exhibitList, Integer.valueOf(distance));
 						if(exhibitList!=null)
-							exhibitList.addView(createExhibitItem(act, inflater, container, idIndex, lineArray[1], lineArray[0], distance+"ft", onclick, wrap), index);
+							exhibitList.addView(createExhibitItem(act, inflater, container, idIndex, place, onclick, wrap), index);
 					} else{
 						if(exhibitList!=null)
 							exhibitList.addView(createExhibitItem(act, inflater, container, idIndex, lineArray[1], lineArray[0], distance+"ft", onclick, wrap));
@@ -283,7 +324,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	}
 	
 	/**
-	 * Finds where to insert the read exhibit using insertion sort algorithm
+	 * Finds where to insert the exhibit using insertion sort algorithm
 	 * @param exhibitList
 	 * @param distance
 	 * @return

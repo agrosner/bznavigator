@@ -1,5 +1,6 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
+import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.SherlockActivity;
 
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
@@ -7,7 +8,9 @@ import cis.fordham.edu.wisdm.utils.FormChecker;
 import cis.fordham.edu.wisdm.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -39,6 +42,9 @@ public class Entry extends SherlockActivity implements OnClickListener{
 	
 	public static boolean largeScreen;
 	
+	private static boolean isMember = false;
+
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +53,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
         //initialize shared preference object
         Preference.initPrefForContext(this);
         
-        setUpView();
+        chooseLogin();
     }
     
     @Override
@@ -59,20 +65,46 @@ public class Entry extends SherlockActivity implements OnClickListener{
     	this.stopService(new Intent(this, LocationUpdateService.class));
     }
     
+    /**
+     * A popup dialog will ask a new user whether he/she wants to register or login as a guest
+     */
+    private void chooseLogin(){
+    	HoloAlertDialogBuilder builder = new HoloAlertDialogBuilder(this);
+    	builder.setTitle("Choose your login");
+    	builder.setMessage("Register for an account and receive multiple benefits!" +
+    			"\nIncludes (future) visit path viewing, personal settings, social features, and many more");
+    	builder.setPositiveButton("Member Login", new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Preference.putBoolean("member", true);
+				isMember = true;
+				setUpView(true);
+			}
+    		
+    	});
+    	
+    	builder.setNegativeButton("Login as Guest", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Preference.putBoolean("member", false);
+				setUpView(false);
+			}
+		}).show();
+    }
     
     /*
      * Loads up widgets into memory
      */
-    private void setUpView(){
+    private void setUpView(boolean isMember){
     	largeScreen = false;
     	
     	DisplayMetrics display = new DisplayMetrics();
     	this.getWindowManager().getDefaultDisplay().getMetrics(display);
-    	double x = Math.pow(display.widthPixels/display.xdpi,2);
-        double y = Math.pow(display.heightPixels/display.ydpi,2);
-        double screenInches = Math.sqrt(x+y);
-       
-    	if(screenInches >=7){
+    	 int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+                
+    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE){
     		largeScreen = true;
     	}
     	
@@ -85,10 +117,17 @@ public class Entry extends SherlockActivity implements OnClickListener{
     	//set up text fields
     	int ids[] = {R.id.Email, R.id.Password};
     	Operations.findEditTextViewsByIds(this, fields, ids);
-    	
     	rememberMe = (CheckBox) findViewById(R.id.RememberMe);
+    	
+    	if(!isMember){
+    		Operations.removeView(fields[1]);
+    		Operations.removeView(rememberMe);
+    		rememberMe.setChecked(false);
+    	}
+    	
+    	
     	boolean fill = Preference.getBoolean(REMEMBER_ME_LOC, false);
-    	if(fill){
+    	if(fill && isMember){
     		String email = Preference.getString("edu.fordham.cis.wisdm.zoo.email", "");
     		fields[0].setText(email);
     		rememberMe.setChecked(true);
@@ -118,10 +157,10 @@ public class Entry extends SherlockActivity implements OnClickListener{
 		String password = fields[1].getText().toString();
 		
 		if(!FormChecker.checkEmail(fields[0])){
-    		MessageBuilder.showMessage(this, "Error", "Ensure email is entered correctly", "");
+			new HoloAlertDialogBuilder(this).setTitle("Error").setMessage("Ensure email is entered correctly").show();
     	} else{
     		
-    		if(rememberMe.isChecked()){
+    		if(rememberMe.isChecked() && isMember){
     			Preference.putString("edu.fordham.cis.wisdm.zoo.email", email);
 				Preference.putBoolean(REMEMBER_ME_LOC, true);
     		} else{
@@ -132,6 +171,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
     		Intent login = new Intent(this, SurveyActivity.class);
     		login.putExtra("email", email);
     		startActivity(login);
+    		//startActivity(new Intent(this, OfflineMapActivity.class));
     	}
     }
 

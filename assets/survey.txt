@@ -45,45 +45,11 @@ CHOICE:Manhattan
 CHOICE:Queens
 CHOICE:Staten Island
 CHOICE:West Chester
-CHOICE:Other
+CHOICE:OTHER
 -----
 +++++
 TITLE:How did you get here today?
 TYPE:Radio Buttons
 CHOICE:Drive and park
 CHOICE:Public transportation
------
-+++++
-TITLE:Scroll Test
-TYPE:Radio Buttons
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
-CHOICE:x
 -----
