@@ -81,19 +81,19 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private static ArrayListFragment list;
 	
 	//restroom locator fragment
-	private static PlaceFragment food;
+	private static PlaceFragment food = null;
 	
 	//exhibit locator/descriptor fragment
-	private static PlaceFragment exhibit;
+	private static PlaceFragment exhibit = null;
 	
 	//the ride locator fragment
-	private static PlaceFragment special;
+	private static PlaceFragment special = null;
 	
 	//the shops locator fragment
-	private static PlaceFragment shops;
+	private static PlaceFragment shops =null;
 	
 	//the administration buildings fragment
-	private static PlaceFragment admin;
+	private static PlaceFragment admin = null;
 	
 	//the mapview widget
 	private static MapView map;
@@ -172,7 +172,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	public void onConfigurationChanged(Configuration config){
 		super.onConfigurationChanged(config);
 		
-		
+		init();
+		if(!isLargeScreen){
+			showList();
+		}
 		if(config.orientation == Configuration.ORIENTATION_PORTRAIT && isLargeScreen){
 			isLargeScreen = false;
 			Operations.removeView(map);
@@ -240,14 +243,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
 		
-		if(start){
-			exhibit = new PlaceFragment(PlaceFragment.TYPE_EXHIBITS);
-			food = new PlaceFragment(PlaceFragment.TYPE_FOOD);
-			special = new PlaceFragment(PlaceFragment.TYPE_SPECIAL);
-			shops = new PlaceFragment(PlaceFragment.TYPE_SHOPS);
-			admin = new PlaceFragment(PlaceFragment.TYPE_ADMIN);
-			start = false;
-		} 
+		exhibit = initFrag(exhibit,PlaceFragment.TYPE_EXHIBITS);
+		food = initFrag(food, PlaceFragment.TYPE_FOOD);
+		special = initFrag(special, PlaceFragment.TYPE_SPECIAL);
+		shops = initFrag(shops,PlaceFragment.TYPE_SHOPS);
+		admin = initFrag(admin, PlaceFragment.TYPE_ADMIN);
 		
 		email = getIntent().getExtras().getString("email");
 		
@@ -255,6 +255,13 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		setUpViews();
 		
 	}
+	private PlaceFragment initFrag(PlaceFragment frag, int type){
+		if(frag==null){
+			frag = new PlaceFragment(type);
+		}
+		return frag;
+	}
+	
 	public void setUpViews(){
 		//hide name, icon, 
 		ActionBar mAction = this.getSupportActionBar();
@@ -696,6 +703,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		} 
 		currentFragment = position;
 	}
+	
 	
 	/**
 	 * Clears all showing placeitems from the screen

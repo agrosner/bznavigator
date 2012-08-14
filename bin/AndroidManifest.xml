@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SurveyActivity"></activity>
-        <activity android:name=".SplashScreenActivity" android:configChanges="orientation|keyboardHidden"></activity>
+        <activity android:name=".SplashScreenActivity" android:configChanges="keyboardHidden|orientation|screenSize"></activity>
         <activity android:name=".Settings"></activity>
         <service android:name=".LocationUpdateService"></service>
     </application>
