@@ -31,8 +31,8 @@ import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.maps.GeoPoint;
-
-import edu.fordham.cis.wisdm.zoo.map.PlaceItem;
+import com.grosner.mapview.Geopoint;
+import com.grosner.mapview.PlaceItem;
 
 /**
  * These fragments represent different, sorted locations. Each will display individual locations from a specified file and option to view all on the map.
@@ -242,7 +242,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 * @return
 	 */
 	public static RelativeLayout createExhibitItem(Activity act, LayoutInflater inflater, ViewGroup container, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
-		return createExhibitItem(act, inflater, container, id, place.getDrawablePath(), place.getTitle(), calculateDistance(SplashScreenActivity.myLocation, place.getPoint()) +"ft", mListener, wrap);
+		return createExhibitItem(act, inflater, container, id, place.getIconDrawablePath(), place.getDescription(), calculateDistance(SplashScreenActivity.myLocation, place.getPoint()) +"ft", mListener, wrap);
 	}
 	
 	/**
@@ -264,11 +264,12 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 					//	TODO: add latitude, longitude coordinates
 					String distance = "0";
 					if(lineArray.length>=4){
-						int lat = (int) (Double.valueOf(lineArray[2])*1E6);
-						int lon = (int) (Double.valueOf(lineArray[3])*1E6);
+						double lat = Double.valueOf(lineArray[2]);
+						double lon = Double.valueOf(lineArray[3]);
 						distance = calculateDistance(SplashScreenActivity.myLocation, lineArray[2], lineArray[3]);
 						
-						PlaceItem place = new PlaceItem(new GeoPoint(lat, lon), lineArray[0], String.valueOf(distance), lineArray[1]);
+						PlaceItem place = new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), lineArray[0], String.valueOf(distance), R.layout.exhibitmenu, R.drawable.ic_action_location);
+						place.setIconResId(lineArray[1]);
 						points.add(place);
 						
 						int index = findIndex(exhibitList, Integer.valueOf(distance));
@@ -311,7 +312,8 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 						int lat = (int) (Double.valueOf(lineArray[2])*1E6);
 						int lon = (int) (Double.valueOf(lineArray[3])*1E6);
 						distance = calculateDistance(SplashScreenActivity.myLocation, lineArray[2], lineArray[3]);
-						points.add(new PlaceItem(new GeoPoint(lat, lon), lineArray[0], String.valueOf(distance), lineArray[1]));
+						points.add(new PlaceItem(new Geopoint(lat, lon, lineArray[0]), lineArray[0], String.valueOf(distance), R.layout.exhibitmenu, R.drawable.ic_action_location).setIconResId(lineArray[1]));
+						
 					} 
 				}
 			}
@@ -350,13 +352,13 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 * @param currentLoc
 	 * @return "<?>ft"
 	 */
-	public static String calculateDistance(GeoPoint currentLoc, String latitude, String longitude){
+	public static String calculateDistance(Geopoint currentLoc, String latitude, String longitude){
 		if(currentLoc!=null){
 			Location l = new Location("start");
 			Location place = new Location("place");
 			
-			l.setLatitude(currentLoc.getLatitudeE6()/1E6);
-			l.setLongitude(currentLoc.getLongitudeE6()/1E6);
+			l.setLatitude(currentLoc.getLatitude());
+			l.setLongitude(currentLoc.getLongitude());
 		
 			place.setLatitude(Double.valueOf(latitude));
 			place.setLongitude(Double.valueOf(longitude));
@@ -375,8 +377,8 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 * @param toThis
 	 * @return "<?>ft"
 	 */
-	public static String calculateDistance(GeoPoint current, GeoPoint toThis){
-		return calculateDistance(current, String.valueOf(toThis.getLatitudeE6()/1E6), String.valueOf(toThis.getLongitudeE6()/1E6));
+	public static String calculateDistance(Geopoint current, Geopoint toThis){
+		return calculateDistance(current, String.valueOf(toThis.getLatitude()), String.valueOf(toThis.getLongitude()));
 	}
 	
 	

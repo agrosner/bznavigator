@@ -1099,8 +1099,8 @@ containing a value of this type.
         public static final int RememberMe=0x7f060050;
         public static final int Satellite=0x7f060055;
         public static final int Search=0x7f06003c;
-        public static final int SearchList=0x7f06005f;
-        public static final int SearchMenu=0x7f06005e;
+        public static final int SearchList=0x7f060060;
+        public static final int SearchMenu=0x7f06005f;
         public static final int Settings=0x7f06003e;
         public static final int SignUp=0x7f060053;
         public static final int Street=0x7f060054;
@@ -1139,8 +1139,8 @@ containing a value of this type.
         public static final int alertTitle=0x7f06002c;
         public static final int btn_zoom_down=0x7f060049;
         public static final int btn_zoom_up=0x7f06004a;
-        public static final int completion=0x7f060066;
-        public static final int cont=0x7f060062;
+        public static final int completion=0x7f060067;
+        public static final int cont=0x7f060063;
         public static final int content=0x7f060044;
         public static final int contentPanel=0x7f06002e;
         public static final int customPanel=0x7f060031;
@@ -1157,8 +1157,9 @@ containing a value of this type.
         public static final int listfragment=0x7f06005c;
         public static final int locate=0x7f060045;
         public static final int login=0x7f06004b;
-        public static final int mainlayout=0x7f060063;
+        public static final int mainlayout=0x7f060064;
         public static final int mainrel=0x7f06003f;
+        public static final int map=0x7f06005e;
         public static final int mapframe=0x7f06005d;
         public static final int message=0x7f060030;
         public static final int name=0x7f060047;
@@ -1169,19 +1170,19 @@ containing a value of this type.
         public static final int progress_number=0x7f060034;
         public static final int progress_percent=0x7f060033;
         public static final int relframe=0x7f060046;
-        public static final int scroll=0x7f060061;
+        public static final int scroll=0x7f060062;
         public static final int scrollView=0x7f06002f;
-        public static final int selector=0x7f060069;
+        public static final int selector=0x7f06006a;
         public static final int showCustom=0x7f060008;
         public static final int showHome=0x7f060005;
         public static final int showTitle=0x7f060007;
-        public static final int skip=0x7f060065;
+        public static final int skip=0x7f060066;
         public static final int splashrel=0x7f06005b;
-        public static final int start=0x7f060064;
+        public static final int start=0x7f060065;
         public static final int status_text=0x7f06005a;
         public static final int tabMode=0x7f060003;
-        public static final int tabsLayout=0x7f060067;
-        public static final int tabsText=0x7f060068;
+        public static final int tabsLayout=0x7f060068;
+        public static final int tabsText=0x7f060069;
         public static final int title=0x7f060042;
         public static final int titleDivider=0x7f06002d;
         public static final int titleDividerTop=0x7f060029;
@@ -1189,7 +1190,7 @@ containing a value of this type.
         public static final int title_template=0x7f06002a;
         public static final int topPanel=0x7f060028;
         public static final int useLogo=0x7f060004;
-        public static final int whole=0x7f060060;
+        public static final int whole=0x7f060061;
         public static final int wrap_content=0x7f060000;
     }
     public static final class integer {
