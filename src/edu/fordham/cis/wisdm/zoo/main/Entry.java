@@ -60,9 +60,6 @@ public class Entry extends SherlockActivity implements OnClickListener{
     public void onDestroy(){
     	super.onDestroy();
     	
-    	//called to stop when application is quit for now
-    	//TODO: have it shut off automatically
-    	this.stopService(new Intent(this, LocationUpdateService.class));
     }
     
     /**
@@ -91,7 +88,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 				Preference.putBoolean("member", false);
 				setUpView(false);
 			}
-		}).show();
+		}).setCancelable(false).show();
     }
     
     /*

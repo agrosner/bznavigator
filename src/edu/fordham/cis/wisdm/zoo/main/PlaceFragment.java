@@ -1,17 +1,11 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,7 +24,6 @@ import android.widget.TextView;
 import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.google.android.maps.GeoPoint;
 import com.grosner.mapview.Geopoint;
 import com.grosner.mapview.PlaceItem;
 
@@ -118,8 +111,11 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	
 	public void refresh(){
 		//parent layout
+		
 		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, container, false);
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
+		exhibitList.removeAllViews();
+		
 		if(type == TYPE_SHOPS){
 			exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, false));
 		}
@@ -268,7 +264,8 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 						double lon = Double.valueOf(lineArray[3]);
 						distance = calculateDistance(SplashScreenActivity.myLocation, lineArray[2], lineArray[3]);
 						
-						PlaceItem place = new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), lineArray[0], String.valueOf(distance), R.layout.exhibitmenu, R.drawable.ic_action_location);
+						int drawableId = act.getResources().getIdentifier(lineArray[1], "drawable", act.getPackageName());
+						PlaceItem place = new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), lineArray[0], String.valueOf(distance), R.layout.exhibitmenu, drawableId);
 						place.setIconResId(lineArray[1]);
 						points.add(place);
 						
@@ -279,6 +276,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 						if(exhibitList!=null)
 							exhibitList.addView(createExhibitItem(act, inflater, container, idIndex, lineArray[1], lineArray[0], distance+"ft", onclick, wrap));
 					}
+					exhibitList.postInvalidate();
 				}
 			}
 			read.close();
@@ -309,11 +307,15 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 					//	TODO: add latitude, longitude coordinates
 					String distance = "0";
 					if(lineArray.length>=4){
-						int lat = (int) (Double.valueOf(lineArray[2])*1E6);
-						int lon = (int) (Double.valueOf(lineArray[3])*1E6);
+						double lat = Double.valueOf(lineArray[2]);
+						double lon = Double.valueOf(lineArray[3]);
 						distance = calculateDistance(SplashScreenActivity.myLocation, lineArray[2], lineArray[3]);
-						points.add(new PlaceItem(new Geopoint(lat, lon, lineArray[0]), lineArray[0], String.valueOf(distance), R.layout.exhibitmenu, R.drawable.ic_action_location).setIconResId(lineArray[1]));
+						if(lineArray[0].toLowerCase().contains("restroom")){
+							lineArray[0] = "Restroom";
+						}
+						int drawableId = act.getResources().getIdentifier(lineArray[1], "drawable", act.getPackageName());
 						
+						points.add(new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), lineArray[0], String.valueOf(distance), R.layout.exhibitmenu, drawableId).setIconResId(lineArray[1]));
 					} 
 				}
 			}
@@ -381,6 +383,17 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		return calculateDistance(current, String.valueOf(toThis.getLatitude()), String.valueOf(toThis.getLongitude()));
 	}
 	
+	/**
+	 * Regenerates the distances to the exhibits
+	 * @param currentLoc
+	 * @param points
+	 */
+	public static void reCalculateDistance(Geopoint currentLoc, LinkedList<PlaceItem> points){
+		for(int i =0 ; i< points.size(); i++){
+			Geopoint point = points.get(i).getPoint();
+			point.setDescription(calculateDistance(currentLoc, point));
+		}
+	}
 	
 	
 	

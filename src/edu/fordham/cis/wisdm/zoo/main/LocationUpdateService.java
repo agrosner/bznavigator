@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.grosner.mapview.Geopoint;
+
 import edu.fordham.cis.wisdm.zoo.file.GPSReader;
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
@@ -19,8 +21,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * This service manages location and GPS. 
@@ -29,29 +33,65 @@ import android.util.Log;
  */
 public class LocationUpdateService extends Service implements LocationListener{
 
+	/**
+	 * LocationUpdateService
+	 */
 	public static String TAG = "LocationUpdateService";
 	
-	//manages location updates
+	/**
+	 * manages location updates
+	 */
 	private LocationManager lManager = null;
 	
-	//GPS update rate
+	/**
+	 * GPS update rate
+	 */
 	private long GPSUpdate = 20000;
 	
-	//GPS file objects
+	/**
+	 * GPS file objects
+	 */
 	private static GPSWriter[] files = new GPSWriter[2];
 	
+	/**
+	 * GPS file object
+	 */
 	private GPSReader reader;
 	
-	//Timer that writes GPS data to file
+	/**
+	 * Timer that writes GPS data to file
+	 */
 	private Timer timer;
 	
-	//email string
+	/**
+	 * user email string
+	 */
 	private static String email;
-	  
+	 
+	/**
+	 * Power manager for our wakelock
+	 */
 	private PowerManager pManager;
+	
+	/**
+	 * leaves the CPU running when the screen is off
+	 */
 	private PowerManager.WakeLock wLock;
 	
+	/**
+	 * file name of the gps data
+	 */
 	private static final String fName = "gps";
+	
+	/**
+	 * Keeps track of times a user is outside of the zoo, will turn off GPS when SHUTDOWN_NUMBER is specified
+	 */
+	private int outsideCount = 0;
+	
+	/**
+	 * The number of times a location is said to not exist within the zoo map
+	 */
+	private static final int SHUTDOWN_NUMBER = 6;
 	
 	@Override
 	public void onCreate(){
@@ -69,8 +109,15 @@ public class LocationUpdateService extends Service implements LocationListener{
 	@Override
 	public void onStart(Intent i, int startid){
 		super.onStart(i, startid);
-		
-		email = i.getExtras().getString("email");
+		String em = null;
+		try{
+			em = i.getExtras().getString("email");
+		} catch(NullPointerException n){
+			
+		}
+		if(em!=null){
+			email = em;
+		}
 		
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		startLocation();
@@ -131,7 +178,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		
 		try {
 			files[0] = new GPSWriter(email, wrapper.openFileOutput(fName + "1.txt", Context.MODE_APPEND));
-			files[1] = new GPSWriter(email,wrapper.openFileOutput(fName + "1.txt", Context.MODE_APPEND));
+			files[1] = new GPSWriter(email,wrapper.openFileOutput(fName + "2.txt", Context.MODE_APPEND));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -181,7 +228,17 @@ public class LocationUpdateService extends Service implements LocationListener{
 			@Override
 			public void run() {
 				try{
-					files[0].writeLocation(TAG);
+					Geopoint g = files[0].getGeopoint();
+					if(Geopoint.isPointInMap(g)){
+						outsideCount = 0;
+						files[0].writeLocation(TAG);
+					} else if(outsideCount>=SHUTDOWN_NUMBER){
+						stopSelf();
+						Log.v(TAG, "User outside of zoo, shutting down.");
+					} else{
+						outsideCount++;
+						Log.v(TAG, "User outside of map");
+					}
 				} catch (NullPointerException n){
 					n.printStackTrace();
 				}
@@ -189,7 +246,6 @@ public class LocationUpdateService extends Service implements LocationListener{
 			
 		}, GPSUpdate, GPSUpdate);
 		
-		//GPS[0].storeLocation(lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
 	}
 	
 	private void stopTimer(){
@@ -208,7 +264,9 @@ public class LocationUpdateService extends Service implements LocationListener{
 
 	@Override
 	public void onLocationChanged(Location location) {
-		files[0].storeLocation(location);
+		
+			files[0].storeLocation(location);
+		
 	}
 	@Override
 	public void onProviderDisabled(String provider) {}

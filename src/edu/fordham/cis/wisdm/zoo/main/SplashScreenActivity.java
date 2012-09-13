@@ -1,5 +1,10 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,6 +44,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.grosner.mapview.CurrentLocationChangedListener;
 import com.grosner.mapview.CurrentLocationOverlay;
 import com.grosner.mapview.Geopoint;
 import com.grosner.mapview.MapScale;
@@ -55,109 +61,191 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 
 	private static String email;
 	
-	//the button on top left of screen user presses to see the menu
+	/**
+	 * the button on top left of screen user presses to see the menu
+	 */
 	private ImageButton home;
 	
-	//the popup list of exhibits that shows up when a user searches for an exhibit
+	/**
+	 * the popup list of exhibits that shows up when a user searches for an exhibit
+	 */
 	private LinearLayout searchList;
 	
-	//the searchbar widget
+	/**
+	 * the searchbar widget
+	 */
 	private MenuItemSearchAction menuItem;
 	
-	//displays loading when reading in exhibits from file
+	/**
+	 * displays loading when reading in exhibits from file
+	 */
 	private ProgressDialog loader;
 	
-	//the list fragment displays on splash screen
-	private static ArrayListFragment list;
+	/**
+	 * the list fragment displays on splash screen
+	 */
+	private static ArrayListFragment list = null;
 	
-	//restroom locator fragment
+	/**
+	 * restroom locator fragment
+	 */
 	private static PlaceFragment food = null;
 	
-	//exhibit locator/descriptor fragment
+	/**
+	 * exhibit locator/descriptor fragment
+	 */
 	private static PlaceFragment exhibit = null;
 	
-	//the ride locator fragment
+	/**
+	 * the special exhibits locator fragment
+	 */
 	private static PlaceFragment special = null;
 	
-	//the shops locator fragment
+	/**
+	 * the shops locator fragment
+	 */
 	private static PlaceFragment shops =null;
 	
-	//the administration buildings fragment
+	/**
+	 * the administration buildings fragment
+	 */
 	private static PlaceFragment admin = null;
 	
-	//the mapview widget
+	/**
+	 * the mapview widget
+	 */
 	private static MapView map;
 	
-	//boundaries
+	/**
+	 * Upper Y-coordinate of map
+	 */
 	private int north = (int)(40.8575319641275*1E6);
+	
+	/**
+	 * Lower y-coordinate of map
+	 */
 	private int south = (int)(40.84133892124885 *1E6);
+	
+	/**
+	 * Left-most x-coordinate on map
+	 */
 	private int west = (int)(-73.8843274391989*1E6);
+	
+	/**
+	 * Right-most x-coordinate on map
+	 */
 	private int east = (int)(-73.87094804707424*1E6);
 	
-	
-	
-	//whether location should be enabled
+	/**
+	 * whether location should be enabled
+	 */
 	private boolean enableLoc = false;
 	
-	//the mapview's overlays
+	/**
+	 * the mapview's overlays
+	 */
 	private static List<OverlayItem> overlays; 
 	
-	//the last place shown on the map
+	/**
+	 * the last place shown on the map
+	 */
 	private static PlaceItem lastPlace = null;
 	
-	//the last group of places shown
+	/**
+	 * the last group of places shown
+	 */
 	private static LinkedList<PlaceItem> lastPlaces = null;
 	
-	//handles switching in fragments
+	/**
+	 * handles switching in fragments
+	 */
 	private static FragmentTransaction mTransaction;
 	
-	//determine whether tablet or not to optimize screen real estate 
+	/**
+	 * determine whether tablet or not to optimize screen real estate 
+	 */
 	public static boolean isLargeScreen = false;
 	
-	//determine screen width for sidebar
+	/**
+	 * determine screen width for sidebar
+	 */
 	public static int SCREEN_WIDTH = 0;
 	
-	//manages location changes
+	/**
+	 * manages location changes
+	 */
 	private LocationManager lManager = null;
 		
-	//shows current location
+	/**
+	 * shows current location
+	 */
 	public static CurrentLocationOverlay me = null;
 	
-	//map list item constant
+	/**
+	 * Provides an action when the user's current location changes
+	 */
+	private CurrentLocationChangedListener meListener = new CurrentLocationChangedListener(){
+
+		@Override
+		public void OnCurrentLocationChange(Geopoint point) {
+			PlaceFragment.reCalculateDistance(me.getPoint(), searchExhibits);
+		}
+		
+	};
+	
+	/**
+	 * map list item constant
+	 */
 	private static final int ITEM_CASE_MAP = 0;
 	
-	//news list item constant
+	/**
+	 * news list item constant
+	 */
 	private static final int ITEM_CASE_NEWS = 1;
 	
-	//shop list item constant
+	/**
+	 * shop list item constant
+	 */
 	private static final int ITEM_CASE_SHOPS = 2;
 	
-	//special exhibits
+	/**
+	 * special exhibits
+	 */
 	private static final int ITEM_CASE_SPECIAL = 3;
 	
-	//food list item constant
+	/**
+	 * food list item constant
+	 */
 	private static final int ITEM_CASE_FOOD = 4;
 	
-	//exhibit list item constant
+	/**
+	 * exhibit list item constant
+	 */
 	private static final int ITEM_CASE_EXHIBITS = 5;
 	
-	//restroom list item constant
+	/**
+	 * restroom list item constant
+	 */
 	private static final int ITEM_CASE_RESTROOMS = 6;
 	
-	//exits/misc locations
+	/**
+	 * exits/misc locations
+	 */
 	private static final int ITEM_CASE_EXITS = 7;
 	
-	//parking lot constant
+	/**
+	 * parking lot constant
+	 */
 	private static final int ITEM_CASE_PARKING = 8;
 	
-	//administration buildings constant
+	/**
+	 * administration buildings constant
+	 */
 	private static final int ITEM_CASE_ADMIN = 9;
 	
-	private int currentFragment = -1;
+	private static int currentFragment = -1;
 	
 	public static Geopoint myLocation = null;
-	
-	private boolean start = true;
 	
 	private LinkedList<PlaceItem> searchExhibits = new LinkedList<PlaceItem>();
 	
@@ -167,28 +255,23 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		map.removeAllViews();
 		init();
-		if(!isLargeScreen){
-			showList();
-		}
 		if(config.orientation == Configuration.ORIENTATION_PORTRAIT && isLargeScreen){
 			isLargeScreen = false;
 			Operations.removeView(map);
-        	home = new ImageButton(this);
-    		home.setId(1);
-    		home.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-    		home.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_action_list));
-    		ActionBar mAction = this.getSupportActionBar();
-    		mAction.setCustomView(home);
-    		mAction.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-    		home.setOnClickListener(this);
+        	addListButton();
+		} else if(isLargeScreen){
+			if(currentFragment==-1){
+				showMap(mTransaction, list.getView());
+			}
+		} else if(!isLargeScreen && currentFragment == -1){
+			showMap(mTransaction, list.getView());
 		}
-		
 	}
 	
 	@Override
 	public void onCreate(Bundle instance){
 		super.onCreate(instance);
-		setContentView(R.layout.splash_screen);
+		setContentView(R.layout.splash);
 		loader = ProgressDialog.show(this, "Loading Data", "Please Wait");
 		
 		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
@@ -267,17 +350,17 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		list = (ArrayListFragment) this.getSupportFragmentManager().findFragmentById(R.id.listfragment);
 		list.getListView().setOnItemClickListener(this);
 		
-        //init map objects
+		//init map objects
 		map = null;
     	map = (MapView) findViewById(R.id.map);
 		overlays = map.getOverlays();
 		
-		map.init(this, "map0/crop_%col%_%row%.png");
-
-	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map1/crop_%col%_%row%.png", 2500, 4000));
-	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map2/crop_%col%_%row%.png", 3800, 6000));
-	    map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map3/crop_%col%_%row%.png", 5100, 8000));
-	    map.addMapScale(ZoomLevel.LEVEL_4, new MapScale("map4/crop_%col%_%row%.png", 6400, 10000));
+		map.init(this, "map1/crop_%col%_%row%.png", 1250, 2000);
+		
+	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map2/crop_%col%_%row%.png", 2500, 4000));
+	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map3/crop_%col%_%row%.png", 3800, 6000));
+	    map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map4/crop_%col%_%row%.png", 5100, 8000));
+	   // map.addMapScale(ZoomLevel.LEVEL_4, new MapScale("map5/crop_%col%_%row%.png", 6400, 10000));
 	       
 	    //saves offset in memory
 	    Geopoint.storeOffset(north, south, west, east);
@@ -287,6 +370,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		me = new CurrentLocationOverlay(map.getView(), this);
 		startLocationUpdates();
+		me.addCurrentLocationChangedListener(meListener);
 		
 		Intent i = new Intent(this.getApplicationContext(), LocationUpdateService.class);
 		i.putExtra("email", email);
@@ -308,18 +392,27 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
         	
         } else{//small screen we want to hide it
         	Operations.removeView(map);
-        	home = new ImageButton(this);
-    		home.setId(0);
-    		home.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-    		home.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_action_list));
-    		mAction.setCustomView(home);
-    		mAction.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-    		home.setOnClickListener(this);
+        	addListButton();
     		isLargeScreen = false;
+    		list.getView().setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         }
         
        searchList = (LinearLayout) findViewById(R.id.SearchList);
        Operations.removeView(searchList);
+       
+       
+	}
+	
+	private void addListButton(){
+		ActionBar mAction = this.getSupportActionBar();
+		
+		home = new ImageButton(this);
+		home.setId(0);
+		home.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		home.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_action_list));
+		mAction.setCustomView(home);
+		mAction.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+		home.setOnClickListener(this);
 	}
 	
 	
@@ -475,6 +568,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		menuItem.getMenuItem().setOnMenuItemClickListener(this);
 		
 		//add action items
+		menu.add("Locate").setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_location).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
+				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add("About").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add("Settings").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
@@ -500,6 +595,12 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			message.create().show();
 		} else if(item.getTitle().equals("Search")){
 			showMap(mTransaction, list.getView());
+		} else if(item.getTitle().equals("Locate")){
+			if(!map.isShown()){
+				showMap(mTransaction, list.getView());
+			}
+			map.animateTo(myLocation);
+			
 		}
 		return false;
 	}
@@ -577,17 +678,16 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			
 			break;
 		case ITEM_CASE_SHOPS:
-			showFragment(shops, position, true);
-			//
+			showFragment(shops, position);
 			break;
 		case ITEM_CASE_SPECIAL:
-			showFragment(special, position, true);
+			showFragment(special, position);
 			break;
 		case ITEM_CASE_FOOD:
-			showFragment(food, position, true);
+			showFragment(food, position);
 			break;
 		case ITEM_CASE_EXHIBITS:
-			showFragment(exhibit, position, true);
+			showFragment(exhibit, position);
 			break;
 		case ITEM_CASE_RESTROOMS:
 			readInPlaces("restrooms.txt", mTransaction, list.getView());
@@ -599,14 +699,29 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			readInPlaces("parking.txt", mTransaction, list.getView());
 			break;
 		case ITEM_CASE_ADMIN:
-			showFragment(admin, position, true);
+			showFragment(admin, position);
 			break;
 		}
 	}
 	
-	public void getZoom(){
-		
+	/**
+	 * Shows the map from any showing fragment, taking into account if the screen is large or not
+	 * @param mTransaction
+	 * @param v
+	 */
+	protected void showMap(FragmentTransaction mTransaction, View v){
+		clearMapData();
+		if(!isLargeScreen && !map.isShown() && list.isAdded()){
+			Operations.swapViews(v, map);
+		} else if(!map.isShown()){
+			Operations.addView(map);
+			removeFrag(mTransaction);
+			mTransaction.commit();
+		}
+		map.getView().refresh();
+		currentFragment = -1;
 	}
+
 	
 	/**
 	 * Shows the map adding a placeitem's geopoint to the map
@@ -641,31 +756,23 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		if (place!=null){
 			overlays.addAll(place);
 		}
-		lastPlaces = place;
+		lastPlaces = (LinkedList<PlaceItem>) place.clone();
 	}
 	
 	/**
-	 * Shows the map from any showing fragment, taking into account if the screen is large or not
-	 * @param mTransaction
-	 * @param v
+	 * Reshows a fragment
 	 */
-	protected void showMap(FragmentTransaction mTransaction, View v){
-		clearMapData();
-		if(!isLargeScreen && !map.isShown() && list.isAdded()){
-			Operations.swapViews(v, map);
-		} else if(!map.isShown()){
-			Operations.addView(map);
-			if(currentFragment == ITEM_CASE_EXHIBITS){
-				mTransaction.remove(exhibit).commit();
-			} else if(currentFragment == ITEM_CASE_FOOD){
-				mTransaction.remove(food).commit();
-			} else if(currentFragment == ITEM_CASE_SPECIAL){
-				mTransaction.remove(special).commit();
-			} else if(currentFragment == ITEM_CASE_SHOPS){
-				mTransaction.remove(shops).commit();
-			} else if(currentFragment == ITEM_CASE_ADMIN){
-				mTransaction.remove(admin).commit();
-			}
+	protected void showFragment(){
+		if(currentFragment == ITEM_CASE_EXHIBITS){
+			showFragment(exhibit, currentFragment);
+		} else if(currentFragment == ITEM_CASE_FOOD){
+			showFragment(food, currentFragment);
+		} else if(currentFragment == ITEM_CASE_SPECIAL){
+			showFragment(special, currentFragment);
+		} else if(currentFragment == ITEM_CASE_SHOPS){
+			showFragment(shops, currentFragment);
+		} else if(currentFragment == ITEM_CASE_ADMIN){
+			showFragment(admin, currentFragment);
 		}
 	}
 	
@@ -673,11 +780,14 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * Handles showing fragments in the activity
 	 * @param fragment
 	 */
-	protected void showFragment(Fragment f, int position, boolean place){
+	protected void showFragment(Fragment f, int position){
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
-		
 		if(!isLargeScreen && !map.isShown()){
-			mTransaction.replace(android.R.id.content, f).commit();
+			if(!f.isAdded()){
+				mTransaction.replace(android.R.id.content, f).commit();
+			} else{
+				Operations.addView(f.getView());
+			}
 			Operations.removeView(list.getView());
 		} else if(isLargeScreen){
 			if(map.isShown()){
@@ -686,21 +796,39 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 					mTransaction.add(R.id.mapframe, f).commit();
 				}
 			} else{
-				if(f.isAdded() && isLargeScreen && place){
+				if(f.isAdded()){
 					PlaceFragment placeFrag = (PlaceFragment) f;
 					placeFrag.refresh();
 					MessageBuilder.showToast("Updated", this);
 				} else{
-					mTransaction.replace(R.id.mapframe, f).commit();
+					removeFrag(mTransaction);
+					mTransaction.add(R.id.mapframe, f).commit();
 				}
 			}
 		} 
 		currentFragment = position;
 	}
 	
+	/**
+	 * Removes currently showing fragment from screen
+	 */
+	private void removeFrag(FragmentTransaction mTransaction){
+		if(currentFragment == ITEM_CASE_EXHIBITS){
+			mTransaction.remove(exhibit);
+		} else if(currentFragment == ITEM_CASE_FOOD){
+			mTransaction.remove(food);
+		} else if(currentFragment == ITEM_CASE_SPECIAL){
+			mTransaction.remove(special);
+		} else if(currentFragment == ITEM_CASE_SHOPS){
+			mTransaction.remove(shops);
+		} else if(currentFragment == ITEM_CASE_ADMIN){
+			mTransaction.remove(admin);
+		}
+	}
+	
 	
 	/**
-	 * Clears all showing placeitems from the screen
+	 * Clears all showing place items from the screen
 	 */
 	private void clearMapData(){
 		CurrentLocationOverlay cur = null;
@@ -772,6 +900,21 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		if(found){
 			if(placeFound!=null){
 				this.showMap(mTransaction, list.getView(), placeFound);
+				try {
+					FileOutputStream fs = openFileOutput("queries.txt", Context.MODE_APPEND);
+					OutputStreamWriter ow = new OutputStreamWriter(fs);
+					BufferedWriter writer = new BufferedWriter(ow);
+
+					writer.write(System.currentTimeMillis() + ", " + placeFound + "," + myLocation.getLatitude() + "," + myLocation.getLongitude() + ",\n");
+					writer.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			}
 		} else{
 			MessageBuilder.showToast("Not found", this);

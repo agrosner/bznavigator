@@ -4,6 +4,8 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.grosner.mapview.Geopoint;
+
 import android.location.Location;
 import android.util.Log;
 
@@ -63,6 +65,10 @@ public class GPSWriter extends DataOutputStream{
 		line+="," + values[3];
 		line+="," + provider;
 		Log.d(TAG, line);
+	}
+	
+	public Geopoint getGeopoint(){
+		return new Geopoint(coords[1],coords[0], "");
 	}
 	
 	
