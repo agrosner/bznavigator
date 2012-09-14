@@ -3,11 +3,9 @@ package edu.fordham.cis.wisdm.zoo.main;
 import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.SherlockActivity;
 
-import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.FormChecker;
 import cis.fordham.edu.wisdm.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -19,14 +17,13 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 public class Entry extends SherlockActivity implements OnClickListener{
     /** Called when the activity is first created. */
 	
 	//location where the remember me preference is stored
-	private static String REMEMBER_ME_LOC = "edu.fordham.cis.wisdm.zoo.askagain";
+	private static final String REMEMBER_ME_LOC = "edu.fordham.cis.wisdm.zoo.askagain";
 	
 	//the button collection
 	private Button[] buttons = new Button[2];
@@ -37,14 +34,10 @@ public class Entry extends SherlockActivity implements OnClickListener{
 	//the rememeber me checkbox widget
 	private CheckBox rememberMe;
 	
-	//private CheckBox rememberMe;
-	private AlertDialog loginDialog;
-	
 	public static boolean largeScreen;
 	
 	private static boolean isMember = false;
 
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,12 +47,6 @@ public class Entry extends SherlockActivity implements OnClickListener{
         Preference.initPrefForContext(this);
         
         chooseLogin();
-    }
-    
-    @Override
-    public void onDestroy(){
-    	super.onDestroy();
-    	
     }
     
     /**
@@ -101,10 +88,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
     	this.getWindowManager().getDefaultDisplay().getMetrics(display);
     	 int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
                 
-    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE){
-    		largeScreen = true;
-    	}
-    	
+    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	largeScreen = true;
     	
     	//set up buttons
     	int id[] = {R.id.SignUp, R.id.LoginButton};
@@ -121,7 +105,6 @@ public class Entry extends SherlockActivity implements OnClickListener{
     		Operations.removeView(rememberMe);
     		rememberMe.setChecked(false);
     	}
-    	
     	
     	boolean fill = Preference.getBoolean(REMEMBER_ME_LOC, false);
     	if(fill && isMember){
@@ -151,7 +134,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
     private void login(){
     	
     	String email = fields[0].getText().toString();
-		String password = fields[1].getText().toString();
+		//String password = fields[1].getText().toString();
 		
 		if(!FormChecker.checkEmail(fields[0])){
 			new HoloAlertDialogBuilder(this).setTitle("Error").setMessage("Ensure email is entered correctly").show();

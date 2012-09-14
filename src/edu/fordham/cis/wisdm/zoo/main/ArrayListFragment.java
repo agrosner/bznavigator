@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
@@ -16,20 +14,14 @@ public class ArrayListFragment extends SherlockListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
 		View v = inflater.inflate(R.layout.arraylist, container, false);
 		
-		int[] drawables = {R.drawable.map, R.drawable.news, R.drawable.shop, R.drawable.special, R.drawable.food, R.drawable.exhibit, R.drawable.bathroom, R.drawable.fordham, R.drawable.car, R.drawable.admin};
+		int[] drawables = {R.drawable.map,		R.drawable.news, 
+						   R.drawable.shop,		R.drawable.special, 
+						   R.drawable.food,		R.drawable.exhibit, 
+						   R.drawable.bathroom, R.drawable.fordham, 
+						   R.drawable.car,		R.drawable.admin};
+		
 		IconTextListAdapter icontextlist=  new IconTextListAdapter(this.getActivity(), R.array.splash_list, drawables);
-		
-		
 		setListAdapter(icontextlist);
 		return v;
 	}
-	
-	
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-      
-    }
-
-    
 }

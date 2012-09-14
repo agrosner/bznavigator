@@ -28,6 +28,16 @@
 		    style="@style/wrap"
 		    android:background="@android:color/white"
        		>
+       		<ScrollView 
+       		    style="@style/wrap">
+       		    <LinearLayout 
+	            	android:id="@+id/PlaceView"
+	            	style="@style/wrap"
+	            	android:orientation="vertical"
+	            >
+       		        
+       		    </LinearLayout>    		    
+       		</ScrollView>
        		<ScrollView
            		style="@style/wrap">
            		<LinearLayout 
@@ -40,6 +50,7 @@
  						<!-- Content here -->              
            		</LinearLayout>           
        		</ScrollView>
+       		
    		</LinearLayout>
     
    </FrameLayout>   

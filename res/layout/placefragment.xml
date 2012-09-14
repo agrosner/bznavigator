@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/fill">    
+    style="@style/wrap">    
 
     <TextView 
         android:layout_alignParentTop="true"
@@ -8,7 +8,7 @@
         android:textSize="30dip"
         android:layout_marginBottom="10dip"
         android:layout_marginTop="10dip"
-        style="@style/fill_width"
+        style="@style/wrap"
         android:gravity="center"
         android:text="Exhibit Lookup"
         />
@@ -16,7 +16,7 @@
     <ScrollView 
         android:layout_below="@id/title"
         android:id="@+id/exhibitListContainer"
-        style="@style/fill"
+        style="@style/wrap"
         >
         <LinearLayout
             android:id="@+id/exhibitList"

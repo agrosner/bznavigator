@@ -33,23 +33,27 @@ import com.grosner.mapview.PlaceItem;
  * @version 1.0
  */
 public class PlaceFragment extends SherlockFragment implements OnClickListener{
+	
+	public enum PlaceType{EXHIBITS, FOOD, SPECIAL, SHOPS, ADMIN;
+		public String toString(){
+			if(this == EXHIBITS)		return "exhibits";
+			else if(this == FOOD) 		return "food";
+			else if(this == SPECIAL)	return "special-exhibits";
+			else if(this == SHOPS) 		return "shops";
+			else if(this == ADMIN) 		return "admin";
+			else						return "";
+		}
+	};
 
-	public static int TYPE_EXHIBITS = 0;
-	
-	public static int TYPE_FOOD = 1;
-	
-	public static int TYPE_SPECIAL = 2;
-	
-	public static int TYPE_SHOPS = 3;
-	
-	public static int TYPE_ADMIN = 4;
-
+	/**
+	 * Meters to FT conversion
+	 */
 	public static double METERS_TO_FT = 3.28084;
 	
 	/**
 	 * The type of this fragment
 	 */
-	private int type = 0;
+	private PlaceType type = PlaceType.EXHIBITS;
 	
 	/**
 	 * The parent layout widget of the XML file
@@ -77,21 +81,19 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	private LinkedList<PlaceItem> points = new LinkedList<PlaceItem>();
 	
 	/**
-	 * Constructor specifying type
-	 * @param type
+	 * Default constructor, sets type to "Exhibits"
 	 */
-	public PlaceFragment(int type){
-		super();
-		this.type = type;
+	public PlaceFragment(){
+		type = PlaceType.EXHIBITS;
 	}
 	
 	/**
-	 * Called only when fragment is instantiated
+	 * Constructor specifying type
+	 * @param type
 	 */
-	@Override
-	public void onCreate(Bundle instance){
-		super.onCreate(instance);
-		//TODO: check for any updates to server file when in "online mode"
+	public PlaceFragment(PlaceType type){
+		this();
+		this.type = type;
 	}
 	
 	/**
@@ -116,29 +118,18 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
 		exhibitList.removeAllViews();
 		
-		if(type == TYPE_SHOPS){
-			exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, false));
-		}
-		exhibitList.addView(createExhibitItem(getActivity(), inflater, container, 0, "ic_action_location", "View All On Map", "", this, false));
+		if(type == PlaceType.SHOPS)
+			exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, true));
 		
-		String fName = "";
+		exhibitList.addView(createExhibitItem(getActivity(), inflater, container, 0, "ic_action_location", "View All On Map", "", this, true));
 		
-		if(type == TYPE_EXHIBITS){
-			fName = "exhibits";
-		} else if(type == TYPE_FOOD){
-			fName = "food";
-		} else if(type == TYPE_SPECIAL){
-			fName = "special-exhibits";
-		} else if(type == TYPE_SHOPS){
-			fName = "shops";
-		} else if(type == TYPE_ADMIN){
-			fName = "admin";
-		}
+		String fName = type.toString();
+		
 		TextView title = (TextView) exhibit.findViewById(R.id.title);
 		title.setText(fName.replace("-", " "));
 		
 		fName+=".txt";
-		readInFile(getActivity(), inflater, container, fName, exhibitList, points, this, false);	
+		readInFile(getActivity(), inflater, container, fName, exhibitList, points, this, true);	
 	}
 
 	@Override
@@ -151,7 +142,10 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		
 		if(id > 0){
 			PlaceItem place = points.get(id-1);
-			act.showMap(mTransaction, this.getView(), place);
+			LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
+			places.add(place);
+			act.showMap(mTransaction, this.getView(), places);
+			act.getMap().animateTo(place.getPoint());
 		} else if(id == 0){
 			act.showMap(mTransaction, this.getView(), points);
 		} else if(id == -1){
@@ -184,9 +178,9 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		titleText.setText(title);
 		
 		//if request to not fill, will request smaller size
-		if(wrap && SplashScreenActivity.isLargeScreen){
+		if(wrap && SplashScreenActivity.isLargeScreen)
 			exhibitItem.setLayoutParams(new LayoutParams(SplashScreenActivity.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
-		}
+		
 		
 		if(!drawablePath.equals("0")){
 			ImageView image = (ImageView) exhibitItem.findViewById(R.id.image);
@@ -220,8 +214,6 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 			TextView distText = (TextView) exhibitItem.findViewById(R.id.distancetext);
 			distText.setText(distance);
 		}
-		
-		
 		
 		return exhibitItem;
 	}
@@ -340,9 +332,8 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 			TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
 			String text = distanceText.getText().toString().replace("ft", "");
 			int dist = Integer.valueOf(text);
-			if(distance<dist){
-				break;
-			}
+			if(distance<dist)	break;
+			
 			index++;
 		}
 		
