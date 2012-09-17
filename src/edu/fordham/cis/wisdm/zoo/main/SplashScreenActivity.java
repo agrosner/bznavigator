@@ -20,7 +20,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
+//import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -221,7 +221,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		if(config.orientation == Configuration.ORIENTATION_PORTRAIT && isLargeScreen){
 			isLargeScreen = false;
 			Operations.removeView(map);
-        	addListButton();
+        	//addListButton();
 		} else if(isLargeScreen){
 			if(currentFragment==Places.MAP){
 				showMap(mTransaction, list.getView());
@@ -240,7 +240,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		loader = ProgressDialog.show(this, "Loading Data", "Please Wait");
 		
 		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		//ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		HoloAlertDialogBuilder dialog = new HoloAlertDialogBuilder(this);
 		dialog.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
 			
@@ -312,10 +312,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 	public void setUpViews(){
 		//hide name, icon, 
-		ActionBar mAction = this.getSupportActionBar();
-		mAction.setDisplayHomeAsUpEnabled(false);
-		mAction.setDisplayShowHomeEnabled(false);
-		mAction.setTitle("Bronx Zoo Navigator");
+		//ActionBar mAction = this.getSupportActionBar();
+		//mAction.setDisplayHomeAsUpEnabled(false);
+		//mAction.setDisplayShowHomeEnabled(false);
+		//mAction.setTitle("Bronx Zoo Navigator");
 				
 		
 		//load listfragment into memory
@@ -364,7 +364,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
         	
         } else{//small screen we want to hide it
         	Operations.removeView(map);
-        	addListButton();
+        	//addListButton();
     		isLargeScreen = false;
     		list.getView().setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         }
@@ -533,7 +533,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		//add action items
 		menu.add("Locate").setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_location).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
 				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add("Nearest").setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_show).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
+		menu.add("Nearest").setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_show).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
 				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add("About").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -561,15 +561,18 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		} else if(item.getTitle().equals("Search")){
 			showMap(mTransaction, list.getView());
 		} else if(item.getTitle().equals("Locate")){
-			if(!map.isShown())	showMap(mTransaction, list.getView());
-			
+			if(!map.isShown()){	
+				showMap(mTransaction, getCurrentFragment());
+			}
 			if(!isTracking){
 				item.setIcon(R.drawable.ic_action_location_blue);
 				map.animateTo(myLocation);
 				isTracking = true;
+				MessageBuilder.showToast("Now Following Current Location", this);
 			} else{
 				item.setIcon(R.drawable.ic_action_location);
 				isTracking = false;
+				MessageBuilder.showToast("Following Off", this);
 			}
 			
 		} else if(item.getTitle().equals("Nearest")){
@@ -649,15 +652,29 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	}
 	
 	/**
+	 * Returns the current view of showing fragment
+	 * @return
+	 */
+	private View getCurrentFragment(){
+			 if(currentFragment == Places.EXHIBITS)	return exhibit.getView();
+		else if(currentFragment == Places.FOOD)		return food.getView();
+		else if(currentFragment == Places.SPECIAL)	return special.getView();
+		else if(currentFragment == Places.SHOPS)	return shops.getView();
+		else if(currentFragment == Places.ADMIN)	return admin.getView();
+		else if(currentFragment == Places.MAP)		return map.getView();
+		else 										return list.getView();
+	}
+	
+	/**
 	 * Shows the map from any showing fragment, taking into account if the screen is large or not
 	 * @param mTransaction
 	 * @param v
 	 */
 	protected void showMap(FragmentTransaction mTransaction, View v){
 		clearMapData();
-		if(!isLargeScreen && currentFragment!=Places.MAP && list.isAdded())
-			Operations.swapViews(v, map);
+		if(!isLargeScreen && currentFragment!=Places.MAP)	Operations.swapViews(v, map);
 		else if(!map.isShown())	Operations.addView(map);
+	
 		
 		if(isLargeScreen){
 			removeFrag(mTransaction);
@@ -675,6 +692,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * @param flag
 	 * @param place
 	 */
+	@SuppressWarnings("unchecked")
 	protected void showMap(FragmentTransaction mTransaction,View v, LinkedList<PlaceItem> place){
 		showMap(mTransaction, v);
 		if (place!=null)	overlays.addAll(place);
@@ -723,7 +741,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	}
 	
 	/**
-	 * Removes currently showing fragment from screen
+	 * Removes currently showing fragment from screen, call mTransaction.commit() from called location
 	 */
 	private void removeFrag(FragmentTransaction mTransaction){
 			 if(currentFragment == Places.EXHIBITS)		mTransaction.remove(exhibit);

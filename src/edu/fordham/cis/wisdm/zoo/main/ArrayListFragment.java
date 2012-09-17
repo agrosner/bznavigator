@@ -14,7 +14,8 @@ public class ArrayListFragment extends SherlockListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
 		View v = inflater.inflate(R.layout.arraylist, container, false);
 		
-		int[] drawables = {R.drawable.map,		R.drawable.news, 
+		int[] drawables = {R.drawable.map,		R.drawable.find,
+						   R.drawable.news, 
 						   R.drawable.shop,		R.drawable.special, 
 						   R.drawable.food,		R.drawable.exhibit, 
 						   R.drawable.bathroom, R.drawable.fordham, 

@@ -6,6 +6,7 @@
     
     <string-array name="splash_list">
         <item>View Map</item>
+        <item>Find Nearby</item>
         <item>News</item>
         <item>Shops</item>
         <item>Special Exhibits</item>
