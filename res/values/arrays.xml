@@ -12,9 +12,7 @@
         <item>Special Exhibits</item>
         <item>Food</item>
         <item>Exhibits</item>
-        <item>Restrooms</item>
-        <item>Gates</item>
-        <item>Parking Lots</item>
+        <item>Amenities</item>
         <item>Administration</item>
     </string-array>
 </resources>

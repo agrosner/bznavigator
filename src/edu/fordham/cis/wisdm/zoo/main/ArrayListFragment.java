@@ -15,11 +15,10 @@ public class ArrayListFragment extends SherlockListFragment {
 		View v = inflater.inflate(R.layout.arraylist, container, false);
 		
 		int[] drawables = {R.drawable.map,		R.drawable.find,
-						   R.drawable.news, 
-						   R.drawable.shop,		R.drawable.special, 
-						   R.drawable.food,		R.drawable.exhibit, 
-						   R.drawable.bathroom, R.drawable.fordham, 
-						   R.drawable.car,		R.drawable.admin};
+						   R.drawable.news, 	R.drawable.shop,		
+						   R.drawable.special,  R.drawable.food,		
+						   R.drawable.exhibit,  R.drawable.amenities,
+						   R.drawable.admin};
 		
 		IconTextListAdapter icontextlist=  new IconTextListAdapter(this.getActivity(), R.array.splash_list, drawables);
 		setListAdapter(icontextlist);
