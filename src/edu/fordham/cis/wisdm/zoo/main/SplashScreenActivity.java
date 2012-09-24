@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -20,6 +21,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 //import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -67,6 +69,7 @@ import com.grosner.mapview.ZoomLevel;
 
 import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
+import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
 
 
@@ -92,7 +95,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * the searchbar widget
 	 */
-	private MenuItemSearchAction menuItem;
+	private MenuItemSearchAction searchItem;
 	
 	/**
 	 * displays loading when reading in exhibits from file
@@ -215,7 +218,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	private MenuItem follow  = null;
 	
-	
+	/**
+	 * If the user has internet and GPS connection while using the app
+	 */
+	private boolean isLocation = true;
+
 	/**
 	 * Provides an action when the user's current location changes
 	 */
@@ -267,21 +274,44 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		loader = ProgressDialog.show(this, "Loading Data", "Please Wait");
 		
 		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-		//ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		HoloAlertDialogBuilder dialog = new HoloAlertDialogBuilder(this);
-		dialog.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		
+		//gives user an option to accept terms or leave the app
+		final HoloAlertDialogBuilder termsDialogBuilder = new HoloAlertDialogBuilder(this);
+		
+		//cancel button used for both dialogs
+		DialogInterface.OnClickListener cancel = new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				finish();
 			}
+		};
+		
+		termsDialogBuilder.setNegativeButton("I do not accept", cancel);
+		
+		//terms and conditions
+		termsDialogBuilder.setTitle("Terms and Conditions");
+		termsDialogBuilder.setMessage("Terms and conditions go here");
+		termsDialogBuilder.setPositiveButton("I Accept", new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				init();
+				termsDialogBuilder.create().dismiss();
+			}
+					
 		});
 		
+		termsDialogBuilder.create().show();
+		
 		//if network error message
-		if(/*connect.getActiveNetworkInfo()==null || (*/!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)&& !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-			dialog.setTitle("Please Turn on GPS");
-			dialog.setMessage("Please navigate to settings and make sure GPS is turned on");
-			dialog.setPositiveButton("Settings", new DialogInterface.OnClickListener(){
+		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)&& !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+			final HoloAlertDialogBuilder gpsInternetDialogBuilder = new HoloAlertDialogBuilder(this);
+			
+			gpsInternetDialogBuilder.setNegativeButton("Quit", cancel);
+			gpsInternetDialogBuilder.setTitle("Please Turn on GPS and Internet");
+			gpsInternetDialogBuilder.setMessage("Please navigate to settings and make sure GPS and Internet is turned on for the full experience.");
+			gpsInternetDialogBuilder.setPositiveButton("Settings", new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);	
@@ -289,22 +319,19 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				}
 				
 			});
-			
-		} else{
-			//terms and conditions
-			dialog.setTitle("Terms and Conditions");
-			dialog.setMessage("Terms and conditions go here");
-			dialog.setPositiveButton("I Accept", new DialogInterface.OnClickListener(){
+			gpsInternetDialogBuilder.setNeutralButton("Continue Anyways", new DialogInterface.OnClickListener() {
+				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					init();
-					dialog.dismiss();
+					isLocation = false;
+					gpsInternetDialogBuilder.create().dismiss();
+					
 				}
-				
 			});
-		}
+			
+			gpsInternetDialogBuilder.create().show();
+		} 
 		
-		dialog.show();
 	}
 	private void init(){
 		enableLoc = true;
@@ -400,30 +427,35 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
        searchList = (LinearLayout) findViewById(R.id.SearchList);
        Operations.removeView(searchList);
        
-       mDrawer = (SlidingDrawer) findViewById(R.id.drawer);
-       mDrawer.setOnDrawerOpenListener(new OnDrawerOpenListener(){
+       
+   		addDrawerList();
+	
+
+	}
+	
+	private void addDrawerList(){
+		mDrawer = (SlidingDrawer) findViewById(R.id.drawer);
+	    mDrawer.setOnDrawerOpenListener(new OnDrawerOpenListener(){
 
 		@Override
 		public void onDrawerOpened() {
 			ImageView icon = (ImageView) mDrawer.getHandle();
 			icon.setImageResource(R.drawable.ic_action_arrow_right);
 		}
-    	   
-       });
-       mDrawer.setOnDrawerCloseListener(new OnDrawerCloseListener(){
-
-		@Override
-		public void onDrawerClosed() {
-			ImageView icon = (ImageView) mDrawer.getHandle();
-			icon.setImageResource(R.drawable.ic_action_arrow_left);
+	    	   
+	    });
+	    mDrawer.setOnDrawerCloseListener(new OnDrawerCloseListener(){
+	    	
+	    @Override
+	    public void onDrawerClosed() {
+	    	ImageView icon = (ImageView) mDrawer.getHandle();
+	    	icon.setImageResource(R.drawable.ic_action_arrow_left);
 		}
-    	   
-       });
-      
-	}
-	
-	private void addDrawerList(){
+	    
+	    });
+		
 		LinearLayout frame = (LinearLayout) mDrawer.findViewById(R.id.drawerFrame);
+		frame.removeAllViews();
 		LinearLayout.LayoutParams pm = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		pm.bottomMargin = 10;
 		TextView title = new TextView(this);
@@ -461,7 +493,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		return iconCheckbox;
 	}
 	
-	private void addListButton(){
+	/*private void addListButton(){
 		ActionBar mAction = this.getSupportActionBar();
 		
 		home = new ImageButton(this);
@@ -471,7 +503,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		mAction.setCustomView(home);
 		mAction.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 		home.setOnClickListener(this);
-	}
+	}*/
 	
 	@Override
 	public void onLowMemory(){
@@ -492,7 +524,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		super.onResume();
 		if(enableLoc){
 			startLocationUpdates();
-		}
+		} 
 	}
 	
 	@Override
@@ -513,18 +545,40 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		 
 		String locationMessage = null;
 		 
-		 	 if (lManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		 	 if (lManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 				locationMessage ="GPS provider enabled.";
-		else if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-				locationMessage = "Network provider enabled.";
-		else	locationMessage = "No provider enabled. Please check settings and allow locational services.";
-			
+				isLocation = true;
+		 	 } else if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+		 		 locationMessage = "Network provider enabled.";
+		 		 isLocation = true;
+		 	 } else	{
+		 		 locationMessage = "No provider enabled. Please check settings and allow locational services.";
+		 		 isLocation = false;
+		 	 }
+		 	 if(isLocation){
+		 		 searchItem.getMenuItem().setOnMenuItemClickListener(this);
+		 	 } else{
+		 		 final Context con = getApplicationContext();
+		 		 searchItem.getMenuItem().setOnMenuItemClickListener(new OnMenuItemClickListener(){
+
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						MessageBuilder.showToast("Location must be enabled to use this feature", con);
+						return false;
+					}
+		 			 
+		 		 });
+		 	 }
+		 	 
 		Toast.makeText(this, locationMessage, Toast.LENGTH_SHORT).show();
-		 
-		final ContextWrapper con = this;
+			final ContextWrapper con = this;
 		final Activity act = this;
 		final LayoutInflater inflater = this.getLayoutInflater();
 		final OnClickListener onclick = this;
+
+		//reads exhibits into the searchbar list of places
+		readInFileInUI(act, inflater, null, "exhibits.txt", searchList, searchExhibits, onclick);
+		
 		me.runOnFirstFix(new Runnable(){
 
 			@Override
@@ -542,14 +596,13 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				//once we get a fix, store it in locationupdateservice
 				LocationUpdateService.storeFirstLocation(me.getLastFix(), con);
 				
-				//reads exhibits into the searchbar list of places
-				readInFile(act, inflater, null, "exhibits.txt", searchList, searchExhibits, onclick);
-				addDrawerList();
-				
-				loader.dismiss();
+				PlaceFragment.reCalculateDistance(myLocation, searchExhibits);
+				//loader.dismiss();
+				MessageBuilder.showToast("GPS lock found", getApplicationContext());
 			}
 			 
 		 });
+		loader.dismiss();
 		 
 	 }
 	
@@ -563,7 +616,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * @param searchExhibits
 	 * @param onclick
 	 */
-	public void readInFile(final Activity act, final LayoutInflater inflater, final ViewGroup container, final String fName, final LinearLayout searchList, final LinkedList<PlaceItem> searchExhibits, final OnClickListener onclick){
+	public void readInFileInUI(final Activity act, final LayoutInflater inflater, final ViewGroup container, final String fName, final LinearLayout searchList, final LinkedList<PlaceItem> searchExhibits, final OnClickListener onclick){
 		this.runOnUiThread(new Runnable(){
 
 			@Override
@@ -592,7 +645,12 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		if(!list.getView().isShown()){
 			showList();
 			if(map.isShown() && !isLargeScreen)	Operations.removeView(map);
-		} else{
+		} else if(isLargeScreen &&currentFragment!=Places.LIST && currentFragment!=Places.MAP){
+			mTransaction = this.getSupportFragmentManager().beginTransaction();
+			removeFrag(mTransaction);
+			mTransaction.commit();
+			currentFragment = Places.LIST;
+		}else{
 		
 			//ask user whether quit or not
 			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
@@ -614,36 +672,42 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		}
 	}
 	
+	/**
+	 * Creates the actionbar icons
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
 		searchList = (LinearLayout) findViewById(R.id.SearchList);
 		
 		//adds the searchbar to the actionbar
-		menuItem = new MenuItemSearchAction(this, menu, this, getResources().getDrawable(R.drawable.ic_action_search), this, searchList);
-		menuItem.setTextColor(getResources().getColor(R.color.forestgreen));
-		menuItem.getMenuItem().setOnMenuItemClickListener(this);
+		searchItem = new MenuItemSearchAction(this, menu, this, getResources().getDrawable(R.drawable.ic_action_search), this, searchList);
+		searchItem.setTextColor(getResources().getColor(R.color.forestgreen));
+		searchItem.getMenuItem().setOnMenuItemClickListener(this);
 		
 		//add action items
-		follow = menu.add("Locate").setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_location);
+		follow = menu.add(ActionEnum.FOLLOW.toString()).setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_location);
 		follow.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
 				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add("Nearest").setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_show).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+		menu.add(ActionEnum.NEAREST.toString()).setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_show).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
 				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add("About").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+		menu.add(ActionEnum.ABOUT.toString()).setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add("Settings").setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+		menu.add(ActionEnum.SETTINGS.toString()).setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		
 		return super.onCreateOptionsMenu(menu);
 	}
 
+	/**
+	 * User has clicked on an actionbar icon
+	 */
 	@Override
 	public boolean onMenuItemClick(MenuItem item) {
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
 		
-		if(item.getTitle().equals("Settings")){
+		if(item.getTitle().equals(ActionEnum.SETTINGS.toString())){
 			
-		} else if(item.getTitle().equals("About")){
+		} else if(item.getTitle().equals(ActionEnum.ABOUT.toString())){
 			//ask user whether quit or not
 			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
 			message.setTitle("About:");
@@ -654,7 +718,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			message.create().show();
 		} else if(item.getTitle().equals("Search")){
 			showMap(mTransaction, list.getView());
-		} else if(item.getTitle().equals("Locate")){
+		} else if(item.getTitle().equals(ActionEnum.FOLLOW.toString())){
 			if(!map.isShown()){	
 				showMap(mTransaction, getCurrentFragment());
 			}
@@ -669,40 +733,41 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				MessageBuilder.showToast("Following Off", this);
 			}
 			me.follow(isTracking);
-		} else if(item.getTitle().equals("Nearest")){
+		} else if(item.getTitle().equals(ActionEnum.NEAREST.toString())){
 			
 		} 
 		return false;
 	}
 	
+	/**
+	 * When a user clicks on the top left of the screen to go back
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item){
 		if(item.getItemId() == android.R.id.home)	onBackPressed();
 		return false;
 	}
 	
+	/**
+	 * User clicks on a search exhibit
+	 */
 	@Override
 	public void onClick(View v) {
 		int id = v.getId();
-		if(id == 0){
-			showList();
-			if(map.isShown() && !isLargeScreen)	Operations.removeView(map);
-		//search exhibit ids
-		} else{
-			mTransaction = this.getSupportFragmentManager().beginTransaction();
+		mTransaction = this.getSupportFragmentManager().beginTransaction();
+		
+		PlaceItem place = searchExhibits.get(id-1);
+		LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
+		places.add(place);
 			
-			PlaceItem place = searchExhibits.get(id-1);
-			LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
-			places.add(place);
-			
-			showMap(mTransaction, list.getView(), places);
-			map.animateTo(place.getPoint()); 
-			if(searchList.isShown()){
-				Operations.removeView(searchList);
-				menuItem.getMenuItem().collapseActionView();
-			}
-			//mapControl.setZoom(19);
+		showMap(mTransaction, list.getView(), places);
+		map.animateTo(place.getPoint()); 
+		if(searchList.isShown()){
+			Operations.removeView(searchList);
+			searchItem.getMenuItem().collapseActionView();
 		}
+		
+		
 		
 	}
 	
@@ -737,8 +802,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		//if the searchbar activated, we will remove it 
 		if(searchList.isShown()){
 			Operations.removeView(searchList);
-			menuItem.getMenuItem().collapseActionView();
+			searchItem.getMenuItem().collapseActionView();
 		}
+		removeFrag(mTransaction);
+	
 			 if(position == Places.MAP.toInt()) 		showMap(mTransaction, list.getView());
 		else if(position == Places.NEWS.toInt()) 		;
 		else if(position == Places.SHOPS.toInt()) 		showFragment(shops, position);
@@ -748,7 +815,13 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		else if(position == Places.AMENITIES.toInt()){	showMap(mTransaction, list.getView());
 														if(!mDrawer.isOpened()) mDrawer.open();}
 		else if(position == Places.ADMIN.toInt()) 		showFragment(admin, position);
-	
+		
+		try{	 
+			mTransaction.commit();
+		} catch (IllegalStateException i){
+			//if commit was already called, this will happen
+		}
+				
 	}
 	
 	/**
@@ -978,6 +1051,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	        	if(isTracking){
 	        		follow.setIcon(R.drawable.ic_action_location);
 					isTracking = false;
+					me.follow(isTracking);
 					MessageBuilder.showToast("Following Off", this);
 	        	}
 	     	}

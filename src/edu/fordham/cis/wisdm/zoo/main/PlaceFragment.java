@@ -381,9 +381,11 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 */
 	public static void reCalculateDistance(Geopoint currentLoc, LinkedList<PlaceItem> points){
 		if(currentLoc!=null){
-			for(int i =0 ; i< points.size(); i++){
-				Geopoint point = points.get(i).getPoint();
-				point.setDescription(calculateDistance(currentLoc, point));
+			int size = points.size();
+			for(int i =0 ; i< size; i++){
+				PlaceItem place = points.poll();
+				place.setSnippet(calculateDistance(currentLoc, place.getPoint()));
+				points.addLast(place);
 			}
 		}
 	}
