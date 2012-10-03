@@ -11,7 +11,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK"/>	
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>	
-    
+     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/> 
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <uses-sdk android:minSdkVersion="8"  android:targetSdkVersion="13"/>
 
@@ -34,6 +35,7 @@
         <activity android:name=".SplashScreenActivity" android:configChanges="keyboardHidden|orientation|screenSize"></activity>
         <activity android:name=".Settings"></activity>
         <service android:name=".LocationUpdateService"></service>
+        <activity android:name=".OSMTestActivity"></activity>
     </application>
 
 </manifest>

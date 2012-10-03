@@ -42,13 +42,15 @@ public class GPSWriter extends DataOutputStream{
 	 * @param l
 	 */
 	public void storeLocation(Location l){
-		coords[0] = l.getLatitude();
-		coords[1] = l.getLongitude();
-		values[0] = l.getAccuracy();
-		values[1] = l.getSpeed();
-		values[2] = l.getAccuracy();
-		values[3] = l.getBearing();
-		provider = l.getProvider();
+		if(l!=null){
+			coords[0] = l.getLatitude();
+			coords[1] = l.getLongitude();
+			values[0] = l.getAccuracy();
+			values[1] = l.getSpeed();
+			values[2] = l.getAccuracy();
+			values[3] = l.getBearing();
+			provider = l.getProvider();
+		}
 	}
 	
 	/**

@@ -140,22 +140,22 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * Upper Y-coordinate of map
 	 */
-	private int north = (int)(40.8575319641275*1E6);
+	private int north = (int)(40.859525*1E6);
 	
 	/**
 	 * Lower y-coordinate of map
 	 */
-	private int south = (int)(40.84133892124885 *1E6);
+	private int south = (int)(40.8387492 *1E6);
 	
 	/**
 	 * Left-most x-coordinate on map
 	 */
-	private int west = (int)(-73.8843274391989*1E6);
+	private int west = (int)(-73.883056*1E6);
 	
 	/**
 	 * Right-most x-coordinate on map
 	 */
-	private int east = (int)(-73.87094804707424*1E6);
+	private int east = (int)(-73.866578*1E6);
 	
 	/**
 	 * whether location should be enabled
@@ -381,11 +381,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
     	map = (MapView) findViewById(R.id.map);
 		overlays = map.getOverlays();
 		
-		map.init(this, "map1/crop_%col%_%row%.png", 1250, 2000);
+		map.init(this, "map0/%col%_%row%.png", 768, 1280);
 		
-	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map2/crop_%col%_%row%.png", 2500, 4000));
-	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map3/crop_%col%_%row%.png", 3800, 6000));
-	    map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map4/crop_%col%_%row%.png", 5100, 8000));
+	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map1/%col%_%row%.png", 1536, 2560));
+	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map2/%col%_%row%.png", 3072, 5120));
+	    //map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map4/crop_%col%_%row%.png", 5100, 8000));
 	    map.getView().setOnTouchListener(this);
 	    // map.addMapScale(ZoomLevel.LEVEL_4, new MapScale("map5/crop_%col%_%row%.png", 6400, 10000));
 	       
@@ -583,7 +583,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 
 			@Override
 			public void run() {
-				map.animateTo(me.getPoint());
+				//map.animateTo(me.getPoint());
 				myLocation = me.getPoint();
 				if(!map.isShown() && !list.isVisible()){
 						 if(currentFragment == Places.EXHIBITS)		exhibit.refresh();
@@ -923,7 +923,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			 if(currentFragment == Places.EXHIBITS)		mTransaction.remove(exhibit);
 		else if(currentFragment == Places.FOOD)			mTransaction.remove(food);
 		else if(currentFragment == Places.SPECIAL)		mTransaction.remove(special);
-		else if(currentFragment ==Places.SHOPS)			mTransaction.remove(shops);
+		else if(currentFragment == Places.SHOPS)		mTransaction.remove(shops);
 		else if(currentFragment == Places.ADMIN)		mTransaction.remove(admin);
 	}
 	

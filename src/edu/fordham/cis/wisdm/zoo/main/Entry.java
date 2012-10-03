@@ -5,11 +5,16 @@ import com.actionbarsherlock.app.SherlockActivity;
 
 import cis.fordham.edu.wisdm.utils.FormChecker;
 import cis.fordham.edu.wisdm.utils.Operations;
+import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,6 +23,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 public class Entry extends SherlockActivity implements OnClickListener{
     /** Called when the activity is first created. */
@@ -37,12 +43,16 @@ public class Entry extends SherlockActivity implements OnClickListener{
 	public static boolean largeScreen;
 	
 	private static boolean isMember = false;
+	
+	private Connections mConnection;
+	
+	private boolean isConnected = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_extended);
-        
+       
         //initialize shared preference object
         Preference.initPrefForContext(this);
         
@@ -63,7 +73,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 			public void onClick(DialogInterface dialog, int which) {
 				Preference.putBoolean("member", true);
 				isMember = true;
-				setUpView(true);
+				setUpView();
 			}
     		
     	});
@@ -73,7 +83,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				Preference.putBoolean("member", false);
-				setUpView(false);
+				setUpView();
 			}
 		}).setCancelable(false).show();
     }
@@ -81,7 +91,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
     /*
      * Loads up widgets into memory
      */
-    private void setUpView(boolean isMember){
+    private void setUpView(){
     	largeScreen = false;
     	
     	DisplayMetrics display = new DisplayMetrics();
@@ -134,7 +144,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
     private void login(){
     	
     	String email = fields[0].getText().toString();
-		//String password = fields[1].getText().toString();
+		String password = fields[1].getText().toString();
 		
 		if(!FormChecker.checkEmail(fields[0])){
 			new HoloAlertDialogBuilder(this).setTitle("Error").setMessage("Ensure email is entered correctly").show();
@@ -148,10 +158,17 @@ public class Entry extends SherlockActivity implements OnClickListener{
 				Preference.putBoolean(REMEMBER_ME_LOC, false);
     		}
     		
-    		Intent login = new Intent(this, SurveyActivity.class);
-    		login.putExtra("email", email);
-    		startActivity(login);
-    		//startActivity(new Intent(this, OfflineMapActivity.class));
+    		/**if(isMember){
+    			mConnection = new Connections(email, password, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
+    			new ConnectToServerTask(mConnection, this).execute();
+    		}**/
+    		//if(isConnected || !isMember){
+    			Intent login = new Intent(this, SurveyActivity.class);
+    			login.putExtra("email", email);
+    			//Intent login = new Intent(this, OSMTestActivity.class);
+    			startActivity(login);
+    			//startActivity(new Intent(this, OfflineMapActivity.class));
+    		//}
     	}
     }
 
@@ -162,6 +179,39 @@ public class Entry extends SherlockActivity implements OnClickListener{
 			login();
 			break;
 		}
+	}
+	
+	private class ConnectToServerTask extends AsyncTask<Void, Void, Void>{
+		private Connections mConnection;
+		
+		private ProgressDialog dia;
+		
+		private Context mContext;
+		
+		public ConnectToServerTask(Connections con, Context cont){
+			mConnection = con;
+			mContext = cont;
+		}
+
+		@Override
+		protected void onPreExecute(){
+			dia = ProgressDialog.show(mContext, "Connecting", "Authorizing with server");
+		}
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			isConnected = Connections.prepare(mConnection);
+			Connections.disconnect();
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void aarg){
+			if(!isConnected)
+				Toast.makeText(mContext, "Connection failed", Toast.LENGTH_SHORT).show();
+			dia.dismiss();
+		}
+		
 	}
 }
 
