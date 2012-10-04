@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+   <LinearLayout 
+        android:id="@+id/socialList"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="20dip"
+        style="@style/wrap">
+		<ImageButton 
+		    android:id="@+id/facebook"
+		    style="@style/wrap"
+		    android:src="@drawable/ic_action_facebook"
+		    />        
+		<ImageButton 
+		    android:id="@+id/twitter"
+		    style="@style/wrap"
+		    android:src="@drawable/ic_action_twitter"
+		    />        
+		<ImageButton 
+		    android:id="@+id/linkedin"
+		    style="@style/wrap"
+		    android:src="@drawable/ic_action_linkedin"
+		    />        
+		
+    </LinearLayout>
+
+    <EditText 
+        android:layout_below="@id/socialList"
+        android:id="@+id/email"
+        style="@style/fill_width_partial"
+        android:layout_marginBottom="10dip"
+        android:inputType="textEmailAddress"
+        android:hint="Email"
+        />
+    <EditText 
+        android:layout_below="@id/email"
+        android:id="@+id/password"
+        style="@style/fill_width_partial"
+        android:layout_marginBottom="10dip"
+        android:inputType="textPassword"
+        android:hint="Password"
+        />
+    <EditText 
+        android:layout_below="@id/password"
+        android:id="@+id/password_confirm"
+        style="@style/fill_width_partial"
+        android:layout_marginBottom="10dip"
+        android:inputType="textPassword"
+        android:hint="Confirm Password"
+        />
+    
+    <Button 
+        android:layout_below="@id/password_confirm"
+        android:id="@+id/register"
+        android:textSize="30dip"
+        style="@style/fill_width_partial"
+        android:text="Register"
+        />
+   
+        
+</RelativeLayout>

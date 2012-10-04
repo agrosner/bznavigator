@@ -38,12 +38,14 @@ public class Connections {
 	
 	private String mPassword = "";
 	
+	public static String mServerMessage = " ";
 
 	private String mDevId = " ";
 	
 	private static boolean connect(){
 		Log.v(TAG, "Connecting to server...");
 		
+		mServerMessage = " ";
 		mSocket = new Socket();
 		InetAddress addr;
 		try {
@@ -64,6 +66,8 @@ public class Connections {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			mServerMessage +="\n";
+			mServerMessage+=e.getMessage();
 			return false;
 		}
 		
@@ -82,20 +86,29 @@ public class Connections {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			mServerMessage+="\n";
+			mServerMessage+=e.getMessage();
 			return false;
 		}
 		
 		try {
-			String smsg = mInputStream.readLine();
-			if(smsg.equals(SocketParser.AUTH_CODE)){
+			byte smsg = mInputStream.readByte();
+			if(smsg == SocketParser.AUTH_CODE){
 				Log.v(TAG, "User authorized");
-			} else{
+			} else if(smsg == SocketParser.AUTH_DENY){
 				Log.v(TAG, "User denied");
+				mServerMessage+="\nUser denied";
+				return false;
+			} else{
+				Log.v(TAG, "Error?");
+				mServerMessage+="\nUnknown error";
 				return false;
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			mServerMessage+="\n";
+			mServerMessage+=e.getMessage();
 			return false;
 		}
 		
@@ -123,12 +136,37 @@ public class Connections {
 		return connect() && authorize(con);
 	}
 	
+	public static boolean createUser(Connections con){
+		if(connect()){
+			try {
+				SocketParser.writeUsrReq(mOutputStream, con.mEmail.split("@")[0], con.mPassword, con.mEmail, con.mDevId);
+				byte smsg = mInputStream.readByte();
+				if(smsg == SocketParser.USR_TAKEN){
+					mServerMessage+="\nUser taken";
+					return false;
+				} else if(smsg == SocketParser.AUTH_CODE){
+					mServerMessage+="\nUser created!";
+					return true;
+				}
+			} catch (IOException e) {
+			// 	TODO Auto-generated catch block
+				e.printStackTrace();
+				mServerMessage+="\n";
+				mServerMessage+=e.getMessage();
+			}
+		}
+		return false;
+	}
+	
 	public static boolean disconnect(){
 		try {
 			SocketParser.disconnect(mOutputStream, mInputStream);
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO Auto-generated catch blockto
+			e.printStackTrace();
+			return false;
+		} catch(RuntimeException e){
 			e.printStackTrace();
 			return false;
 		}

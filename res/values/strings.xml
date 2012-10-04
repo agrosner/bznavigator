@@ -3,7 +3,9 @@
 
     <string name="hello">Hello World, ZooTrackerActivity!</string>
     <string name="app_name">BZ Navigator</string>
-
     <string name="AndrewLaptopKey">0yFhoUXL1JKxp1km4VoGX-s9M1wAu3Ga9YTxvMg</string>
-    
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_register">RegisterActivity</string>
+
 </resources>

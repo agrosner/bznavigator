@@ -40,4 +40,12 @@ public class Preference {
 	public static String getEmail(){
 		return getString("edu.fordham.cis.wisdm.zoo.email", "");
 	}
+	
+	public static long getLong(String loc, long val){
+		return sprefs.getLong(loc, val);
+	}
+	
+	public static void putLong(String loc, long val){
+		sprefs.edit().putLong(loc, val).commit();
+	}
 }

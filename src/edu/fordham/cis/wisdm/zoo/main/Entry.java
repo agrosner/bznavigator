@@ -44,10 +44,10 @@ public class Entry extends SherlockActivity implements OnClickListener{
 	
 	private static boolean isMember = false;
 	
-	private Connections mConnection;
+	public static Connections mConnection = null;
 	
 	private boolean isConnected = false;
-
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,18 +158,23 @@ public class Entry extends SherlockActivity implements OnClickListener{
 				Preference.putBoolean(REMEMBER_ME_LOC, false);
     		}
     		
-    		/**if(isMember){
+    		if(isMember){
     			mConnection = new Connections(email, password, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
     			new ConnectToServerTask(mConnection, this).execute();
-    		}**/
-    		//if(isConnected || !isMember){
+    		}
+    		if(isConnected || !isMember){
     			Intent login = new Intent(this, SurveyActivity.class);
     			login.putExtra("email", email);
     			//Intent login = new Intent(this, OSMTestActivity.class);
     			startActivity(login);
     			//startActivity(new Intent(this, OfflineMapActivity.class));
-    		//}
+    		}
     	}
+    }
+    
+    private void signUp(){
+    	Intent signup = new Intent(this, RegisterActivity.class);
+    	startActivity(signup);
     }
 
 	@Override
@@ -177,6 +182,9 @@ public class Entry extends SherlockActivity implements OnClickListener{
 		switch(v.getId()){
 		case R.id.LoginButton:
 			login();
+			break;
+		case R.id.SignUp:
+			signUp();
 			break;
 		}
 	}
@@ -187,6 +195,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 		private ProgressDialog dia;
 		
 		private Context mContext;
+		
 		
 		public ConnectToServerTask(Connections con, Context cont){
 			mConnection = con;
@@ -208,7 +217,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 		@Override
 		protected void onPostExecute(Void aarg){
 			if(!isConnected)
-				Toast.makeText(mContext, "Connection failed", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, "Connection failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
 			dia.dismiss();
 		}
 		
