@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="edu/fordham/cis/wisdm/zoo/main/OSMTestActivity.java|edu/fordham/cis/wisdm/zoo/utils/BoundedMapView.java" kind="src" path="src"/>
+	<classpathentry kind="src" path="at-utils"/>
+	<classpathentry kind="src" path="bzsrc"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry kind="lib" path="/usr/share/java/ant.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/bonecp-0.7.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/share/java/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="/home/agrosner/Dropbox/weka.jar"/>
+	<classpathentry kind="output" path="bin/classes"/>
+</classpath>
