@@ -118,8 +118,8 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
 		exhibitList.removeAllViews();
 		
-		if(type == PlaceType.SHOPS)
-			exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, true));
+		//if(type == PlaceType.SHOPS)
+			//exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, true));
 		
 		exhibitList.addView(createExhibitItem(getActivity(), inflater, container, 0, "ic_action_location", "View All On Map", "", this, true));
 		

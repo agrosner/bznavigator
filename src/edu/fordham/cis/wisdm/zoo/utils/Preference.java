@@ -26,7 +26,11 @@ public class Preference {
 	}
 	
 	public static String getString(String loc, String defalt){
-		return sprefs.getString(loc, defalt);
+		try{
+			return sprefs.getString(loc, defalt);
+		} catch(NullPointerException n){
+			return null;
+		}
 	}
 	
 	public static void putBoolean(String loc, boolean val){

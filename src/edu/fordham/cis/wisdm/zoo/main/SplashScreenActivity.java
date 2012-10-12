@@ -15,7 +15,10 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Rect;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
@@ -51,7 +54,6 @@ import android.widget.RelativeLayout.LayoutParams;
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.Operations;
 
-import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -79,11 +81,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * user's email from Login
 	 */
 	private static String email;
-	
-	/**
-	 * the button on top left of screen user presses to see the menu
-	 */
-	private ImageButton home;
 	
 	private SlidingDrawer mDrawer;
 	
@@ -246,38 +243,54 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 	private LinkedList<PlaceItem> searchExhibits = new LinkedList<PlaceItem>();
 	
-	@Override
+	/**@Override
 	public void onConfigurationChanged(Configuration config){
 		super.onConfigurationChanged(config);
 		
-		map.removeAllViews();
-		init();
+		//map.removeAllViews();
+		//init();
+		determineScreenLayout();
 		if(config.orientation == Configuration.ORIENTATION_PORTRAIT && isLargeScreen){
 			isLargeScreen = false;
-			Operations.removeView(map);
+			if(currentFragment!=Places.MAP){
+				Operations.removeView(map);
+			}
         	//addListButton();
-		} else if(isLargeScreen){
-			if(currentFragment==Places.MAP){
-				showMap(mTransaction, list.getView());
+		} else if(config.orientation == Configuration.ORIENTATION_LANDSCAPE && isLargeScreen){
+			if(!map.isShown()){
+				Operations.addView(map);
+			}
+			if(!list.isVisible()){
+				showList();
 			}
 		} else if(!isLargeScreen && currentFragment == Places.MAP){
 			showMap(mTransaction, list.getView());
 		}
 		map.getView().refresh();
-		
-	}
+	}**/
 	
 	@Override
 	public void onCreate(Bundle instance){
 		super.onCreate(instance);
 		setContentView(R.layout.splash);
+		
+		//load listfragment into memory
+		list = (ArrayListFragment) this.getSupportFragmentManager().findFragmentById(R.id.listfragment);
+		list.getListView().setOnItemClickListener(this);
+		//init map objects
+		map = null;
+		map = (MapView) findViewById(R.id.map);
+		
+		determineScreenLayout();
+	       
+		
 		loader = ProgressDialog.show(this, "Loading Data", "Please Wait");
 		
 		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
 		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		
 		//gives user an option to accept terms or leave the app
-		final HoloAlertDialogBuilder termsDialogBuilder = new HoloAlertDialogBuilder(this);
+		final AlertDialog.Builder termsDialogBuilder = new AlertDialog.Builder(this);
 		
 		//cancel button used for both dialogs
 		DialogInterface.OnClickListener cancel = new DialogInterface.OnClickListener() {
@@ -306,7 +319,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		//if network error message
 		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)&& !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-			final HoloAlertDialogBuilder gpsInternetDialogBuilder = new HoloAlertDialogBuilder(this);
+			final AlertDialog.Builder gpsInternetDialogBuilder = new AlertDialog.Builder(this);
 			
 			gpsInternetDialogBuilder.setNegativeButton("Quit", cancel);
 			gpsInternetDialogBuilder.setTitle("Please Turn on GPS and Internet");
@@ -372,14 +385,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		//mAction.setTitle("Bronx Zoo Navigator");
 				
 		
-		//load listfragment into memory
-		list = (ArrayListFragment) this.getSupportFragmentManager().findFragmentById(R.id.listfragment);
-		list.getListView().setOnItemClickListener(this);
 		
-		//init map objects
-		map = null;
-    	map = (MapView) findViewById(R.id.map);
 		overlays = map.getOverlays();
+		
+		determineScreenLayout();
 		
 		map.init(this, "map0/%col%_%row%.png", 768, 1280);
 		
@@ -402,35 +411,37 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		Intent i = new Intent(this.getApplicationContext(), LocationUpdateService.class);
 		i.putExtra("email", email);
 		startService(i);
-		
-		//get screen width to optimize layout
-        DisplayMetrics display = new DisplayMetrics();
-        this.getWindowManager().getDefaultDisplay().getMetrics(display);
-        SCREEN_WIDTH = display.widthPixels;
         
-        //if in landscape of a larger sized screen, we change to large screen mode
-        int orient = this.getResources().getConfiguration().orientation;
-        int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-        if((screensize == Configuration.SCREENLAYOUT_SIZE_XLARGE || screensize == Configuration.SCREENLAYOUT_SIZE_LARGE) && (orient == Configuration.ORIENTATION_LANDSCAPE)){
-        	//scale the width of the sidebar to specified size
-			LayoutParams lp = new LayoutParams((SCREEN_WIDTH/5), LayoutParams.FILL_PARENT);
-        	list.getView().setLayoutParams(lp);
-        	isLargeScreen = true;
-        	
-        } else{//small screen we want to hide it
-        	Operations.removeView(map);
-        	//addListButton();
-    		isLargeScreen = false;
-    		list.getView().setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-        }
-        
-       searchList = (LinearLayout) findViewById(R.id.SearchList);
-       Operations.removeView(searchList);
+        searchList = (LinearLayout) findViewById(R.id.SearchList);
+        Operations.removeView(searchList);
        
        
    		addDrawerList();
 	
 
+	}
+	
+	@SuppressWarnings("deprecation")
+	private void determineScreenLayout(){
+		//get screen width to optimize layout
+        DisplayMetrics display = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(display);
+        SCREEN_WIDTH = display.widthPixels;
+		
+        int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+        if((screensize == Configuration.SCREENLAYOUT_SIZE_XLARGE || screensize == Configuration.SCREENLAYOUT_SIZE_LARGE)){
+        	//scale the width of the sidebar to specified size
+			LayoutParams lp = new LayoutParams((SCREEN_WIDTH/4), LayoutParams.FILL_PARENT);
+        	list.getView().setLayoutParams(lp);
+        	isLargeScreen = true;
+        	this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else{//small screen we want to hide it
+        	Operations.removeView(map);
+        	//addListButton();
+    		isLargeScreen = false;
+    		list.getView().setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+    		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 	}
 	
 	private void addDrawerList(){
@@ -480,7 +491,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
 				if(isChecked){
 					readInPlaces(pts, fileName, mTransaction, list.getView());
-					map.getView().reDrawOverlays(true);
 				} else{
 					map.getView().removeOverlayList(pts);
 				}
@@ -493,18 +503,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		return iconCheckbox;
 	}
 	
-	/*private void addListButton(){
-		ActionBar mAction = this.getSupportActionBar();
-		
-		home = new ImageButton(this);
-		home.setId(0);
-		home.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-		home.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_action_list));
-		mAction.setCustomView(home);
-		mAction.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-		home.setOnClickListener(this);
-	}*/
-	
 	@Override
 	public void onLowMemory(){
 		//refresh the map resources when memory is low
@@ -514,27 +512,24 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	@Override
 	public void onPause(){
 		super.onPause();
-		if(enableLoc){
-			stopLocationUpdates();
-		}
+		if(enableLoc)	stopLocationUpdates();
 	}
 	
 	@Override
 	public void onResume(){
 		super.onResume();
-		if(enableLoc){
-			startLocationUpdates();
-		} 
+		if(enableLoc)	startLocationUpdates();
 	}
 	
 	@Override
 	public void onDestroy(){
 		super.onDestroy();
-		if(enableLoc){
-			stopLocationUpdates();
-		}
+		if(enableLoc) stopLocationUpdates();
 	}
 	
+	/**
+	 * Starts location
+	 */
 	private void startLocationUpdates(){
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		
@@ -545,21 +540,21 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		 
 		String locationMessage = null;
 		 
-		 	 if (lManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-				locationMessage ="GPS provider enabled.";
-				isLocation = true;
-		 	 } else if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-		 		 locationMessage = "Network provider enabled.";
-		 		 isLocation = true;
-		 	 } else	{
-		 		 locationMessage = "No provider enabled. Please check settings and allow locational services.";
-		 		 isLocation = false;
-		 	 }
-		 	 if(isLocation){
-		 		 searchItem.getMenuItem().setOnMenuItemClickListener(this);
-		 	 } else{
-		 		 final Context con = getApplicationContext();
-		 		 searchItem.getMenuItem().setOnMenuItemClickListener(new OnMenuItemClickListener(){
+		if (lManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+			locationMessage ="GPS provider enabled.";
+			isLocation = true;
+		} else if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+			locationMessage = "Network provider enabled.";
+		 	isLocation = true;
+		} else	{
+			locationMessage = "No provider enabled. Please check settings and allow locational services.";
+		 	isLocation = false;
+		}
+		if(isLocation){
+			searchItem.getMenuItem().setOnMenuItemClickListener(this);
+		} else{
+			final Context con = getApplicationContext();
+			searchItem.getMenuItem().setOnMenuItemClickListener(new OnMenuItemClickListener(){
 
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
@@ -567,11 +562,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 						return false;
 					}
 		 			 
-		 		 });
-		 	 }
+			});
+		}
 		 	 
 		Toast.makeText(this, locationMessage, Toast.LENGTH_SHORT).show();
-			final ContextWrapper con = this;
+		final ContextWrapper con = this;
 		final Activity act = this;
 		final LayoutInflater inflater = this.getLayoutInflater();
 		final OnClickListener onclick = this;
@@ -653,7 +648,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		}else{
 		
 			//ask user whether quit or not
-			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
+			AlertDialog.Builder message = new AlertDialog.Builder(this);
 			message.setTitle("Quit?");
 			message.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
 				@Override
@@ -688,8 +683,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		follow = menu.add(ActionEnum.FOLLOW.toString()).setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_location);
 		follow.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
 				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add(ActionEnum.NEAREST.toString()).setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_show).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
-				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		//menu.add(ActionEnum.NEAREST.toString()).setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_show).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+				//| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add(ActionEnum.ABOUT.toString()).setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add(ActionEnum.SETTINGS.toString()).setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
@@ -709,7 +704,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			
 		} else if(item.getTitle().equals(ActionEnum.ABOUT.toString())){
 			//ask user whether quit or not
-			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
+			AlertDialog.Builder message = new AlertDialog.Builder(this);
 			message.setTitle("About:");
 			message.setMessage("\nDeveloper: Andrew Grosner\n\t\t\t\t  agrosner@fordham.edu\n" +
 					"\nAssistant Developer: Isaac Ronan\n" 
@@ -733,8 +728,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				MessageBuilder.showToast("Following Off", this);
 			}
 			me.follow(isTracking);
-		} else if(item.getTitle().equals(ActionEnum.NEAREST.toString())){
-			
+		} else if(item.getTitle().equals(ActionEnum.NEAREST.toString()) || item.getTitle().equals(ActionEnum.SETTINGS.toString())){
+			MessageBuilder.showToast("Coming Soon", this);
 		} 
 		return false;
 	}
@@ -766,9 +761,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			Operations.removeView(searchList);
 			searchItem.getMenuItem().collapseActionView();
 		}
-		
-		
-		
 	}
 	
 	/**
@@ -807,7 +799,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		removeFrag(mTransaction);
 	
 			 if(position == Places.MAP.toInt()) 		showMap(mTransaction, list.getView());
-		else if(position == Places.NEWS.toInt()) 		;
+		else if(position == Places.NEWS.toInt()) 		MessageBuilder.showToast("Coming soon", this);
+		else if(position == Places.FIND.toInt())		MessageBuilder.showToast("Coming soon", this);
 		else if(position == Places.SHOPS.toInt()) 		showFragment(shops, position);
 		else if(position == Places.SPECIAL.toInt()) 	showFragment(special, position);
 		else if(position == Places.FOOD.toInt()) 		showFragment(food, position);
@@ -848,7 +841,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		if(!isLargeScreen && currentFragment!=Places.MAP)	Operations.swapViews(v, map);
 		else if(!map.isShown())	Operations.addView(map);
 		
-		
 		if(isLargeScreen){
 			removeFrag(mTransaction);
 			mTransaction.commit();
@@ -873,6 +865,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		if (place!=null)	overlays.addAll(place);
 		
 		lastPlaces = (LinkedList<PlaceItem>) place.clone();
+		map.getView().reDrawOverlays(true);
+		
 	}
 	
 	/**
@@ -971,6 +965,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			PlaceFragment.readInFile(this, fName, pts);
 		}
 		overlays.addAll(pts);
+		map.getView().reDrawOverlays(true);
 		//this.showMap(mTransaction, v, points);
 	}
 	
@@ -1054,9 +1049,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 					me.follow(isTracking);
 					MessageBuilder.showToast("Following Off", this);
 	        	}
+	        	
 	     	}
 		}
 	     return super.onTouchEvent(e);
 	}
 	
 }
+

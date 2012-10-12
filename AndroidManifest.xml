@@ -22,7 +22,7 @@
     <application
         android:icon="@drawable/appicon"
         android:label="@string/app_name"
-        android:theme="@style/Theme.HoloEverywhereLight.Sherlock.ForceOverflow" >
+        android:theme="@style/Holo.Theme.Sherlock.Light" >
         <activity android:name=".Entry" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,11 +47,10 @@
         <activity
             android:name=".RegisterActivity"
             android:label="@string/title_activity_register" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        </activity>
+        <activity
+            android:name=".NutiTestActivity"
+            android:label="@string/title_activity_nuti_test" >
         </activity>
     </application>
 

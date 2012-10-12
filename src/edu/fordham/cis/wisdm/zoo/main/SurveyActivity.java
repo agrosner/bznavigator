@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
-import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
+
 import com.actionbarsherlock.app.SherlockActivity;
+
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -373,7 +375,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			reloadResponses();
 		}
 		else{
-			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
+			AlertDialog.Builder message = new AlertDialog.Builder(this);
 			message.setTitle("No previous questions! Quit Survey?");
 			message.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 				

@@ -11,6 +11,7 @@ import com.facebook.android.DialogError;
 import com.facebook.android.Facebook;
 import com.facebook.android.Facebook.DialogListener;
 import com.facebook.android.FacebookError;
+import com.facebook.android.Util;
 
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
@@ -37,6 +38,8 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 	private EditText passField;
 	private EditText confPassField;
 	private ImageButton[] imButtons = new ImageButton[3];
+	
+	private final String ID = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 	
 	Facebook facebook = new Facebook("503456236331740");
 	
@@ -108,7 +111,7 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 		} else if(email.length() ==0 || password.length() == 0){
 			Toast.makeText(this, "One or more fields are empty", Toast.LENGTH_SHORT).show();
 		} else{ 
-			if(mConnection==null)	mConnection = new Connections(email, password, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
+			mConnection = new Connections(email, password, ID);
 			new AuthorizeUserTask(mConnection, this).execute();
 		}
 	}
@@ -135,7 +138,7 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 
 		@Override
 		protected void onPreExecute(){
-			dia = ProgressDialog.show(mContext, "Connecting", "Authorizing with server");
+			dia = ProgressDialog.show(mContext, "Connecting", "Wait a moment as we register you");
 		}
 		
 		@Override
@@ -147,9 +150,9 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 		
 		@Override
 		protected void onPostExecute(Void aarg){
-			if(!isConnected)
-				Toast.makeText(mContext, "Connection failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
 			dia.dismiss();
+			if(!isConnected)	Toast.makeText(mContext, "Authorization Failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
+			else				finish();
 		}
 		
 	}
@@ -157,12 +160,10 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 	private void facebook(){
 		String token = Preference.getString("access_token", null);
 		long expires = Preference.getLong("access_expires", 0);
-		if(token!=null){
-			facebook.setAccessToken(token);
-		}
-		if(expires != 0) {
-            facebook.setAccessExpires(expires);
-        }
+		
+		if(token!=null)		facebook.setAccessToken(token);
+		if(expires != 0)	facebook.setAccessExpires(expires);
+
 		if(!facebook.isSessionValid()){
 		
 			facebook.authorize(this, new String[]{"email"}, new DialogListener(){
@@ -171,6 +172,8 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 				public void onComplete(Bundle values) {
 					Preference.putString("access_token", facebook.getAccessToken());
 					Preference.putLong("access_expires", facebook.getAccessExpires());
+					
+					
 				}
 				
 				@Override
