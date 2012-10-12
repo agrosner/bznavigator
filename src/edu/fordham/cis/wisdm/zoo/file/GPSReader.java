@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 
+import edu.fordham.cis.wisdm.zoo.utils.Connections;
+
 import android.util.Log;
 
 /**
@@ -33,26 +35,17 @@ public class GPSReader extends DataInputStream{
 	}
 	
 	/**
-	 * Attempts to connect to the server
-	 * @return
-	 */
-	private boolean connect(){
-		
-		
-		return true;
-	}
-	
-	/**
 	 * reads from file and sends it to the server
 	 * @throws IOException 
 	 * @param TAG - log tag to send information to
 	 */
-	public void sendData(String TAG) throws IOException{
-		if(!connect()){
+	public void sendData(String TAG, Connections connection) throws IOException{
+		
+		if(!Connections.prepare(connection)){
 			Log.d(TAG, "Could not connect to server!");
 			return;
 		}
-		
+		Log.v(TAG, "Sending data...");
 		boolean more = true;
 		while(more){
 			try{
@@ -76,12 +69,14 @@ public class GPSReader extends DataInputStream{
 				//System.out.println(latitude + "," + longitude);
 				
 				//debug line will show what is read from file
-				String line = String.valueOf(email) +"," + time + "," + latitude + "," + longitude + ",";
+				//String line = String.valueOf(email) +"," + time + "," + latitude + "," + longitude + ",";
 				
-				float[] values = new float[4];
-				for(int i =0; i < 4; i++){
+				float[] values = new float[6];
+				values[0] = (float) latitude;
+				values[1] = (float) longitude;
+				for(int i =2; i < 4; i++){
 					values[i] = readFloat();
-					line+=values[i] + ",";
+					//line+=values[i] + ",";
 				}
 				
 				byte providerLength = readByte();
@@ -90,7 +85,7 @@ public class GPSReader extends DataInputStream{
 					provider[i] = readChar();
 				}
 				
-				line+=String.valueOf(provider) + ",";
+				//line+=String.valueOf(provider) + ",";
 				
 				char end = readChar();
 				if(end != '\n'){
@@ -100,12 +95,15 @@ public class GPSReader extends DataInputStream{
 				}
 		
 				//TODO: add streaming function here
-				Log.d(TAG, line);
+				Connections.sendData(time, values, GPS_TUPLE);
+				
 			} catch(EOFException e){
 				more = false;
 				break;
 			}
 		}
+		
+		Connections.disconnect();
 		
 	}
 	

@@ -42,6 +42,8 @@ public class Connections {
 
 	private String mDevId = " ";
 	
+	private static boolean isConnected = false;
+	
 	private static boolean connect(){
 		Log.v(TAG, "Connecting to server...");
 		
@@ -72,7 +74,7 @@ public class Connections {
 		}
 		
 		Log.v(TAG, "Established Connection");
-		
+		isConnected = true;
 		return true;
 	}
 	
@@ -112,6 +114,7 @@ public class Connections {
 			return false;
 		}
 		
+		Log.v(TAG, "User authorized!");
 		return true;
 	}
 	
@@ -158,7 +161,35 @@ public class Connections {
 		return false;
 	}
 	
+	/**
+	 * Sends a line to the server
+	 * @param time
+	 * @param values
+	 * @param recordType
+	 * @return
+	 */
+	public static boolean sendData(long time, float[] values, byte recordType){
+		if(!isConnected){
+			Log.v(TAG, "Not connected!");
+			return false;
+		}
+		
+		try {
+			SocketParser.writeNormalRecord(mOutputStream, values.length, values, time, recordType);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		return false;
+	}
+	
+	
+	
 	public static boolean disconnect(){
+		isConnected = false;
+		Log.v(TAG, "Disconnecting...");
 		try {
 			SocketParser.disconnect(mOutputStream, mInputStream);
 			return true;

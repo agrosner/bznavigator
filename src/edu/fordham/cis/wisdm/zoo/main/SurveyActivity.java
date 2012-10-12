@@ -95,6 +95,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         email = this.getIntent().getExtras().getString("email");
         splash = new Intent(this, SplashScreenActivity.class);
         splash.putExtra("email", email);
+        splash.putExtra("password", getIntent().getExtras().getString("password"));
         splash.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         
         scroll = (ScrollView)this.findViewById(R.id.scroll);

@@ -1,5 +1,5 @@
 Place Name,drawable_file_name,latitude,longitude,
 Asia Parking,car,40.84625705877215,-73.87666322926178,
 Southern Boulevard Parking,car,40.85001090582476,-73.88137817619634,
-Fordham Parking,car,40.8538537819344,-73.87765609343069,
+Fordham Parking,car,40.8539912509185,-73.87783118833583,
 Bronx River Parking,car,40.85298183154114,-73.87308668733608,

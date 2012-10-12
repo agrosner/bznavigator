@@ -21,6 +21,8 @@ import android.graphics.Rect;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.location.LocationManager;
@@ -137,22 +139,22 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * Upper Y-coordinate of map
 	 */
-	private int north = (int)(40.859525*1E6);
+	private int north = (int)(40.85988281739409*1E6);
 	
 	/**
 	 * Lower y-coordinate of map
 	 */
-	private int south = (int)(40.8387492 *1E6);
+	private int south = (int)(40.83874984609*1E6);
 	
 	/**
 	 * Left-most x-coordinate on map
 	 */
-	private int west = (int)(-73.883056*1E6);
+	private int west = (int)(-73.88877402139309*1E6);
 	
 	/**
 	 * Right-most x-coordinate on map
 	 */
-	private int east = (int)(-73.866578*1E6);
+	private int east = (int)(-73.86642400707782*1E6);
 	
 	/**
 	 * whether location should be enabled
@@ -390,10 +392,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		determineScreenLayout();
 		
-		map.init(this, "map0/%col%_%row%.png", 768, 1280);
+		map.init(this, "map0/%col%_%row%.png", 1024, 1280);
 		
-	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map1/%col%_%row%.png", 1536, 2560));
-	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map2/%col%_%row%.png", 3072, 5120));
+	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map1/%col%_%row%.png", 2048, 2560));
+	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map2/%col%_%row%.png", 4096, 5120));
 	    //map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map4/crop_%col%_%row%.png", 5100, 8000));
 	    map.getView().setOnTouchListener(this);
 	    // map.addMapScale(ZoomLevel.LEVEL_4, new MapScale("map5/crop_%col%_%row%.png", 6400, 10000));
@@ -410,6 +412,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		Intent i = new Intent(this.getApplicationContext(), LocationUpdateService.class);
 		i.putExtra("email", email);
+		i.putExtra("password", getIntent().getExtras().getString("password"));
 		startService(i);
         
         searchList = (LinearLayout) findViewById(R.id.SearchList);
@@ -649,11 +652,24 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 			//ask user whether quit or not
 			AlertDialog.Builder message = new AlertDialog.Builder(this);
-			message.setTitle("Quit?");
+			message.setTitle("Logout?");
+			final Activity act = this;
 			message.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					finish();
+					Intent upIntent = new Intent(act, Entry.class);
+		            if (NavUtils.shouldUpRecreateTask(act, upIntent)) {
+		                // This activity is not part of the application's task, so create a new task
+		                // with a synthesized back stack.
+		                TaskStackBuilder.from(act)
+		                        .addNextIntent(upIntent)
+		                        .startActivities();
+		                finish();
+		            } else {
+		                // This activity is part of the application's task, so simply
+		                // navigate up to the hierarchical parent activity.
+		                NavUtils.navigateUpTo(act, upIntent);
+		            }
 				}
 				
 			});
@@ -701,7 +717,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
 		
 		if(item.getTitle().equals(ActionEnum.SETTINGS.toString())){
-			
+			startActivity(new Intent(this, SettingsActivity.class));
 		} else if(item.getTitle().equals(ActionEnum.ABOUT.toString())){
 			//ask user whether quit or not
 			AlertDialog.Builder message = new AlertDialog.Builder(this);
@@ -718,10 +734,12 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				showMap(mTransaction, getCurrentFragment());
 			}
 			if(!isTracking){
-				item.setIcon(R.drawable.ic_action_location_blue);
-				map.animateTo(myLocation);
-				isTracking = true;
-				MessageBuilder.showToast("Now Following Current Location", this);
+				if (myLocation!=null){
+					item.setIcon(R.drawable.ic_action_location_blue);
+					map.animateTo(myLocation);
+					isTracking = true;
+					MessageBuilder.showToast("Now Following Current Location", this);
+				}	else MessageBuilder.showLongToast("Cannot find current location",  this);
 			} else{
 				item.setIcon(R.drawable.ic_action_location);
 				isTracking = false;
@@ -787,6 +805,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		currentFragment = Places.LIST;
 	}
 
+	/**
+	 * User clicks on the main menu item
+	 */
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
@@ -895,6 +916,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			Operations.removeView(mDrawer);
 		} else if(isLargeScreen){
 			if(map.isShown()){
+				removeFrag(mTransaction);
 				if(!f.isAdded())	mTransaction.add(R.id.PlaceView, f).commit();
 			} else{
 				if(f.isAdded()){

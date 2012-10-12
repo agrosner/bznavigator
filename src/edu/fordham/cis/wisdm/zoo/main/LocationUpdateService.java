@@ -10,6 +10,7 @@ import com.grosner.mapview.Geopoint;
 
 import edu.fordham.cis.wisdm.zoo.file.GPSReader;
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
+import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import android.app.Service;
 import android.content.Context;
@@ -23,6 +24,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.provider.Settings.Secure;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,6 +41,11 @@ public class LocationUpdateService extends Service implements LocationListener{
 	public static String TAG = "LocationUpdateService";
 	
 	/**
+	 * connection object containing user info
+	 */
+	private Connections mConnection = null;
+	
+	/**
 	 * manages location updates
 	 */
 	private LocationManager lManager = null;
@@ -47,6 +54,11 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 * GPS update rate
 	 */
 	private long GPSUpdate = 20000;
+	
+	/**
+	 * Stream rate (every 2 minutes)
+	 */
+	private long STRUpdate = 120000;
 	
 	/**
 	 * GPS file objects
@@ -62,6 +74,11 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 * Timer that writes GPS data to file
 	 */
 	private Timer timer;
+	
+	/**
+	 * Timer that streams data to the server
+	 */
+	private Timer streamer;
 	
 	/**
 	 * user email string
@@ -106,18 +123,23 @@ public class LocationUpdateService extends Service implements LocationListener{
 				
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onStart(Intent i, int startid){
 		super.onStart(i, startid);
 		String em = null;
+		String ps = null;
 		try{
 			em = i.getExtras().getString("email");
+			ps = i.getExtras().getString("password");
 		} catch(NullPointerException n){
 			
 		}
 		if(em!=null){
 			email = em;
 		}
+		
+		mConnection = new Connections(email, ps, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
 		
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		startLocation();
@@ -129,6 +151,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		}
 			
 		startTimer();
+		startStream();
 		
 	}
 	
@@ -137,7 +160,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		super.onDestroy();
 		stopLocation();
 		stopTimer();
-		//stream();
+		stopStream();
 		closeFiles();
 		wLock.release();
 		Log.d(TAG, "Service Stopped");
@@ -196,7 +219,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 	private void stream(){
 		try {
 			reader = new GPSReader(this.openFileInput(fName+"1.txt"));
-			reader.sendData(TAG);
+			reader.sendData(TAG, mConnection);
 			reader.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -218,6 +241,25 @@ public class LocationUpdateService extends Service implements LocationListener{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	private void startStream(){
+		streamer = new Timer("Data streamer");
+		streamer.scheduleAtFixedRate(new TimerTask(){
+
+			@Override
+			public void run() {
+				stream();
+			}
+			
+		}, STRUpdate, STRUpdate);
+	}
+	private void stopStream(){
+		try{
+			streamer.cancel();
+		} catch(Exception e){
+			
 		}
 	}
 	

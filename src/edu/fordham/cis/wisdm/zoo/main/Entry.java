@@ -169,6 +169,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
     		} else	if(!isMember){
     			Intent login = new Intent(this, SurveyActivity.class);
     			login.putExtra("email", email);
+    			login.putExtra("password", password);
     			//Intent login = new Intent(this, OSMTestActivity.class);
     			startActivity(login);
     			//startActivity(new Intent(this, OfflineMapActivity.class));
@@ -225,6 +226,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 			else{
 				Intent login = new Intent(mContext, SurveyActivity.class);
     			login.putExtra("email", mConnection.getmEmail());
+    			login.putExtra("password", mConnection.getmPassword());
     			//Intent login = new Intent(this, OSMTestActivity.class);
     			startActivity(login);
     			//startActivity(new Intent(this, OfflineMapActivity.class));
