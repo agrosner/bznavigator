@@ -5,8 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,7 +19,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.Rect;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -41,8 +42,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -56,6 +55,7 @@ import android.widget.RelativeLayout.LayoutParams;
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.Operations;
 
+import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -173,9 +173,15 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 	private LinkedList<PlaceItem> restrooms = new LinkedList<PlaceItem>();
 	
+	private boolean showRestrooms = true;
+	
 	private LinkedList<PlaceItem> gates = new LinkedList<PlaceItem>();
 	
+	private boolean showGates = true;
+	
 	private LinkedList<PlaceItem> parking = new LinkedList<PlaceItem>();
+	
+	private boolean showParking = true;
 	
 	/**
 	 * handles switching in fragments
@@ -275,7 +281,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	public void onCreate(Bundle instance){
 		super.onCreate(instance);
 		setContentView(R.layout.splash);
-		
 		//load listfragment into memory
 		list = (ArrayListFragment) this.getSupportFragmentManager().findFragmentById(R.id.listfragment);
 		list.getListView().setOnItemClickListener(this);
@@ -292,7 +297,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		
 		//gives user an option to accept terms or leave the app
-		final AlertDialog.Builder termsDialogBuilder = new AlertDialog.Builder(this);
+		final HoloAlertDialogBuilder termsDialogBuilder = new HoloAlertDialogBuilder(this);
 		
 		//cancel button used for both dialogs
 		DialogInterface.OnClickListener cancel = new DialogInterface.OnClickListener() {
@@ -321,7 +326,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		//if network error message
 		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)&& !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-			final AlertDialog.Builder gpsInternetDialogBuilder = new AlertDialog.Builder(this);
+			final HoloAlertDialogBuilder gpsInternetDialogBuilder = new HoloAlertDialogBuilder(this);
 			
 			gpsInternetDialogBuilder.setNegativeButton("Quit", cancel);
 			gpsInternetDialogBuilder.setTitle("Please Turn on GPS and Internet");
@@ -385,8 +390,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		mAction.setDisplayHomeAsUpEnabled(true);
 		//mAction.setDisplayShowHomeEnabled(false);
 		//mAction.setTitle("Bronx Zoo Navigator");
-				
-		
 		
 		overlays = map.getOverlays();
 		
@@ -402,17 +405,14 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	       
 	    //saves offset in memory
 	    Geopoint.storeOffset(north, south, west, east);
-	       
-		
-		//places = new PlaceOverlay(getResources().getDrawable(R.drawable.location), this, map);
 		
 		me = new CurrentLocationOverlay(map.getView(), this, R.drawable.location);
 		startLocationUpdates();
 		me.addCurrentLocationChangedListener(meListener);
 		
 		Intent i = new Intent(this.getApplicationContext(), LocationUpdateService.class);
-		i.putExtra("email", email);
-		i.putExtra("password", getIntent().getExtras().getString("password"));
+		i.putExtra("email", new String(email));
+		i.putExtra("password", new String(getIntent().getExtras().getString("password")));
 		startService(i);
         
         searchList = (LinearLayout) findViewById(R.id.SearchList);
@@ -484,7 +484,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		map.getView().refresh();
 	}
 	
-	private RelativeLayout createIconCheckBox(String name, final String fileName, int iconId, final LinkedList<PlaceItem> pts){
+	private RelativeLayout createIconCheckBox(final String name, final String fileName, int iconId, final LinkedList<PlaceItem> pts){
 		RelativeLayout iconCheckbox = (RelativeLayout) this.getLayoutInflater().inflate(R.layout.icon_checkbox_item, null);
 		CheckBox check = (CheckBox) iconCheckbox.findViewById(R.id.check);
 		check.setText(name);
@@ -497,6 +497,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				} else{
 					map.getView().removeOverlayList(pts);
 				}
+				if(name.equals("Restrooms")) 			showRestrooms = isChecked;
+				else if(name.equals("Gates"))			showGates = isChecked;
+				else if(name.equals("Parking Lots"))	showParking = isChecked;
 			}
 			
 		});
@@ -947,33 +950,24 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * Clears all showing place items from the screen
 	 */
 	private void clearMapData(){
-		CurrentLocationOverlay cur = null;
 		if(overlays.size()!=0){
 			while(!overlays.isEmpty()){
-				OverlayItem place = overlays.remove(0);
-				if(place instanceof CurrentLocationOverlay){
-					cur = (CurrentLocationOverlay) place;
-				} else{
-					map.getView().getmContainer().removeView(place.getIcon());
-				}
+				map.getView().getmContainer().removeView(overlays.remove(0).getIcon());
 			}
-			overlays.add(cur);
 		}
 		
 		if(lastPlaces != null){
 			while(!lastPlaces.isEmpty()){
-				PlaceItem place = lastPlaces.poll();
-				place.setAdded(false);
-				
-				//if(place.isMenuShowing())	place.removeMenu(map.getView().getmContainer());
-				
-				map.getView().getmContainer().removeView(place.getIcon());
+				map.getView().getmContainer().removeView(lastPlaces.poll().getIcon());
 			}
 			lastPlaces = null;
 		}
-		overlays.addAll(gates);
-		overlays.addAll(parking);
-		overlays.addAll(restrooms);
+		
+		if(showGates)		overlays.addAll(gates);
+		if(showParking)		overlays.addAll(parking);
+		if(showRestrooms)	overlays.addAll(restrooms);
+		overlays.add(me);
+		
 		map.getView().reDrawOverlays(true);
 		map.invalidate();
 	}
@@ -997,12 +991,12 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		boolean found = false;
 		PlaceItem placeFound = null;
 		
-		PlaceItem[] searchArray = (PlaceItem[]) searchExhibits.toArray(new PlaceItem[searchExhibits.size()]);
-		for(int i =0; i < searchArray.length; i++){
-			String name = searchArray[i].getDescription().toLowerCase();
+		for(int i =0; i < searchExhibits.size(); i++){
+			PlaceItem place = searchExhibits.get(i);
+			String name = place.getDescription().toLowerCase();
 			if(name.contains(querie)){
 				found = true;
-				placeFound = searchArray[i];
+				placeFound = place;
 				break;
 			}
 		}

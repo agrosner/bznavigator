@@ -11,7 +11,6 @@ import com.facebook.android.DialogError;
 import com.facebook.android.Facebook;
 import com.facebook.android.Facebook.DialogListener;
 import com.facebook.android.FacebookError;
-import com.facebook.android.Util;
 
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
@@ -39,7 +38,7 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 	private EditText confPassField;
 	private ImageButton[] imButtons = new ImageButton[3];
 	
-	private final String ID = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+	private static String ID;
 	
 	Facebook facebook = new Facebook("503456236331740");
 	
@@ -47,6 +46,9 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        
+        ID = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+        
         ActionBar action = this.getSupportActionBar();
         action.setTitle("Create Account");
         

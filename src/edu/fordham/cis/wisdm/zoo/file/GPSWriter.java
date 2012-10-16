@@ -1,8 +1,9 @@
 package edu.fordham.cis.wisdm.zoo.file;
 
-import java.io.DataOutputStream;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 import com.grosner.mapview.Geopoint;
 
@@ -14,7 +15,7 @@ import android.util.Log;
  * @author Andrew Grosner
  * @version 1.0
  */
-public class GPSWriter extends DataOutputStream{
+public class GPSWriter extends BufferedWriter{
 
 	//the values of the GPS reading
 	private String email;
@@ -33,7 +34,7 @@ public class GPSWriter extends DataOutputStream{
 	 * @throws IOException 
 	 */
 	public GPSWriter(String email, FileOutputStream stream) throws IOException{
-		super(stream);
+		super(new OutputStreamWriter(stream));
 		this.email = email;
 	}
 	
@@ -45,7 +46,7 @@ public class GPSWriter extends DataOutputStream{
 		if(l!=null){
 			coords[0] = l.getLatitude();
 			coords[1] = l.getLongitude();
-			values[0] = l.getAccuracy();
+			values[0] = (float) l.getAltitude();
 			values[1] = l.getSpeed();
 			values[2] = l.getAccuracy();
 			values[3] = l.getBearing();
@@ -54,9 +55,9 @@ public class GPSWriter extends DataOutputStream{
 	}
 	
 	/**
-	 * Prints out the line of data in human-readable format
+	 * Returns the line of data in human-readable format
 	 */
-	public void getDataLine(String TAG){
+	public String getDataLine(){
 		String line = email;
 		line+="," + time;
 		line+="," + coords[0];
@@ -65,8 +66,16 @@ public class GPSWriter extends DataOutputStream{
 		line+="," + values[1];
 		line+="," + values[2];
 		line+="," + values[3];
-		line+="," + provider;
-		Log.d(TAG, line);
+		line+="," + provider+"\n";
+		return line;
+	}
+	
+	/**
+	 * Prints out the line in human readable format
+	 * @param TAG
+	 */
+	public void getDataLine(String TAG){
+		Log.d(TAG, getDataLine());
 	}
 	
 	public Geopoint getGeopoint(){
@@ -93,22 +102,7 @@ public class GPSWriter extends DataOutputStream{
 			if(email == null){
 				email = "Anonymous";
 			}
-			
-			this.writeByte(email.length());
-			this.writeChars(email);
-			this.writeLong(time);
-			this.writeDouble(coords[0]);
-			this.writeDouble(coords[1]);
-			for(int i =0; i < values.length; i++){
-				this.writeFloat(values[i]);
-			}
-			
-			if(provider == null){
-				provider = "unknown";
-			}
-			this.writeByte(provider.length());
-			this.writeChars(provider);
-			this.writeChar('\n');
+			write(getDataLine());
 			this.flush();
 			getDataLine(TAG);
 		} catch (IOException e) {

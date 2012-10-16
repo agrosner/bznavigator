@@ -182,7 +182,7 @@ public class Connections {
 			return false;
 		}
 		
-		return false;
+		return true;
 	}
 	
 	

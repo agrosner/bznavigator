@@ -3,6 +3,7 @@ package edu.fordham.cis.wisdm.zoo.main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,10 +66,8 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 */
 	private static GPSWriter[] files = new GPSWriter[2];
 	
-	/**
-	 * GPS file object
-	 */
-	private GPSReader reader;
+	private static GPSReader reader;
+	
 	
 	/**
 	 * Timer that writes GPS data to file
@@ -138,7 +137,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		if(em!=null){
 			email = em;
 		}
-		
+	
 		mConnection = new Connections(email, ps, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
 		
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -217,15 +216,9 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 * TODO: send data to server
 	 */
 	private void stream(){
-		try {
-			reader = new GPSReader(this.openFileInput(fName+"1.txt"));
-			reader.sendData(TAG, mConnection);
-			reader.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		try{
+			reader.sendData(TAG, mConnection, "gps1.txt", this);
+		} catch(Exception e){
 			e.printStackTrace();
 		}
 	}
@@ -250,10 +243,17 @@ public class LocationUpdateService extends Service implements LocationListener{
 
 			@Override
 			public void run() {
+				try {
+					reader = new GPSReader(openFileInput("gps1.txt"));
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				stream();
 			}
 			
-		}, STRUpdate, STRUpdate);
+		}, 0, STRUpdate);
 	}
 	private void stopStream(){
 		try{
@@ -271,16 +271,16 @@ public class LocationUpdateService extends Service implements LocationListener{
 			public void run() {
 				try{
 					Geopoint g = files[0].getGeopoint();
-					if(Geopoint.isPointInMap(g)){
+					//if(Geopoint.isPointInMap(g)){
 						outsideCount = 0;
 						files[0].writeLocation(TAG);
-					} else if(outsideCount>=SHUTDOWN_NUMBER){
+					/**} else if(outsideCount>=SHUTDOWN_NUMBER){
 						stopSelf();
 						Log.v(TAG, "User outside of zoo, shutting down.");
 					} else{
 						outsideCount++;
 						Log.v(TAG, "User outside of map");
-					}
+					}**/
 				} catch (NullPointerException n){
 					n.printStackTrace();
 				}

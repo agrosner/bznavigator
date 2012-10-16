@@ -21,11 +21,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.grosner.mapview.Geopoint;
+import com.grosner.mapview.MapInternalView;
 import com.grosner.mapview.PlaceItem;
+import com.grosner.mapview.ZoomLevel;
 
 /**
  * These fragments represent different, sorted locations. Each will display individual locations from a specified file and option to view all on the map.
@@ -92,7 +95,6 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 * @param type
 	 */
 	public PlaceFragment(PlaceType type){
-		this();
 		this.type = type;
 	}
 	
@@ -145,7 +147,16 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 			LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 			places.add(place);
 			act.showMap(mTransaction, this.getView(), places);
-			act.getMap().animateTo(place.getPoint());
+			
+			//tries to move map to center on both current location and point
+			if(SplashScreenActivity.myLocation!=null){
+				ZoomLevel zoom = place.getPoint().pixelsToZoom(SplashScreenActivity.myLocation);
+				MapInternalView view = act.getMap().getView();
+				view.center(place.getPoint(), SplashScreenActivity.myLocation);
+				view.changeZoomLevel(zoom);
+			} else{
+				act.getMap().animateTo(place.getPoint());
+			}
 		} else if(id == 0){
 			act.showMap(mTransaction, this.getView(), points);
 		} else if(id == -1){
