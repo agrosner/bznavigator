@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+ <PreferenceCategory
+   android:summary="Settings for IVO-Core App"
+   android:title="Settings" >
+
+     <!--  <TogglePreference 
+     android:key="gps"
+     android:summary="Click for Settings"
+     android:title="GPS Service" />-->
+  
+  <Preference
+      android:key="delete"
+      android:summary="Deletes temporary GPS data"
+      android:title="Clear Data Cache"
+      />
+
+
+ </PreferenceCategory>
+</PreferenceScreen>

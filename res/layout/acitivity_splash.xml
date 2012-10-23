@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:id="@+id/splashrel"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:paddingLeft="8dp"
+  android:paddingRight="8dp">
+   <fragment 
+       android:id="@+id/listfragment"
+       android:name="edu.fordham.cis.wisdm.zoo.main.ArrayListFragment"
+       style="@style/fill"
+       />
+   <FrameLayout
+       android:id="@+id/mapframe"
+       android:layout_toRightOf="@id/listfragment"
+       style="@style/wrap">
+       	<com.grosner.mapview.MapView
+       	    android:id="@+id/map"
+       	    style="@style/fill"
+       	    />
+       	<LinearLayout
+      		android:layout_centerVertical="true"
+       		android:id="@+id/SearchMenu"
+		    style="@style/wrap"
+		    android:background="@android:color/white"
+       		>
+       		<ScrollView 
+       		    style="@style/wrap">
+       		    <LinearLayout 
+	            	android:id="@+id/PlaceView"
+	            	style="@style/wrap"
+	            	android:orientation="vertical"
+	            >
+       		        
+       		    </LinearLayout>    		    
+       		</ScrollView>
+       		<ScrollView
+           		style="@style/wrap">
+           		<LinearLayout 
+	               	android:id="@+id/SearchList"
+               		style="@style/wrap"
+               		android:orientation="vertical"
+	              
+               		>
+               		
+ 						<!-- Content here -->              
+           		</LinearLayout>           
+       		</ScrollView>
+       		
+   		</LinearLayout>
+   		<SlidingDrawer 
+   		    android:id="@+id/drawer"
+   		    android:layout_width="wrap_content"
+   		    android:layout_height="fill_parent"
+   		    android:content="@+id/scroll"
+   		    android:handle="@+id/icon"
+   		    android:orientation="horizontal">
+       		<ImageButton 
+       		    android:id="@+id/icon"
+       		    style="@style/wrap"
+       		    android:src="@drawable/ic_action_arrow_left"
+       		    />
+       		<ScrollView 
+       		    android:id="@+id/scroll"
+       		    android:layout_width="wrap_content"
+       		    android:background="@android:color/white"
+       		    android:layout_height="fill_parent">
+           		<LinearLayout 
+           		    android:id="@+id/drawerFrame"
+           		    android:layout_width="wrap_content"
+       		    	android:layout_height="fill_parent"
+       		    	android:orientation="vertical">
+           		    	    
+           		</LinearLayout>
+       		    		    
+       		</ScrollView>
+       		
+   		    
+   		</SlidingDrawer>
+    
+   </FrameLayout>   
+   
+  
+</RelativeLayout>
+

@@ -32,10 +32,10 @@ public class Entry extends SherlockActivity implements OnClickListener{
 	private static final String REMEMBER_ME_LOC = "edu.fordham.cis.wisdm.zoo.askagain";
 	
 	//the button collection
-	private Button[] buttons = new Button[2];
+	private static Button[] buttons = new Button[2];
 	
 	//text fields
-	private EditText[]	fields = new EditText[2];
+	private static EditText[] fields = new EditText[2];
 	
 	//the rememeber me checkbox widget
 	private CheckBox rememberMe;
@@ -48,6 +48,16 @@ public class Entry extends SherlockActivity implements OnClickListener{
 	
 	private boolean isConnected = false;
 	
+	private String email;
+	
+	private String password;
+	
+	public static final int PASS_LENGTH = 5;
+	
+	private static final String EMAIL_LOC = "edu.fordham.cis.wisdm.zoo.email";
+	
+	private static final String PASS_LOC = "edu.fordham.cis.wisdm.zoo.password";
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +66,16 @@ public class Entry extends SherlockActivity implements OnClickListener{
         //initialize shared preference object
         Preference.initPrefForContext(this);
         
-        chooseLogin();
+        setUpView();
+        
+        isMember = Preference.getBoolean(REMEMBER_ME_LOC, false);
+        email = Preference.getString(EMAIL_LOC, "");
+    	password = Preference.getString(PASS_LOC, "");
+        if(isMember && email.length()> 1 && password.length() >= PASS_LENGTH){
+        	login(email, password, true);
+        } else{
+        	chooseLogin();
+        }
     }
     
     /**
@@ -73,7 +92,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 			public void onClick(DialogInterface dialog, int which) {
 				Preference.putBoolean("member", true);
 				isMember = true;
-				setUpView();
+				enhance();
 			}
     		
     	});
@@ -84,7 +103,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 			public void onClick(DialogInterface dialog, int which) {
 				Preference.putBoolean("member", false);
 				isMember = false;
-				setUpView();
+				enhance();
 			}
 		}).setCancelable(false).show();
     }
@@ -93,14 +112,6 @@ public class Entry extends SherlockActivity implements OnClickListener{
      * Loads up widgets into memory
      */
     private void setUpView(){
-    	largeScreen = false;
-    	
-    	DisplayMetrics display = new DisplayMetrics();
-    	this.getWindowManager().getDefaultDisplay().getMetrics(display);
-    	 int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-                
-    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	largeScreen = true;
-    	
     	//set up buttons
     	int id[] = {R.id.SignUp, R.id.LoginButton};
     	Operations.findButtonViewsByIds(this, buttons, id);
@@ -110,20 +121,24 @@ public class Entry extends SherlockActivity implements OnClickListener{
     	int ids[] = {R.id.Email, R.id.Password};
     	Operations.findEditTextViewsByIds(this, fields, ids);
     	rememberMe = (CheckBox) findViewById(R.id.RememberMe);
+    }
+    
+    /**
+     * Changes the layout objects if member, large screen, and chosen to remember
+     */
+    private void enhance(){
+    	largeScreen = false;
+    	
+    	DisplayMetrics display = new DisplayMetrics();
+    	this.getWindowManager().getDefaultDisplay().getMetrics(display);
+    	 int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+                
+    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	largeScreen = true;
     	
     	if(!isMember){
     		Operations.removeView(fields[1]);
     		Operations.removeView(rememberMe);
     		rememberMe.setChecked(false);
-    	}
-    	
-    	boolean fill = Preference.getBoolean(REMEMBER_ME_LOC, false);
-    	if(fill && isMember){
-    		String email = Preference.getString("edu.fordham.cis.wisdm.zoo.email", "");
-    		fields[0].setText(email);
-    		String password = Preference.getString("edu.fordham.cis.wisdm.zoo.password", "");
-    		fields[1].setText(password);
-    		rememberMe.setChecked(true);
     	}
     	
     	this.getSupportActionBar().hide();
@@ -144,35 +159,24 @@ public class Entry extends SherlockActivity implements OnClickListener{
     /**
      * Begins the login process
      */
-    private void login(){
-    	
-    	String email = fields[0].getText().toString();
-		String password = fields[1].getText().toString();
-		
-		if(!FormChecker.checkEmail(fields[0])){
+    private void login(String email, String password, boolean remember){
+		if(!FormChecker.checkEmail(email)){
 			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure email is entered correctly").show();
-    	} else{
-    		
-    		if(rememberMe.isChecked() && isMember){
-    			Preference.putString("edu.fordham.cis.wisdm.zoo.email", email);
-    			Preference.putString("edu.cis.fordham.wisdm.zoo.password", password);
-				Preference.putBoolean(REMEMBER_ME_LOC, true);
-    		} else{
-    			Preference.putString("edu.fordham.cis.wisdm.zoo.email", "");
-    			Preference.putString("edu.cis.fordham.wisdm.zoo.password", "");
-				Preference.putBoolean(REMEMBER_ME_LOC, false);
-    		}
-    		
+		} else if(password.length() < PASS_LENGTH){
+			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure password is more than 8 characters").show();
+		} else{
+			Preference.putBoolean(REMEMBER_ME_LOC, remember);
     		if(isMember){
+    			Preference.putString(EMAIL_LOC, email);
+    			Preference.putString(PASS_LOC, password);
     			mConnection = new Connections(email, password, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
     			new ConnectToServerTask(mConnection, this).execute();
-    		} else	if(!isMember){
-    			Intent login = new Intent(this, SurveyActivity.class);
-    			login.putExtra("email", email);
-    			login.putExtra("password", password);
-    			//Intent login = new Intent(this, OSMTestActivity.class);
-    			startActivity(login);
-    			//startActivity(new Intent(this, OfflineMapActivity.class));
+    		} else{
+    			Preference.putString(EMAIL_LOC, "");
+    			Preference.putString(PASS_LOC, "");
+    			startActivity(new Intent(this, SurveyActivity.class)
+				.putExtra("email", email)
+				.putExtra("password", password));
     		}
     	}
     }
@@ -181,12 +185,17 @@ public class Entry extends SherlockActivity implements OnClickListener{
     	Intent signup = new Intent(this, RegisterActivity.class);
     	startActivity(signup);
     }
+    
+    public static void setFields(String email, String password){
+    	fields[0].setText(email);
+    	fields[1].setText(password);
+    }
 
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.LoginButton:
-			login();
+			login(fields[0].getText().toString(), fields[1].getText().toString(), rememberMe.isChecked());
 			break;
 		case R.id.SignUp:
 			signUp();
@@ -194,6 +203,11 @@ public class Entry extends SherlockActivity implements OnClickListener{
 		}
 	}
 	
+	/**
+	 * Connects user to server for authentication
+	 * @author Andrew Grosner
+	 *
+	 */
 	private class ConnectToServerTask extends AsyncTask<Void, Void, Void>{
 		private Connections mConnection;
 		
@@ -224,12 +238,9 @@ public class Entry extends SherlockActivity implements OnClickListener{
 			if(!isConnected)
 				Toast.makeText(mContext, "Connection failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
 			else{
-				Intent login = new Intent(mContext, SurveyActivity.class);
-    			login.putExtra("email", mConnection.getmEmail());
-    			login.putExtra("password", mConnection.getmPassword());
-    			//Intent login = new Intent(this, OSMTestActivity.class);
-    			startActivity(login);
-    			//startActivity(new Intent(this, OfflineMapActivity.class));
+    			startActivity(new Intent(mContext, SurveyActivity.class)
+				.putExtra("email", mConnection.getmEmail())
+				.putExtra("password", mConnection.getmPassword()));
 			}
 			dia.dismiss();
 		}

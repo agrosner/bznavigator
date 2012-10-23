@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-   <LinearLayout 
+   <!-- <LinearLayout 
         android:id="@+id/socialList"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="20dip"
@@ -24,10 +24,10 @@
 		    android:src="@drawable/ic_action_linkedin"
 		    />        
 		
-    </LinearLayout>
+    </LinearLayout>-->
 
     <EditText 
-        android:layout_below="@id/socialList"
+        android:layout_alignParentTop="true"
         android:id="@+id/email"
         style="@style/fill_width_partial"
         android:layout_marginBottom="10dip"

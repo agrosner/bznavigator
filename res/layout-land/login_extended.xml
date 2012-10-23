@@ -4,7 +4,7 @@
     style="@style/fill" xmlns:android="http://schemas.android.com/apk/res/android">
     
     
-    <include layout="@layout/login">
+    <include layout="@layout/activity_login">
     
 	</include>
 	<ImageView 

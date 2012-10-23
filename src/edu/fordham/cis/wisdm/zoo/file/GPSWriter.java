@@ -22,11 +22,11 @@ public class GPSWriter extends BufferedWriter{
 	
 	private long time = 0L;
 	
-	private double[] coords = new double[2];
+	private static double[] coords = new double[2];
 	
-	private float[] values = new float[4];
+	private static float[] values = new float[4];
 	
-	private String provider;
+	private static String provider;
 	/**
 	 * Constructs new instance of GFile with specified name and file root
 	 * @param name
@@ -42,7 +42,7 @@ public class GPSWriter extends BufferedWriter{
 	 * Stores location in object
 	 * @param l
 	 */
-	public void storeLocation(Location l){
+	public static void storeLocation(Location l){
 		if(l!=null){
 			coords[0] = l.getLatitude();
 			coords[1] = l.getLongitude();
@@ -68,6 +68,15 @@ public class GPSWriter extends BufferedWriter{
 		line+="," + values[3];
 		line+="," + provider+"\n";
 		return line;
+	}
+	
+	public static void printDataLine(String TAG, float[] values, long time, byte tuple){
+		
+		String line = tuple + ", " + time + ", ";
+		for(int i =0; i < values.length; i++){
+			line+=values[i]+", ";
+		}
+		Log.v(TAG, line);
 	}
 	
 	/**

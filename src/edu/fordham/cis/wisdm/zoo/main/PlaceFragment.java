@@ -149,14 +149,14 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 			act.showMap(mTransaction, this.getView(), places);
 			
 			//tries to move map to center on both current location and point
-			if(SplashScreenActivity.myLocation!=null){
-				ZoomLevel zoom = place.getPoint().pixelsToZoom(SplashScreenActivity.myLocation);
-				MapInternalView view = act.getMap().getView();
-				view.center(place.getPoint(), SplashScreenActivity.myLocation);
-				view.changeZoomLevel(zoom);
-			} else{
+			//if(SplashScreenActivity.myLocation!=null){
+				//ZoomLevel zoom = place.getPoint().pixelsToZoom(act.getMap().getView(), SplashScreenActivity.myLocation);
+				//MapInternalView view = act.getMap().getView();
+				//view.center(place.getPoint(), SplashScreenActivity.myLocation);
+				//view.changeZoomLevel(zoom);
+			//} else{
 				act.getMap().animateTo(place.getPoint());
-			}
+			//}
 		} else if(id == 0){
 			act.showMap(mTransaction, this.getView(), points);
 		} else if(id == -1){

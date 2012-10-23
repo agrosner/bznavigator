@@ -3,13 +3,13 @@ package edu.fordham.cis.wisdm.zoo.main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import com.grosner.mapview.Geopoint;
 
-import edu.fordham.cis.wisdm.zoo.file.GPSReader;
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
@@ -57,17 +57,14 @@ public class LocationUpdateService extends Service implements LocationListener{
 	private long GPSUpdate = 20000;
 	
 	/**
-	 * Stream rate (every 2 minutes)
+	 * Stream rate (every 5 minutes)
 	 */
-	private long STRUpdate = 120000;
+	private long STRUpdate = 300000;
 	
 	/**
 	 * GPS file objects
 	 */
 	private static GPSWriter[] files = new GPSWriter[2];
-	
-	private static GPSReader reader;
-	
 	
 	/**
 	 * Timer that writes GPS data to file
@@ -78,6 +75,16 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 * Timer that streams data to the server
 	 */
 	private Timer streamer;
+	
+	/**
+	 * The gps file we use to send the data
+	 */
+	private InputStream mInputStream = null;
+	
+	/**
+	 * The second gps file we use to send data
+	 */
+	private InputStream mInputStream2 = null;
 	
 	/**
 	 * user email string
@@ -109,6 +116,8 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 */
 	private static final int SHUTDOWN_NUMBER = 6;
 	
+	private static boolean isStreaming = false;
+	
 	@Override
 	public void onCreate(){
 		super.onCreate();
@@ -119,6 +128,13 @@ public class LocationUpdateService extends Service implements LocationListener{
 		wLock = pManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "myTag");
 		wLock.acquire();
 		
+		try {
+			mInputStream = openFileInput("gps1.txt");
+			mInputStream2 = openFileInput("gps2.txt");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 				
 	}
 	
@@ -175,7 +191,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		if (files[0] == null){
 			success = openFiles(wrapper);
 		}
-		if(success)files[0].storeLocation(l);
+		if(success)GPSWriter.storeLocation(l);
 	}
 	
 	private void startLocation(){
@@ -211,17 +227,6 @@ public class LocationUpdateService extends Service implements LocationListener{
 		return true;
 	}
 	
-	/**
-	 * Streams data to the server
-	 * TODO: send data to server
-	 */
-	private void stream(){
-		try{
-			reader.sendData(TAG, mConnection, "gps1.txt", this);
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-	}
 	
 	/**
 	 * Closes files
@@ -230,6 +235,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		for(int i =0; i < files.length; i++){
 			try {
 				files[i].close();
+				Log.e(TAG, "Error in data");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -243,18 +249,35 @@ public class LocationUpdateService extends Service implements LocationListener{
 
 			@Override
 			public void run() {
-				try {
-					reader = new GPSReader(openFileInput("gps1.txt"));
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
 				stream();
 			}
 			
 		}, 0, STRUpdate);
 	}
+	
+	/**
+	 * Streams data to the server
+	 * TODO: send data to server
+	 */
+	private void stream(){
+		if(mInputStream!=null){
+			try {
+				isStreaming = true;
+				if(Connections.sendData(mConnection, fName + "1.txt", this, mInputStream)){
+					files[0] = new GPSWriter(email, this.openFileOutput(fName + "1.txt", Context.MODE_APPEND));
+				}
+				
+				isStreaming = false;
+				if(Connections.sendData(mConnection, fName + "2.txt", this, mInputStream2)){
+					files[1] = new GPSWriter(email, this.openFileOutput(fName + "2.txt", Context.MODE_APPEND));
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+		
 	private void stopStream(){
 		try{
 			streamer.cancel();
@@ -273,7 +296,8 @@ public class LocationUpdateService extends Service implements LocationListener{
 					Geopoint g = files[0].getGeopoint();
 					//if(Geopoint.isPointInMap(g)){
 						outsideCount = 0;
-						files[0].writeLocation(TAG);
+						if(!isStreaming)	files[0].writeLocation(TAG);
+						else				files[1].writeLocation(TAG);
 					/**} else if(outsideCount>=SHUTDOWN_NUMBER){
 						stopSelf();
 						Log.v(TAG, "User outside of zoo, shutting down.");
@@ -306,9 +330,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 
 	@Override
 	public void onLocationChanged(Location location) {
-		
-			files[0].storeLocation(location);
-		
+			GPSWriter.storeLocation(location);
 	}
 	@Override
 	public void onProviderDisabled(String provider) {}

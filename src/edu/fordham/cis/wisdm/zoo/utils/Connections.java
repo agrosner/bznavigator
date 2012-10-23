@@ -1,17 +1,26 @@
 package edu.fordham.cis.wisdm.zoo.utils;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 import edu.fordham.cis.wisdm.utils.SocketParser;
+import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 
+import android.app.Service;
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -168,7 +177,7 @@ public class Connections {
 	 * @param recordType
 	 * @return
 	 */
-	public static boolean sendData(long time, float[] values, byte recordType){
+	private static boolean sendData(long time, float[] values, byte recordType){
 		if(!isConnected){
 			Log.v(TAG, "Not connected!");
 			return false;
@@ -176,6 +185,7 @@ public class Connections {
 		
 		try {
 			SocketParser.writeNormalRecord(mOutputStream, values.length, values, time, recordType);
+			mOutputStream.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -183,6 +193,53 @@ public class Connections {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Sends all lines within a file to the server
+	 * @param con
+	 * @param fName
+	 * @param mService
+	 * @param in
+	 * @return
+	 * @throws IOException 
+	 */
+	public static boolean sendData(Connections con, String fName, Service mService, InputStream in) throws IOException{
+		if(!Connections.prepare(con)){
+			Log.v(TAG, "Sending failed");
+			return false;
+		}
+		
+		BufferedReader read = null;
+		read = new BufferedReader(new InputStreamReader(in));
+		
+		Log.v(TAG, "Sending data..");
+		boolean good = true;
+		int lines = 0;
+		while(read.ready() && good){
+			String line = read.readLine();
+			String[] values = line.split(",");
+			
+			float[] floats = new float[5];
+			for(int i =2; i < values.length-2;i++){
+				floats[i-2] = Float.valueOf(values[i]);
+			}
+			
+			GPSWriter.printDataLine(TAG, floats, Long.valueOf(values[1]), SocketParser.GPS_TUPLE_CODE);
+			if(!sendData(Long.valueOf(values[1]), floats, SocketParser.GPS_TUPLE_CODE))
+				good = false;
+			lines++;
+		}
+		read.close();
+		if(good && lines>0){
+			mService.deleteFile(fName);
+			Log.v(TAG, "Data sent succesfully with: " + lines + " lines");
+		} else{
+			Log.e(TAG, "Error in data");
+		}
+		Connections.disconnect();
+		
+		return good;
 	}
 	
 	

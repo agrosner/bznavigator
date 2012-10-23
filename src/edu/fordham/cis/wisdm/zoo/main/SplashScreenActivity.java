@@ -75,6 +75,7 @@ import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
+import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
 
 public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener, SearchPerformListener, OnNavigationListener, TextWatcher, OnTouchListener{
@@ -280,7 +281,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	@Override
 	public void onCreate(Bundle instance){
 		super.onCreate(instance);
-		setContentView(R.layout.splash);
+		setContentView(R.layout.acitivity_splash);
 		//load listfragment into memory
 		list = (ArrayListFragment) this.getSupportFragmentManager().findFragmentById(R.id.listfragment);
 		list.getListView().setOnItemClickListener(this);
@@ -325,7 +326,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		termsDialogBuilder.create().show();
 		
 		//if network error message
-		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)&& !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 			final HoloAlertDialogBuilder gpsInternetDialogBuilder = new HoloAlertDialogBuilder(this);
 			
 			gpsInternetDialogBuilder.setNegativeButton("Quit", cancel);
@@ -399,7 +400,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map1/%col%_%row%.png", 2048, 2560));
 	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map2/%col%_%row%.png", 4096, 5120));
-	    //map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map4/crop_%col%_%row%.png", 5100, 8000));
+	    map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map3/%col%_%row%.png", 8192, 10240));
 	    map.getView().setOnTouchListener(this);
 	    // map.addMapScale(ZoomLevel.LEVEL_4, new MapScale("map5/crop_%col%_%row%.png", 6400, 10000));
 	       
@@ -600,6 +601,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				PlaceFragment.reCalculateDistance(myLocation, searchExhibits);
 				//loader.dismiss();
 				MessageBuilder.showToast("GPS lock found", getApplicationContext());
+				map.getView().reDrawOverlays(true);
 			}
 			 
 		 });
@@ -660,6 +662,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			message.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
+					stopService(new Intent(getApplicationContext(), LocationUpdateService.class));
+	                Preference.putBoolean("edu.fordham.cis.wisdm.zoo.askagain", false);
+					
 					Intent upIntent = new Intent(act, Entry.class);
 		            if (NavUtils.shouldUpRecreateTask(act, upIntent)) {
 		                // This activity is not part of the application's task, so create a new task
@@ -720,7 +725,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
 		
 		if(item.getTitle().equals(ActionEnum.SETTINGS.toString())){
-			startActivity(new Intent(this, SettingsActivity.class));
+			startActivity(new Intent(this, PrefActivity.class));
 		} else if(item.getTitle().equals(ActionEnum.ABOUT.toString())){
 			//ask user whether quit or not
 			AlertDialog.Builder message = new AlertDialog.Builder(this);
@@ -952,7 +957,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private void clearMapData(){
 		if(overlays.size()!=0){
 			while(!overlays.isEmpty()){
-				map.getView().getmContainer().removeView(overlays.remove(0).getIcon());
+				OverlayItem place = overlays.remove(0);
+				map.getView().getmContainer().removeView(place.getIcon());
 			}
 		}
 		

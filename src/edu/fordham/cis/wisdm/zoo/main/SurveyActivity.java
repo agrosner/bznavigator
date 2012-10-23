@@ -89,7 +89,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.survey);
+        setContentView(R.layout.activity_survey);
         //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         
         email = this.getIntent().getExtras().getString("email");
