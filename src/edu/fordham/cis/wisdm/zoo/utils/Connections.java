@@ -87,6 +87,11 @@ public class Connections {
 		return true;
 	}
 	
+	/**
+	 * Will try to authorize a user with the server (given a connection is established)
+	 * @param con
+	 * @return
+	 */
 	private static boolean authorize(Connections con){
 		Log.v(TAG, "Authorizing user");
 		
@@ -148,6 +153,11 @@ public class Connections {
 		return connect() && authorize(con);
 	}
 	
+	/**
+	 * Writes a user request to the server if connection was established
+	 * @param con
+	 * @return
+	 */
 	public static boolean createUser(Connections con){
 		if(connect()){
 			try {
@@ -163,7 +173,6 @@ public class Connections {
 			} catch (IOException e) {
 			// 	TODO Auto-generated catch block
 				e.printStackTrace();
-				mServerMessage+="\n";
 				mServerMessage+=e.getMessage();
 			}
 		}
@@ -204,46 +213,80 @@ public class Connections {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static boolean sendData(Connections con, String fName, Service mService, InputStream in) throws IOException{
+	public static void sendData(Connections con, String fName, Service mService){
 		if(!Connections.prepare(con)){
 			Log.v(TAG, "Sending failed");
-			return false;
+			return;
 		}
 		
 		BufferedReader read = null;
-		read = new BufferedReader(new InputStreamReader(in));
+		try {
+			read = new BufferedReader(new InputStreamReader(mService.openFileInput(fName)));
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			Connections.disconnect();
+			return;
+		}
 		
 		Log.v(TAG, "Sending data..");
-		boolean good = true;
+		boolean more = true;
 		int lines = 0;
-		while(read.ready() && good){
-			String line = read.readLine();
-			String[] values = line.split(",");
-			
-			float[] floats = new float[5];
-			for(int i =2; i < values.length-2;i++){
-				floats[i-2] = Float.valueOf(values[i]);
+		while(more){
+			String line = null;
+			try {
+				line = read.readLine();
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				more = false;
 			}
+			if(line!=null){
+				String[] values = line.split(",");
 			
-			GPSWriter.printDataLine(TAG, floats, Long.valueOf(values[1]), SocketParser.GPS_TUPLE_CODE);
-			if(!sendData(Long.valueOf(values[1]), floats, SocketParser.GPS_TUPLE_CODE))
-				good = false;
-			lines++;
+				float[] floats = new float[5];
+				for(int i =2; i < values.length-2;i++){
+					floats[i-2] = Float.valueOf(values[i]);
+				}
+				
+				GPSWriter.printDataLine(TAG, floats, Long.valueOf(values[1]), SocketParser.GPS_TUPLE_CODE);
+				if(!sendData(Long.valueOf(values[1]), floats, SocketParser.GPS_TUPLE_CODE))
+					more = false;
+				lines++;
+			} else{
+				more = false;
+				break;
+			}
 		}
-		read.close();
-		if(good && lines>0){
-			mService.deleteFile(fName);
+		
+		try {
+			read.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(lines>0){
+			try {
+				mService.openFileOutput(fName, Context.MODE_PRIVATE);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			Log.v(TAG, "Data sent succesfully with: " + lines + " lines");
 		} else{
-			Log.e(TAG, "Error in data");
+			Log.e(TAG, "Error in data: " + lines);
 		}
 		Connections.disconnect();
 		
-		return good;
 	}
 	
 	
-	
+	/**
+	 * Attempts to disconnect from the server
+	 * @return
+	 */
 	public static boolean disconnect(){
 		isConnected = false;
 		Log.v(TAG, "Disconnecting...");

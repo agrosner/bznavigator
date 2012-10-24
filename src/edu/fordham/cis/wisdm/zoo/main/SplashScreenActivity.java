@@ -75,6 +75,7 @@ import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
+import edu.fordham.cis.wisdm.zoo.utils.Polygon;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
 
@@ -133,6 +134,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private static PlaceFragment admin = null;
 	
 	/**
+	 * The nearby exhibit fragment
+	 */
+	private static PlaceFragment nearby = null;
+	
+	/**
 	 * the mapview widget
 	 */
 	private static MapView map;
@@ -140,22 +146,23 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * Upper Y-coordinate of map
 	 */
-	private int north = (int)(40.85988281739409*1E6);
+	public static int north = (int)(40.85988281739409*1E6);
 	
 	/**
 	 * Lower y-coordinate of map
 	 */
-	private int south = (int)(40.83874984609*1E6);
+	public static int south = (int)(40.83874984609*1E6);
 	
 	/**
 	 * Left-most x-coordinate on map
 	 */
-	private int west = (int)(-73.88877402139309*1E6);
+	public static int west = (int)(-73.88877402139309*1E6);
 	
 	/**
 	 * Right-most x-coordinate on map
 	 */
-	private int east = (int)(-73.86642400707782*1E6);
+	public static int east = (int)(-73.86642400707782*1E6);
+	
 	
 	/**
 	 * whether location should be enabled
@@ -396,6 +403,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		determineScreenLayout();
 		
+	
 		map.init(this, "map0/%col%_%row%.png", 1024, 1280);
 		
 	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map1/%col%_%row%.png", 2048, 2560));
@@ -409,6 +417,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		me = new CurrentLocationOverlay(map.getView(), this, R.drawable.location);
 		startLocationUpdates();
+		nearby = new PlaceFragment(PlaceFragment.PlaceType.NEARBY, searchExhibits);
+		
+		
 		me.addCurrentLocationChangedListener(meListener);
 		
 		Intent i = new Intent(this.getApplicationContext(), LocationUpdateService.class);
@@ -579,7 +590,16 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		final OnClickListener onclick = this;
 
 		//reads exhibits into the searchbar list of places
-		readInFileInUI(act, inflater, null, "exhibits.txt", searchList, searchExhibits, onclick);
+		LinkedList<String> fNames = new LinkedList<String>();
+		fNames.add("exhibits.txt");
+		fNames.add("food.txt");
+		fNames.add("shops.txt");
+		fNames.add("gates.txt");
+		fNames.add("parking.txt");
+		fNames.add("admin.txt");
+		fNames.add("restrooms.txt");
+		
+		readInFileInUI(act, inflater, null, fNames, searchList, searchExhibits, onclick);
 		
 		me.runOnFirstFix(new Runnable(){
 
@@ -593,6 +613,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 					else if(currentFragment == Places.SPECIAL)		special.refresh();
 					else if(currentFragment == Places.ADMIN)		admin.refresh();
 					else if(currentFragment == Places.SHOPS)		shops.refresh();
+					else if(currentFragment == Places.FIND)			nearby.refresh(searchExhibits);
 				}
 				
 				//once we get a fix, store it in locationupdateservice
@@ -619,7 +640,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * @param searchExhibits
 	 * @param onclick
 	 */
-	public void readInFileInUI(final Activity act, final LayoutInflater inflater, final ViewGroup container, final String fName, final LinearLayout searchList, final LinkedList<PlaceItem> searchExhibits, final OnClickListener onclick){
+	public void readInFileInUI(final Activity act, final LayoutInflater inflater, final ViewGroup container, final LinkedList<String> fName, final LinearLayout searchList, final LinkedList<PlaceItem> searchExhibits, final OnClickListener onclick){
 		this.runOnUiThread(new Runnable(){
 
 			@Override
@@ -627,8 +648,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				// TODO Auto-generated method stub
 				searchList.removeAllViews();
 				searchExhibits.clear();
-				PlaceFragment.readInFile(act, inflater, container, fName, searchList, searchExhibits, onclick, true);
-			
+				
+				for(int i = 0; i < fName.size(); i++){
+					PlaceFragment.readInFile(act, inflater, container, fName.get(i), searchList, searchExhibits, onclick, true);
+				}
 			}
 			
 		});
@@ -736,7 +759,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			message.setNeutralButton("Ok", null);
 			message.create().show();
 		} else if(item.getTitle().equals("Search")){
-			showMap(mTransaction, list.getView());
+			showMap(mTransaction, getCurrentFragment());
 		} else if(item.getTitle().equals(ActionEnum.FOLLOW.toString())){
 			if(!map.isShown()){	
 				showMap(mTransaction, getCurrentFragment());
@@ -805,6 +828,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			else if(currentFragment == Places.SPECIAL)	mTransaction.remove(special).commit();
 			else if(currentFragment == Places.SHOPS)	mTransaction.remove(shops).commit();
 			else if(currentFragment == Places.ADMIN)	mTransaction.remove(admin).commit();
+			else if(currentFragment == Places.FIND)		mTransaction.remove(nearby).commit();
 		} else{
 			//if the actual view within the listfragment is not visible, make it visible
 			if(!list.getView().isShown())	Operations.addView(list.getView());
@@ -829,7 +853,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 			 if(position == Places.MAP.toInt()) 		showMap(mTransaction, list.getView());
 		else if(position == Places.NEWS.toInt()) 		MessageBuilder.showToast("Coming soon", this);
-		else if(position == Places.FIND.toInt())		MessageBuilder.showToast("Coming soon", this);
+		else if(position == Places.FIND.toInt())		showFragment(nearby, position);
 		else if(position == Places.SHOPS.toInt()) 		showFragment(shops, position);
 		else if(position == Places.SPECIAL.toInt()) 	showFragment(special, position);
 		else if(position == Places.FOOD.toInt()) 		showFragment(food, position);
@@ -857,6 +881,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		else if(currentFragment == Places.SHOPS)	return shops.getView();
 		else if(currentFragment == Places.ADMIN)	return admin.getView();
 		else if(currentFragment == Places.MAP)		return map.getView();
+		else if(currentFragment == Places.FIND)		return nearby.getView();
 		else 										return list.getView();
 	}
 	
@@ -907,6 +932,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		else if(currentFragment == Places.SPECIAL)	showFragment(special, currentFragment.toInt());
 		else if(currentFragment == Places.SHOPS)	showFragment(shops, currentFragment.toInt());
 		else if(currentFragment == Places.ADMIN)	showFragment(admin, currentFragment.toInt());
+		else if(currentFragment == Places.FIND)		showFragment(nearby, currentFragment.toInt());
 	}
 	
 	/**
@@ -949,6 +975,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		else if(currentFragment == Places.SPECIAL)		mTransaction.remove(special);
 		else if(currentFragment == Places.SHOPS)		mTransaction.remove(shops);
 		else if(currentFragment == Places.ADMIN)		mTransaction.remove(admin);
+		else if(currentFragment == Places.FIND)			mTransaction.remove(nearby);
 	}
 	
 	/**

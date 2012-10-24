@@ -37,13 +37,14 @@ import com.grosner.mapview.ZoomLevel;
  */
 public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	
-	public enum PlaceType{EXHIBITS, FOOD, SPECIAL, SHOPS, ADMIN;
+	public enum PlaceType{EXHIBITS, FOOD, SPECIAL, SHOPS, ADMIN, NEARBY;
 		public String toString(){
 			if(this == EXHIBITS)		return "exhibits";
 			else if(this == FOOD) 		return "food";
 			else if(this == SPECIAL)	return "special-exhibits";
 			else if(this == SHOPS) 		return "shops";
 			else if(this == ADMIN) 		return "admin";
+			else if(this == NEARBY)		return "nearby";
 			else						return "";
 		}
 	};
@@ -82,7 +83,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 * The places that will be put onto the map
 	 */
 	private LinkedList<PlaceItem> points = new LinkedList<PlaceItem>();
-	
+
 	/**
 	 * Default constructor, sets type to "Exhibits"
 	 */
@@ -99,6 +100,16 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	}
 	
 	/**
+	 * Constructor specifying type and custom list
+	 * @param type
+	 */
+	public PlaceFragment(PlaceType type, LinkedList<PlaceItem> places){
+		this.type = type;
+		points = places;
+	}
+	
+	
+	/**
 	 * Called when fragment's view is created
 	 */
 	@Override
@@ -107,23 +118,36 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		//parent layout
 		this.inflater = inflater;
 		this.container = container;
-		refresh();
+		
+		if(type!=PlaceType.NEARBY)	refresh();
+		else 						refresh(points);
 		
 		return exhibit;
 		
 	}
 	
-	public void refresh(){
+	/**
+	 * Removes all views from list, adds a generic "view all" option
+	 */
+	private void init(){
 		//parent layout
 		
 		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, container, false);
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
 		exhibitList.removeAllViews();
-		
+			
 		//if(type == PlaceType.SHOPS)
-			//exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, true));
+		//exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, true));
 		
 		exhibitList.addView(createExhibitItem(getActivity(), inflater, container, 0, "ic_action_location", "View All On Map", "", this, true));
+				
+	}
+	
+	/**
+	 * Reloads data into the layout
+	 */
+	public void refresh(){
+		init();
 		
 		String fName = type.toString();
 		
@@ -132,6 +156,23 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		
 		fName+=".txt";
 		readInFile(getActivity(), inflater, container, fName, exhibitList, points, this, true);	
+	}
+	
+	/**
+	 * Loads in a custom list of places to display
+	 * @param custom
+	 */
+	public void refresh(LinkedList<PlaceItem> custom){
+		init();
+		TextView title = (TextView) exhibit.findViewById(R.id.title);
+		title.setText(type.toString());
+		
+		for(int i =0; i < custom.size(); i++){
+			PlaceItem place = custom.get(i);
+			int index = findIndex(exhibitList, Integer.valueOf(place.getSnippet()));
+			if(exhibitList!=null)
+				exhibitList.addView(createExhibitItem(getActivity(), inflater, container, i+1, place, this, true), index);
+		}
 	}
 
 	@Override
