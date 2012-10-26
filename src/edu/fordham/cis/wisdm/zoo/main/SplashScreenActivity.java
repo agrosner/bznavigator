@@ -1,5 +1,6 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
+import java.awt.Polygon;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -75,7 +76,6 @@ import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
-import edu.fordham.cis.wisdm.zoo.utils.Polygon;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
 
@@ -162,7 +162,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * Right-most x-coordinate on map
 	 */
 	public static int east = (int)(-73.86642400707782*1E6);
-	
 	
 	/**
 	 * whether location should be enabled
@@ -414,6 +413,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	       
 	    //saves offset in memory
 	    Geopoint.storeOffset(north, south, west, east);
+	   
 		
 		me = new CurrentLocationOverlay(map.getView(), this, R.drawable.location);
 		startLocationUpdates();
@@ -421,6 +421,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		
 		me.addCurrentLocationChangedListener(meListener);
+		
+
 		
 		Intent i = new Intent(this.getApplicationContext(), LocationUpdateService.class);
 		i.putExtra("email", new String(email));
@@ -613,7 +615,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 					else if(currentFragment == Places.SPECIAL)		special.refresh();
 					else if(currentFragment == Places.ADMIN)		admin.refresh();
 					else if(currentFragment == Places.SHOPS)		shops.refresh();
-					else if(currentFragment == Places.FIND)			nearby.refresh(searchExhibits);
+					else if(currentFragment == Places.FIND)			nearby.refresh(searchExhibits, 10);
 				}
 				
 				//once we get a fix, store it in locationupdateservice
@@ -897,7 +899,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		if(isLargeScreen){
 			removeFrag(mTransaction);
-			mTransaction.commit();
+			try{
+				mTransaction.commit();
+			} catch(IllegalStateException i){
+				i.printStackTrace();
+			}
 		}
 		
 		Operations.addView(mDrawer);

@@ -29,29 +29,70 @@ import android.util.Log;
  *
  */
 public class Connections {
+	/**
+	 * Log Tag
+	 */
 	private static String TAG = "Connections";
 	
+	/**
+	 * Writes data to the server
+	 */
 	private static DataOutputStream mOutputStream = null;
 	
+	/**
+	 * Reads data from the server
+	 */
 	private static DataInputStream mInputStream = null;
 	
+	/**
+	 * port for connection
+	 */
 	private static int PORT = 2324;
 	
+	/**
+	 * hostname
+	 */
 	private static String HOST = "netlab.cis.fordham.edu";
 	
+	/**
+	 * The connection socket handle
+	 */
 	private static Socket mSocket = null;
 	
+	/**
+	 * Timeout if it takes too long to connect to the server (30 seconds)
+	 */
 	private static int DATA_TIMEOUT = 30000;
 	
+	/**
+	 * User authentication email
+	 */
 	private String mEmail = "none";
 	
+	/**
+	 * User authentication password
+	 */
 	private String mPassword = "";
 	
+	/**
+	 * the message string that stores what the server says in case of errors
+	 */
 	public static String mServerMessage = " ";
 
+	/**
+	 * The user's device ID
+	 */
 	private String mDevId = " ";
 	
+	/**
+	 * Whether an active connection is established or not
+	 */
 	private static boolean isConnected = false;
+	
+	/**
+	 * the unique ID of the current visit that will be pulled from the server initially
+	 */
+	private static int mVisitID = -1;
 	
 	private static boolean connect(){
 		Log.v(TAG, "Connecting to server...");
@@ -105,12 +146,17 @@ public class Connections {
 			mServerMessage+="\n";
 			mServerMessage+=e.getMessage();
 			return false;
+		} catch(NullPointerException n){
+			mServerMessage+="\n";
+			mServerMessage+=n.getMessage();
+			return false;
 		}
 		
 		try {
 			byte smsg = mInputStream.readByte();
 			if(smsg == SocketParser.AUTH_CODE){
 				Log.v(TAG, "User authorized");
+				return true;
 			} else if(smsg == SocketParser.AUTH_DENY){
 				Log.v(TAG, "User denied");
 				mServerMessage+="\nUser denied";
@@ -128,8 +174,6 @@ public class Connections {
 			return false;
 		}
 		
-		Log.v(TAG, "User authorized!");
-		return true;
 	}
 	
 	/**
@@ -151,6 +195,35 @@ public class Connections {
 	 */
 	public static boolean prepare(Connections con){
 		return connect() && authorize(con);
+	}
+	
+	/**
+	 * Starts a new visit for the user
+	 * @param con
+	 * @return
+	 */
+	public static boolean visit(Connections con){
+		if(!isConnected){
+			Log.e(TAG, "User not connected to server!");
+			return false;
+		}
+		
+		try {
+			SocketParser.writeNewVisitReq(mOutputStream);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		try {
+			mVisitID = SocketParser.readVisitReq(mInputStream);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -186,7 +259,7 @@ public class Connections {
 	 * @param recordType
 	 * @return
 	 */
-	private static boolean sendData(long time, float[] values, byte recordType){
+	private static boolean sendLine(long time, float[] values, byte recordType){
 		if(!isConnected){
 			Log.v(TAG, "Not connected!");
 			return false;
@@ -194,7 +267,6 @@ public class Connections {
 		
 		try {
 			SocketParser.writeNormalRecord(mOutputStream, values.length, values, time, recordType);
-			mOutputStream.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -216,6 +288,16 @@ public class Connections {
 	public static void sendData(Connections con, String fName, Service mService){
 		if(!Connections.prepare(con)){
 			Log.v(TAG, "Sending failed");
+			return;
+		}
+		
+		try {
+			SocketParser.writeVisitReq(mOutputStream, mVisitID);
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+			Log.e(TAG, "Could not write a visit request: " + e2.getMessage());
+			Connections.disconnect();
 			return;
 		}
 		
@@ -245,13 +327,13 @@ public class Connections {
 			if(line!=null){
 				String[] values = line.split(",");
 			
-				float[] floats = new float[5];
+				float[] floats = new float[SocketParser.GPS_TUPLE_CODE_length];
 				for(int i =2; i < values.length-2;i++){
 					floats[i-2] = Float.valueOf(values[i]);
 				}
 				
 				GPSWriter.printDataLine(TAG, floats, Long.valueOf(values[1]), SocketParser.GPS_TUPLE_CODE);
-				if(!sendData(Long.valueOf(values[1]), floats, SocketParser.GPS_TUPLE_CODE))
+				if(!sendLine(Long.valueOf(values[1]), floats, SocketParser.GPS_TUPLE_CODE))
 					more = false;
 				lines++;
 			} else{
@@ -261,6 +343,7 @@ public class Connections {
 		}
 		
 		try {
+			mOutputStream.flush();
 			read.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -292,6 +375,7 @@ public class Connections {
 		Log.v(TAG, "Disconnecting...");
 		try {
 			SocketParser.disconnect(mOutputStream, mInputStream);
+			mOutputStream.flush();
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch blockto

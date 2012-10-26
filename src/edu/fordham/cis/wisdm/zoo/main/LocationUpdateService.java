@@ -237,10 +237,10 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 */
 	private void stream(){
 		isStreaming = true;
-		Connections.sendData(mConnection, fName + "1.txt", this);
+		//Connections.sendData(mConnection, fName + "1.txt", this);
 			
 		isStreaming = false;
-		Connections.sendData(mConnection, fName + "2.txt", this);
+		//Connections.sendData(mConnection, fName + "2.txt", this);
 	}
 		
 	private void stopStream(){

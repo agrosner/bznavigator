@@ -69,6 +69,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
         setUpView();
         
         isMember = Preference.getBoolean(REMEMBER_ME_LOC, false);
+        
         email = Preference.getString(EMAIL_LOC, "");
     	password = Preference.getString(PASS_LOC, "");
         if(isMember && email.length()> 1 && password.length() >= PASS_LENGTH){
@@ -162,7 +163,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
     private void login(String email, String password, boolean remember){
 		if(!FormChecker.checkEmail(email)){
 			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure email is entered correctly").show();
-		} else if(password.length() < PASS_LENGTH){
+		} else if(password.length() < PASS_LENGTH && isMember){
 			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure password is more than 8 characters").show();
 		} else{
 			Preference.putBoolean(REMEMBER_ME_LOC, remember);
@@ -215,6 +216,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 		
 		private Context mContext;
 		
+		private boolean gotVisit = false;
 		
 		public ConnectToServerTask(Connections con, Context cont){
 			mConnection = con;
@@ -229,6 +231,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			isConnected = Connections.prepare(mConnection);
+			//gotVisit = Connections.visit(mConnection);
 			Connections.disconnect();
 			return null;
 		}
@@ -238,6 +241,9 @@ public class Entry extends SherlockActivity implements OnClickListener{
 			if(!isConnected)
 				Toast.makeText(mContext, "Connection failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
 			else{
+				if(!gotVisit){
+					Toast.makeText(mContext, "Could not register visit for some reason", Toast.LENGTH_SHORT).show();
+				}
     			startActivity(new Intent(mContext, SurveyActivity.class)
 				.putExtra("email", mConnection.getmEmail())
 				.putExtra("password", mConnection.getmPassword()));

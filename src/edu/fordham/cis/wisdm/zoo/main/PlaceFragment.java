@@ -120,7 +120,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		this.container = container;
 		
 		if(type!=PlaceType.NEARBY)	refresh();
-		else 						refresh(points);
+		else 						refresh(points, 10);
 		
 		return exhibit;
 		
@@ -159,20 +159,25 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	}
 	
 	/**
-	 * Loads in a custom list of places to display
+	 * Loads in a custom list of places to display with custom number of elements
 	 * @param custom
 	 */
-	public void refresh(LinkedList<PlaceItem> custom){
+	public void refresh(LinkedList<PlaceItem> custom, int dispNum){
 		init();
 		TextView title = (TextView) exhibit.findViewById(R.id.title);
 		title.setText(type.toString());
 		
+		LinkedList<RelativeLayout> list = new LinkedList<RelativeLayout>();
+		
 		for(int i =0; i < custom.size(); i++){
 			PlaceItem place = custom.get(i);
-			int index = findIndex(exhibitList, Integer.valueOf(place.getSnippet()));
-			if(exhibitList!=null)
-				exhibitList.addView(createExhibitItem(getActivity(), inflater, container, i+1, place, this, true), index);
+			int index = findIndex(list, Integer.valueOf(place.getSnippet()));
+			list.add(index, createExhibitItem(getActivity(), inflater, container, i+1, place, this, true));
 		}
+		if(exhibitList!=null)
+			for(int i = 0; i < dispNum; i++){
+				exhibitList.addView(list.get(i));
+			}
 	}
 
 	@Override
@@ -381,6 +386,27 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		int index = 0;
 		for(int i =0; i < exhibitList.getChildCount(); i++){
 			RelativeLayout view = (RelativeLayout) exhibitList.getChildAt(i);
+			TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
+			String text = distanceText.getText().toString().replace("ft", "");
+			int dist = Integer.valueOf(text);
+			if(distance<dist)	break;
+			
+			index++;
+		}
+		
+		return index;
+	}
+	
+	/**
+	 * Finds where to insert the exhibit using insertion sort algorithm
+	 * @param exhibitList
+	 * @param distance
+	 * @return
+	 */
+	private static int findIndex(LinkedList<RelativeLayout> exhibitList, int distance){
+		int index = 0;
+		for(int i =0; i < exhibitList.size(); i++){
+			RelativeLayout view = exhibitList.get(i);
 			TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
 			String text = distanceText.getText().toString().replace("ft", "");
 			int dist = Integer.valueOf(text);

@@ -1,5 +1,4 @@
 Place Name,drawable_file_name,latitude,longitude,
-Somba Village,food,40.84762456027691,-73.87847997166092,
 Seating A,food,40.85008494691677,-73.87986813564272,
 Asia Plaza,food,40.84521947197312,-73.8763459565456,
 Shuttle Boarding - Food,food,40.84585538337853,-73.87735025181905,
