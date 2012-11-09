@@ -1,6 +1,5 @@
 Place Name,drawable_file_name,latitude,longitude,
 Center For Global Conservation,admin,40.85483185196431,-73.87846899479942,
-Guest Services,admin,40.85323784846786,-73.87871778637872,
 Admin West,admin,40.85345171638069,-73.87851442352417,
 Admin Wildlife Health Center,admin,40.85260399828641,-73.88098632258308,
 Admin East,admin,40.85312092037405,-73.87763841258365,

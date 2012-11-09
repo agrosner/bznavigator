@@ -254,6 +254,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		//start survey
 		if(v.equals(start)){
 			setQuestion(surveyfields.get(qindex));
+			skip.setVisibility(View.GONE);
 		} else if(v.equals(skip)){
 			startActivity(splash);
 		}
@@ -282,7 +283,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 					cumulative += s;
 				complete.setText("Survey Complete!\nData String:\n" + cumulative);
 				mainlayout.addView(complete);
-				startActivity(splash);
+				//startActivity(splash);
 			}
 			
 			//increment progress

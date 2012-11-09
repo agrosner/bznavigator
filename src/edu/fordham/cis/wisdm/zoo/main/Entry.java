@@ -1,9 +1,11 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
+import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.SherlockActivity;
 
 import cis.fordham.edu.wisdm.utils.FormChecker;
 import cis.fordham.edu.wisdm.utils.Operations;
+import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import android.app.AlertDialog;
@@ -25,27 +27,41 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-public class Entry extends SherlockActivity implements OnClickListener{
-    /** Called when the activity is first created. */
+public class Entry extends SherlockActivity implements OnClickListener, UserConstants{
 	
-	//location where the remember me preference is stored
-	private static final String REMEMBER_ME_LOC = "edu.fordham.cis.wisdm.zoo.askagain";
-	
-	//the button collection
+	/**
+	 * Button collection
+	 */
 	private static Button[] buttons = new Button[2];
 	
-	//text fields
+	/**
+	 * Form fields
+	 */
 	private static EditText[] fields = new EditText[2];
 	
-	//the rememeber me checkbox widget
+	/**
+	 * "Remember Me" checkbox widget
+	 */
 	private CheckBox rememberMe;
 	
+	/**
+	 * Whether device is a large screen or not
+	 */
 	public static boolean largeScreen;
 	
+	/**
+	 * Whether user is a member and has saved login information
+	 */
 	private static boolean isMember = false;
 	
+	/**
+	 * Connection to the server handle
+	 */
 	public static Connections mConnection = null;
 	
+	/**
+	 * If active connection or not
+	 */
 	private boolean isConnected = false;
 	
 	private String email;
@@ -53,10 +69,6 @@ public class Entry extends SherlockActivity implements OnClickListener{
 	private String password;
 	
 	public static final int PASS_LENGTH = 5;
-	
-	private static final String EMAIL_LOC = "edu.fordham.cis.wisdm.zoo.email";
-	
-	private static final String PASS_LOC = "edu.fordham.cis.wisdm.zoo.password";
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,7 +95,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
      * A popup dialog will ask a new user whether he/she wants to register or login as a guest
      */
     private void chooseLogin(){
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	HoloAlertDialogBuilder builder = new HoloAlertDialogBuilder(this);
     	builder.setTitle("Choose your login");
     	builder.setMessage("Register for an account and receive multiple benefits!" +
     			"\nIncludes (future) visit path viewing, personal settings, social features, and many more");
@@ -191,6 +203,13 @@ public class Entry extends SherlockActivity implements OnClickListener{
     	fields[0].setText(email);
     	fields[1].setText(password);
     }
+    
+    @Override
+    public void onBackPressed(){
+    	Intent intent = getIntent();
+    	finish();
+    	startActivity(intent);
+    }
 
 	@Override
 	public void onClick(View v) {
@@ -231,7 +250,7 @@ public class Entry extends SherlockActivity implements OnClickListener{
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			isConnected = Connections.prepare(mConnection);
-			//gotVisit = Connections.visit(mConnection);
+			gotVisit = Connections.visit(mConnection);
 			Connections.disconnect();
 			return null;
 		}

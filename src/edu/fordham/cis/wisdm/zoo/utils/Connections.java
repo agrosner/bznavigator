@@ -90,6 +90,11 @@ public class Connections {
 	private static boolean isConnected = false;
 	
 	/**
+	 * Whether authentication has passed or not
+	 */
+	private static boolean isAuthorized = false;
+	
+	/**
 	 * the unique ID of the current visit that will be pulled from the server initially
 	 */
 	private static int mVisitID = -1;
@@ -99,33 +104,33 @@ public class Connections {
 		
 		mServerMessage = " ";
 		mSocket = new Socket();
-		InetAddress addr;
+		InetAddress addr = null;
 		try {
 			addr = InetAddress.getByName(HOST);
 		} catch (UnknownHostException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-			return false;
 		}
-		SocketAddress sockaddr = new InetSocketAddress(addr, PORT);
-		Log.v(TAG, "Initialized socket. Trying to connect...on" + HOST + ": " + PORT);
 		
-		try {
-			mSocket.connect(sockaddr, DATA_TIMEOUT);
-			mOutputStream = new DataOutputStream(new BufferedOutputStream(mSocket.getOutputStream()));
-			mInputStream = new DataInputStream(mSocket.getInputStream());
+		if(addr!=null){
+			SocketAddress sockaddr = new InetSocketAddress(addr, PORT);
+			Log.v(TAG, "Initialized socket. Trying to connect...on" + HOST + ": " + PORT);
 			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			mServerMessage +="\n";
-			mServerMessage+=e.getMessage();
-			return false;
+			try {
+				mSocket.connect(sockaddr, DATA_TIMEOUT);
+				mOutputStream = new DataOutputStream(new BufferedOutputStream(mSocket.getOutputStream()));
+				mInputStream = new DataInputStream(mSocket.getInputStream());
+				isConnected = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				mServerMessage +="\n";
+				mServerMessage+=e.getMessage();
+			}
 		}
 		
-		Log.v(TAG, "Established Connection");
-		isConnected = true;
-		return true;
+		if(isConnected)	Log.v(TAG, "Established Connection");
+		
+		return isConnected;
 	}
 	
 	/**
@@ -135,45 +140,47 @@ public class Connections {
 	 */
 	private static boolean authorize(Connections con){
 		Log.v(TAG, "Authorizing user");
-		
+		boolean checkWrite = false;
+
 		try {
 			SocketParser.writeAuthReq(con.getmEmail().split("@")[0], con.getmPassword(), 
 					con.getmEmail() , con.getmDevId(), mOutputStream, mInputStream);
-			
+			checkWrite = true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			mServerMessage+="\n";
 			mServerMessage+=e.getMessage();
-			return false;
 		} catch(NullPointerException n){
 			mServerMessage+="\n";
 			mServerMessage+=n.getMessage();
-			return false;
 		}
 		
-		try {
-			byte smsg = mInputStream.readByte();
-			if(smsg == SocketParser.AUTH_CODE){
-				Log.v(TAG, "User authorized");
-				return true;
-			} else if(smsg == SocketParser.AUTH_DENY){
-				Log.v(TAG, "User denied");
-				mServerMessage+="\nUser denied";
-				return false;
-			} else{
-				Log.v(TAG, "Error?");
-				mServerMessage+="\nUnknown error";
-				return false;
+		if(checkWrite){
+			try {
+				byte smsg = mInputStream.readByte();
+				if(smsg == SocketParser.AUTH_CODE){
+					Log.v(TAG, "User authorized");
+					isAuthorized  = true;
+				} else if(smsg == SocketParser.AUTH_DENY){
+					Log.v(TAG, "User denied");
+					mServerMessage+="\nUser denied";
+				} else{
+					Log.v(TAG, "Error?");
+					mServerMessage+="\nUnknown error";
+				}
+			} catch (IOException e) {
+			// 	TODO Auto-generated catch block
+				e.printStackTrace();
+				mServerMessage+="\n";
+				mServerMessage+=e.getMessage();
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			mServerMessage+="\n";
-			mServerMessage+=e.getMessage();
-			return false;
 		}
-		
+
+		if(!isAuthorized){
+			disconnect();
+		}
+		return isAuthorized;
 	}
 	
 	/**
@@ -224,6 +231,33 @@ public class Connections {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Authenticates a visit ID stored in this class
+	 * @param con
+	 * @return
+	 */
+	public static boolean visitAuth(Connections con){
+		boolean success = false;
+		try {
+			SocketParser.writeVisitReq(mOutputStream, mVisitID);
+			byte signal = mInputStream.readByte();
+			if(signal == SocketParser.AUTH_CODE){
+				Log.d(TAG, "Visit authenticated");
+				success = true;
+			} else if(signal == SocketParser.AUTH_DENY){
+				Log.e(TAG, "Visit denied!");
+			} else{
+				Log.e(TAG, "Visit not authenticated for some reason");
+			}
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+			Log.e(TAG, "Could not write a visit request: " + e2.getMessage());
+		}
+		if(!success) disconnect();
+		return success;
 	}
 	
 	/**
@@ -286,18 +320,13 @@ public class Connections {
 	 * @throws IOException 
 	 */
 	public static void sendData(Connections con, String fName, Service mService){
-		if(!Connections.prepare(con)){
+		if(!prepare(con)){
 			Log.v(TAG, "Sending failed");
 			return;
 		}
 		
-		try {
-			SocketParser.writeVisitReq(mOutputStream, mVisitID);
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-			Log.e(TAG, "Could not write a visit request: " + e2.getMessage());
-			Connections.disconnect();
+		if(!visitAuth(con)){
+			Log.e(TAG, "Could not authenticate visit, stopping...");
 			return;
 		}
 		
@@ -372,10 +401,10 @@ public class Connections {
 	 */
 	public static boolean disconnect(){
 		isConnected = false;
+		isAuthorized = false;
 		Log.v(TAG, "Disconnecting...");
 		try {
 			SocketParser.disconnect(mOutputStream, mInputStream);
-			mOutputStream.flush();
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch blockto
@@ -385,6 +414,14 @@ public class Connections {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	/**
+	 * Returns whether there is an active connection or not
+	 * @return
+	 */
+	public static boolean isActive(){
+		return isConnected&&isAuthorized;
 	}
 	
 	public String getmEmail() {

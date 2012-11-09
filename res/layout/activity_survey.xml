@@ -25,11 +25,13 @@
 	        <Button
 	           android:id="@+id/start"
 	           android:text="Start!"
-	           style="@style/splash_button"/>
-	        <Button 
-	            android:id="@+id/skip"
-	            style="@style/splash_button"
-	            android:text="Skip"/>
+	           android:textSize="20dip"
+	           android:textColor="@color/forestgreen"
+	           android:drawableRight="@drawable/ic_action_arrow_right"
+	           android:padding="10dip"
+	           android:layout_gravity="right"
+	           style="@style/wrap"/>
+	        
 	    </LinearLayout>	
 	</ScrollView>
 	<Button
@@ -46,4 +48,11 @@
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
 	    android:visibility="gone"/>
+	<Button 
+	    android:id="@+id/skip"
+	    style="@style/wrap"
+	    android:layout_alignParentLeft="true"
+	    android:drawableLeft="@drawable/exit"
+	    android:layout_alignParentBottom="true"
+	    android:text="Skip"/>
 </RelativeLayout>

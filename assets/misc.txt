@@ -1,0 +1,3 @@
+Place Name,drawable_file_name,latitude,longitude,
+Infirmary,infirmary,40.85043397039356,-73.88013866813725,
+Guest Services,guest,40.85323784846786,-73.87871778637872,
