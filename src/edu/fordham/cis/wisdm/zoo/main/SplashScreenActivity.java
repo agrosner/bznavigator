@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -377,7 +378,27 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	    //saves offset in memory
 	    mMapBounds = new MapBoundary(north, south, west, east);
 	    Geopoint.storeOffset(north, south, west, east);
-	   
+	    
+	    ArrayList<Geopoint> mapC = new ArrayList<Geopoint>();
+	    mapC.add(new Geopoint(40.84588597398253, -73.87138195108362));
+	    mapC.add(new Geopoint(40.85182053984511, -73.87148288393382));
+	    mapC.add(new Geopoint(40.85442972805145, -73.87196252919827));
+	    mapC.add(new Geopoint(40.85582005700646,-73.87378327579171));
+	    mapC.add(new Geopoint(40.85592808017936,-73.87479736815762));
+	    mapC.add(new Geopoint(40.85552555081214,-73.87669967772815));
+	    mapC.add(new Geopoint(40.85549025239517,-73.87766610915155));
+	    mapC.add(new Geopoint(40.85651197850423,-73.88081680695223));
+	    mapC.add(new Geopoint(40.84914774922606,-73.88286392501293));
+	    mapC.add(new Geopoint(40.84879625311754,-73.88265790053622));
+	    mapC.add(new Geopoint(40.84792295907428,-73.88284481696503));
+	    mapC.add(new Geopoint(40.84412209042197,-73.87715837603777));
+	    mapC.add(new Geopoint(40.8426764849847, -73.87800685885128));
+	    mapC.add(new Geopoint(40.84164811516721, -73.87439808013448));
+	    mapC.add(new Geopoint(40.84260106766941,-73.87387371670997));
+	    mapC.add(new Geopoint(40.84330545396362,-73.87288459927092));
+	    mapC.add(new Geopoint(40.84374242261602,-73.8719080319752));
+	   // mapC.add(new Geopoint(40.84588597398253,-73.87138195108362));
+		Geopoint.setMap(mapC);
 		me = new CurrentLocationOverlay(map.getView(), this, R.drawable.location);
 		startLocationUpdates();
 		nearby = new PlaceFragment(PlaceFragment.PlaceType.NEARBY, searchExhibits);

@@ -7,7 +7,7 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.connections.Connections;
 
 import android.app.ProgressDialog;
 import android.content.Context;

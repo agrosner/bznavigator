@@ -7,7 +7,7 @@ import java.util.TimerTask;
 import com.grosner.mapview.Geopoint;
 
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
-import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.connections.Connections;
 import android.app.Service;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -51,7 +51,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 	/**
 	 * Stream rate (every 5 minutes)
 	 */
-	private long STRUpdate = 150000;
+	private long STRUpdate = 300000;
 	
 	/**
 	 * GPS file objects
@@ -259,7 +259,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 			public void run() {
 				try{
 					Geopoint g = files[0].getGeopoint();
-					if(Geopoint.isPointInMap(g)){
+					if(Geopoint.isInsideMap(g)){
 						outsideCount = 0;
 						if(!isStreaming)	files[0].writeLocation(TAG);
 						else				files[1].writeLocation(TAG);

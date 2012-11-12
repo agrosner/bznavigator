@@ -3,15 +3,23 @@ package edu.fordham.cis.wisdm.zoo.main;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
+
+import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.actionbarsherlock.app.SherlockActivity;
 
+import edu.fordham.cis.wisdm.zoo.utils.connections.Connections;
+
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +46,9 @@ import android.widget.Toast;
  */
 public class SurveyActivity extends SherlockActivity implements OnClickListener, OnSeekBarChangeListener, OnTouchListener {
 	
+	
+	private Connections mConnection;
+	
 	//reads from survey data file
 	private Scanner in;
 	
@@ -52,12 +63,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	//to keep track of which survey field is displayed currently/next
 	private int qindex;
 	
-	//continue to next survey field
-	private Button cont;	
-	
-	//start survey
-	private Button start;
-	private Button skip;
+	private Button[] buttons = new Button[3];
 	
 	//other options
 	private RadioButton other;
@@ -74,9 +80,14 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	
 	//response data from each survey field (to be sent to server for analysis)
 	private String cumulative;
+
 	
 	//list of responses, corresponds with indexes of 'surveyfields' questions
 	private ArrayList<String> responses;
+	
+	private ArrayList<String> types;
+	
+	private ArrayList<Integer> qids; 
 	
 	//separators for survey fields in a text display
 	static final String FIELD_START = "+++++";
@@ -95,8 +106,12 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         email = this.getIntent().getExtras().getString("email");
         splash = new Intent(this, SplashScreenActivity.class);
         splash.putExtra("email", email);
-        splash.putExtra("password", getIntent().getExtras().getString("password"));
+        
+        String p = getIntent().getExtras().getString("password");
+        splash.putExtra("password", p);
         splash.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        
+        mConnection = new Connections(email, p, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
         
         scroll = (ScrollView)this.findViewById(R.id.scroll);
         
@@ -109,17 +124,14 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         
         cumulative = "";
         responses = new ArrayList<String>();
+        types = new ArrayList<String>();
+        qids = new ArrayList<Integer>();
         
         title = (TextView)this.findViewById(R.id.title);
         
-        start = (Button)this.findViewById(R.id.start);
-        start.setOnClickListener(this);
-        
-        skip = (Button) this.findViewById(R.id.skip);
-        skip.setOnClickListener(this);
-        
-        cont = (Button)this.findViewById(R.id.cont);
-        cont.setOnClickListener(this);
+        int id[] = {R.id.start, R.id.skip, R.id.cont};
+        Operations.findButtonViewsByIds(this, buttons, id);
+        Operations.setOnClickListeners(this, buttons);
                 
         other = new RadioButton(this);
         otherentry = new EditText(this);
@@ -166,11 +178,23 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     	other.setSelected(false);
     	String type = "";
     	String next = "";
+    	Integer qid;
+    	String valType = "";
     	while(in.hasNextLine()){
     		next = in.nextLine();
     		if(next.length() >= 6 && next.substring(0, 6).equals("TITLE:")){
+    			String titl = next.substring(6);
     			title.setTextSize(20);
-    			title.setText("" + next.substring(6));
+    			title.setText("" + titl);
+    		}
+    		else if(next.substring(0, 4).equals("QID:")){
+    			qid = Integer.valueOf(next.substring(4));
+    			if(qids.size()<=qindex) qids.add(0);
+    			qids.set(qindex, qid);
+    		} else if(next.substring(0, 4).equals("VAL:")){
+    			valType = next.substring(4);
+    			if(types.size()<=qindex) types.add("");
+    			types.set(qindex,valType);
     		}
     		else if(next.length() >= 5 && next.substring(0, 5).equals("TYPE:")){
     			type = next.substring(5);
@@ -224,7 +248,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     			}
     		}
     	}
-    	cont.setVisibility(View.VISIBLE);
+    	buttons[2].setVisibility(View.VISIBLE);
     	completion.setVisibility(View.VISIBLE);
     	mainlayout.addView(rg);
     	if(other.isEnabled())
@@ -232,7 +256,8 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     	if(responses.size() > qindex)
     		reloadResponses();
     }
-
+    
+    
 	@Override
 	public void onClick(View v) {
 		
@@ -252,15 +277,15 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		}
 				
 		//start survey
-		if(v.equals(start)){
+		if(v.equals(buttons[0])){
 			setQuestion(surveyfields.get(qindex));
-			skip.setVisibility(View.GONE);
-		} else if(v.equals(skip)){
+			buttons[1].setVisibility(View.GONE);
+		} else if(v.equals(buttons[1])){
 			startActivity(splash);
 		}
 		
 		//submit entered data and display next survey field
-		if(v.equals(cont)){
+		if(v.equals(buttons[2])){
 			imm.hideSoftInputFromWindow(otherentry.getWindowToken(), 0);
 			
 			this.uploadCurrentResponses();
@@ -272,7 +297,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			else{
 				qindex++;
 				mainlayout.removeAllViews();
-				cont.setVisibility(View.GONE);
+				buttons[2].setVisibility(View.GONE);
 				completion.setVisibility(View.GONE);
 				other.setSelected(false);
 				other.setEnabled(false);
@@ -280,10 +305,11 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 				complete.setTextSize(20);
 				cumulative = "";
 				for(String s: responses)
-					cumulative += s;
-				complete.setText("Survey Complete!\nData String:\n" + cumulative);
+					cumulative += s + ",";
+				complete.setText("Survey Complete!\nData String:\n" + responses.toString()
+						+ "\n" + qids.toString() + "\n" + types.toString());
 				mainlayout.addView(complete);
-				//startActivity(splash);
+				new SendSurveyDataTask(mConnection, this).execute();
 			}
 			
 			//increment progress
@@ -299,26 +325,24 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		if(responses.size() <= qindex)
 			responses.add("");
 		
-		//string of current response
 		String response = "";
-		response += title.getText() + "=";
 		for(int i = 0; i < mainlayout.getChildCount(); i++){
 			if(mainlayout.getChildAt(i).getClass().equals(EditText.class)){
 				if(mainlayout.getChildAt(i).equals(otherentry)){
 					if(other.isChecked()){
-						response += otherentry.getText() + ",";
+						response = otherentry.getText().toString();
 						otherentry.setText("");
 					}
 				}
 				else
-					response += ((EditText)mainlayout.getChildAt(i)).getText() + ",";
+					response += ((EditText)mainlayout.getChildAt(i)).getText();
 			}
 			else if(mainlayout.getChildAt(i).getClass().equals(RadioGroup.class)){
 				RadioGroup Trg = (RadioGroup)mainlayout.getChildAt(i);
 				for(int k = 0; k < Trg.getChildCount(); k++)
 					if(((RadioButton)Trg.getChildAt(k)).isChecked()){
 						if(!((RadioButton)Trg.getChildAt(k)).equals(other)){
-							response += ((RadioButton)Trg.getChildAt(k)).getText() + ",";
+							response += ((RadioButton)Trg.getChildAt(k)).getText();
 						}
 					}
 			}
@@ -327,10 +351,9 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 					response += ((CheckBox)mainlayout.getChildAt(i)).getText() + ",";
 			}
 			else if(mainlayout.getChildAt(i).getClass().equals(SeekBar.class)){
-				response += ((SeekBar)mainlayout.getChildAt(i)).getProgress() + ",";
+				response += ((SeekBar)mainlayout.getChildAt(i)).getProgress();
 			}
 		}
-		response += ";";
 		responses.set(qindex, response);
 	}
 
@@ -407,8 +430,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		boolean radioSet = false;
 		
 		//string of response(s) to current survey field
-		String Tresponse = responses.get(qindex).substring(
-				responses.get(qindex).indexOf('=') + 1, responses.get(qindex).indexOf(';'));
+		String Tresponse = responses.get(qindex);
 		
 		//parsed list of response(s) to current survey field
 		ArrayList<String> Tresponses = new ArrayList<String>(
@@ -458,5 +480,43 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			other.setChecked(true);
 		}
 		return false;
+	}
+	
+	
+	private class SendSurveyDataTask extends AsyncTask<Void,Void,Void>{
+		
+		private Connections mConnection;
+		
+		private ProgressDialog dia;
+		
+		private Context mContext;
+		
+		public SendSurveyDataTask(Connections con, Context cont){
+			mConnection = con;
+			mContext = cont;
+		}
+
+		@Override
+		protected void onPreExecute(){
+			dia = ProgressDialog.show(mContext, "Connecting", "Sending Survey Data");
+		}
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			try {
+				Connections.sendSurvey(mConnection, responses, qids, types);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Connections.disconnect();
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void arg){
+			dia.dismiss();
+			startActivity(splash);
+		}
 	}
 }
