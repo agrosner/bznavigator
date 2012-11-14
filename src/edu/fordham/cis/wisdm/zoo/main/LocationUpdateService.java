@@ -1,12 +1,16 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import com.grosner.mapview.Geopoint;
 
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
+import edu.fordham.cis.wisdm.zoo.utils.Polygon;
 import edu.fordham.cis.wisdm.zoo.utils.connections.Connections;
 import android.app.Service;
 import android.content.Context;
@@ -27,7 +31,8 @@ import android.util.Log;
  * @version 1.0
  */
 public class LocationUpdateService extends Service implements LocationListener{
-
+	
+	
 	/**
 	 * LocationUpdateService
 	 */
@@ -98,6 +103,11 @@ public class LocationUpdateService extends Service implements LocationListener{
 	 */
 	private static final int SHUTDOWN_NUMBER = 6;
 	
+	/**
+	 * map polygon
+	 */
+	private Polygon mPolygon;
+	
 	private static boolean isStreaming = false;
 	
 	@Override
@@ -110,7 +120,44 @@ public class LocationUpdateService extends Service implements LocationListener{
 		wLock = pManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "myTag");
 		wLock.acquire();
 		
+		try {
+			readPolygonCoords();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+	}
+	
+	/**
+	 * Reads in polygon from text file
+	 * @throws IOException 
+	 */
+	private void readPolygonCoords() throws IOException{
+		Scanner file = new Scanner(this.getResources().getAssets().open("mapraw.txt"));
+		LinkedList<Integer> x = new LinkedList<Integer>();
+		LinkedList<Integer> y = new LinkedList<Integer>();
+		
+		while(file.hasNext()){
+			String line = file.nextLine();
+			String[] lValues = line.split(",");
+			double latitude = Double.valueOf(lValues[1]);
+			double longitude = Double.valueOf(lValues[0]);
+			y.add((int)(latitude*1E6));
+			x.add((int)(longitude*1E6));
+		}
+		
+		int[] xs = new int[x.size()];
+		int[] ys = new int[y.size()];
+		for(int i =0; i < xs.length; i++){
+			xs[i] = x.poll();
+			ys[i] = y.poll();
+		}
+		
+		mPolygon = new Polygon(xs, ys,xs.length);
+		
+		
+		file.close();
 		
 	}
 	
@@ -259,7 +306,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 			public void run() {
 				try{
 					Geopoint g = files[0].getGeopoint();
-					if(Geopoint.isInsideMap(g)){
+					if(/**Geopoint.isInsideMap(g)**/mPolygon.contains(g)){
 						outsideCount = 0;
 						if(!isStreaming)	files[0].writeLocation(TAG);
 						else				files[1].writeLocation(TAG);

@@ -23,7 +23,7 @@ CHOICE:1
 CHOICE:2
 CHOICE:3
 CHOICE:4
-CHOICE:5
+CHOICE:5+
 -----
 +++++
 TITLE:Are you a member of the Bronx Zoo?
@@ -66,6 +66,8 @@ TITLE:How did you get here today?
 QID:7
 VAL:Str
 TYPE:Radio Buttons
+CHOICE:Walk
 CHOICE:Drive and park
 CHOICE:Public transportation
+CHOICE:Other
 -----

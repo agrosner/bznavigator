@@ -379,7 +379,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	    mMapBounds = new MapBoundary(north, south, west, east);
 	    Geopoint.storeOffset(north, south, west, east);
 	    
-	    ArrayList<Geopoint> mapC = new ArrayList<Geopoint>();
+	    /**ArrayList<Geopoint> mapC = new ArrayList<Geopoint>();
 	    mapC.add(new Geopoint(40.84588597398253, -73.87138195108362));
 	    mapC.add(new Geopoint(40.85182053984511, -73.87148288393382));
 	    mapC.add(new Geopoint(40.85442972805145, -73.87196252919827));
@@ -398,7 +398,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	    mapC.add(new Geopoint(40.84330545396362,-73.87288459927092));
 	    mapC.add(new Geopoint(40.84374242261602,-73.8719080319752));
 	   // mapC.add(new Geopoint(40.84588597398253,-73.87138195108362));
-		Geopoint.setMap(mapC);
+		Geopoint.setMap(mapC);**/
 		me = new CurrentLocationOverlay(map.getView(), this, R.drawable.location);
 		startLocationUpdates();
 		nearby = new PlaceFragment(PlaceFragment.PlaceType.NEARBY, searchExhibits);

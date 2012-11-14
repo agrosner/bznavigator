@@ -362,7 +362,7 @@ public class Connections {
 					floats[i-2] = Float.valueOf(values[i]);
 				}
 				
-				GPSWriter.printDataLine(TAG, floats, Long.valueOf(values[1]), SocketParser.GPS_TUPLE_CODE);
+				//GPSWriter.printDataLine(TAG, floats, Long.valueOf(values[1]), SocketParser.GPS_TUPLE_CODE);
 				if(!sendLine(Long.valueOf(values[1]), floats, SocketParser.GPS_TUPLE_CODE))
 					more = false;
 				lines++;
@@ -425,7 +425,17 @@ public class Connections {
 					SocketParser.writeSurvQ(mOutputStream, qids.get(index), resp);
 				} else if(type.length() == 3 && type.equals("Num")){
 					mOutputStream.write(SocketParser.SURVEY_ANS_CODE);
-					SocketParser.writeSurvQ(mOutputStream, qids.get(index), Integer.valueOf(resp));
+					int res = 0;
+					try{
+						res = Integer.valueOf(resp);
+					} catch(NumberFormatException n){//catch possible errors or ex: 5+ --> 5
+						n.printStackTrace();
+						int length = resp.length();
+						resp = resp.substring(0, length-1);
+						res = Integer.valueOf(resp);
+					} finally{
+						SocketParser.writeSurvQ(mOutputStream, qids.get(index), res);
+					}
 				}
 			}
 			index++;

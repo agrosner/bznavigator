@@ -257,15 +257,18 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 		
 		@Override
 		protected void onPostExecute(Void aarg){
-			if(!isConnected)
+			if(!isConnected){
 				Toast.makeText(mContext, "Connection failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
-			else{
+				setFields(mConnection.getmEmail(), mConnection.getmPassword());
+				rememberMe.setChecked(true);
+			}else{
 				if(!gotVisit){
 					Toast.makeText(mContext, "Could not register visit for some reason", Toast.LENGTH_SHORT).show();
+				}else{
+					startActivity(new Intent(mContext, SurveyActivity.class)
+					.putExtra("email", mConnection.getmEmail())
+					.putExtra("password", mConnection.getmPassword()));
 				}
-    			startActivity(new Intent(mContext, SurveyActivity.class)
-				.putExtra("email", mConnection.getmEmail())
-				.putExtra("password", mConnection.getmPassword()));
 			}
 			dia.dismiss();
 		}
