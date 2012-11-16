@@ -1,6 +1,5 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -272,7 +271,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 
 			@Override
 			public void run() {
-				stream();
+				if(outsideCount==0) stream();
 			}
 			
 		}, 0, STRUpdate);

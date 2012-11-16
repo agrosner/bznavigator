@@ -1,6 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.main.places;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -34,6 +35,8 @@ public class PlaceController {
 	 * Meters to FT conversion
 	 */
 	public static double METERS_TO_FT = 3.28084;
+	
+	public static double MILES_TO_FT = 5280;
 	
 	/**
 	 * Builds the layout for listing nearby exhibits with title, distance, and custom image
@@ -123,13 +126,15 @@ public class PlaceController {
 	public static void readInDataIntoList(Activity act, LinearLayout exhibitList, LinkedList<PlaceItem> points, OnClickListener onClick, boolean wrap){
 		if(exhibitList==null)	return;
 		int idIndex = 0;
-		for(PlaceItem place: points){
-			idIndex++;
-			String distance = place.getSnippet();
-			int index = findIndex(exhibitList, Integer.valueOf(distance));
-			exhibitList.addView(createExhibitItem(act,idIndex, place, onClick, wrap), index);
+			synchronized(points){
+				for(PlaceItem place: points){
+					idIndex++;
+					String distance = place.getSnippet();
+					int index = findIndex(exhibitList, Integer.valueOf(distance));
+					exhibitList.addView(createExhibitItem(act,idIndex, place, onClick, wrap), index);
+				}
+				exhibitList.postInvalidate();
 		}
-		exhibitList.postInvalidate();
 	}
 
 	/**
@@ -228,9 +233,6 @@ public class PlaceController {
 			} else if(ob instanceof PlaceItem){
 				PlaceItem place = (PlaceItem) ob;
 				text = place.getSnippet().replace("ft", "");
-				int dist = Integer.valueOf(text);
-				if(distance<dist)	break;
-				index++;
 			}
 			int dist = Integer.valueOf(text);
 			if(distance<dist)	break;

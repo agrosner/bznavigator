@@ -2,17 +2,23 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/wrap">    
 
+    
     <TextView 
         android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
         android:id="@+id/title"
         android:textSize="25dip"
-        android:layout_marginBottom="10dip"
-        android:layout_marginTop="10dip"
+        android:layout_margin="20dip"
         style="@style/wrap"
-        android:gravity="center"
         android:text="Exhibit Lookup"
         />
-    
+    <ImageButton 
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:id="@+id/refresh"
+        style="@style/wrap"
+        android:src="@drawable/ic_action_reload"
+        />
     <ScrollView 
         android:layout_below="@id/title"
         android:id="@+id/exhibitListContainer"

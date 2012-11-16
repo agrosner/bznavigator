@@ -1,6 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.main.places;
 
 import java.util.LinkedList;
+import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -11,9 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.grosner.mapview.PlaceItem;
@@ -31,13 +34,13 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	
 	public enum PlaceType{EXHIBITS, FOOD, SPECIAL, SHOPS, ADMIN, NEARBY;
 		public String toString(){
-			if(this == EXHIBITS)		return "exhibits";
-			else if(this == FOOD) 		return "food";
-			else if(this == SPECIAL)	return "special-exhibits";
-			else if(this == SHOPS) 		return "shops";
-			else if(this == ADMIN) 		return "admin";
-			else if(this == NEARBY)		return "nearby";
-			else						return "";
+			return name().toLowerCase(Locale.ENGLISH);
+		}
+		
+		public String toTitleString(){
+			String s = toString();
+			String first = s.substring(0, 1);
+			return s.replaceFirst(first, first.toUpperCase());
 		}
 	};
 
@@ -107,12 +110,16 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	/**
 	 * Called when fragment's view is created
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
 		this.inflater = inflater;
+		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, null, false);
+		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
+		ImageButton refresh = (ImageButton) exhibit.findViewById(R.id.refresh);
+		refresh.setOnClickListener(this);
 		
-		if(type!=PlaceType.NEARBY)	refresh();
-		else 						refresh(points, 10);
+		refresh();
 		
 		return exhibit;
 	}
@@ -122,52 +129,29 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 */
 	private void init(){
 		
-		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, null, false);
-		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
 		exhibitList.removeAllViews();
-			
-		//if(type == PlaceType.SHOPS)
-		//exhibitList.addView(createExhibitItem(getActivity(), inflater, container, -1, "ic_action_tshirt", "Visit Store Website", "", this, true));
-		
 		exhibitList.addView(PlaceController.createExhibitItem(getActivity(), 0, "ic_action_location", "View All On Map", "", this, true));
 	}
 	
-	/**
-	 * Reloads data into the layout
-	 */
-	public void refresh(){
-		init();
-		
-		String fName = type.toString();
-		
-		TextView title = (TextView) exhibit.findViewById(R.id.title);
-		title.setText(fName.replace("-", " "));
-		
-		fName+=".txt";
-		PlaceController.readInData(getActivity(), points, fName);
-		PlaceController.readInDataIntoList(getActivity(), exhibitList, points, this, true);	
-	}
 	
 	/**
-	 * Loads in a custom list of places to display with custom number of elements
+	 * Refreshes a list based on the amount of params passed to it
 	 * @param custom
 	 */
-	public void refresh(LinkedList<PlaceItem> custom, int dispNum){
+	@SuppressWarnings("unchecked")
+	public void refresh(){
 		init();
+		PlaceController.reCalculateDistance(SplashScreenActivity.myLocation, points);
+		
 		TextView title = (TextView) exhibit.findViewById(R.id.title);
-		title.setText(type.toString());
+		title.setText(type.toTitleString());
 		
-		LinkedList<RelativeLayout> list = new LinkedList<RelativeLayout>();
-		
-		for(int i =0; i < custom.size(); i++){
-			PlaceItem place = custom.get(i);
-			int index = PlaceController.findIndex(list, Integer.valueOf(place.getSnippet()));
-			list.add(index, PlaceController.createExhibitItem(getActivity(), i+1, place, this, true));
-		}
-		if(exhibitList!=null)
-			for(int i = 0; i < dispNum; i++){
-				exhibitList.addView(list.get(i));
-		}
+		String fName = type.toString() + ".txt";
+			
+		if(points.isEmpty())	PlaceController.readInData(getActivity(), points, fName);
+		else 	PlaceController.reCalculateDistance(SplashScreenActivity.myLocation, points);
+			
+		PlaceController.readInDataIntoList(getActivity(), exhibitList, points, this, true);
 	}
 
 	@Override
@@ -177,7 +161,10 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		FragmentTransaction mTransaction = this.getFragmentManager().beginTransaction();
 		int id = v.getId();
 		
-		if(id > 0){
+		if(id == R.id.refresh){
+			refresh();
+			Toast.makeText(this.getActivity(), "Refreshed", Toast.LENGTH_SHORT).show();
+		} else if(id > 0){
 			PlaceItem place = points.get(id-1);
 			LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 			places.add(place);
@@ -203,6 +190,6 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 			}
 		} else if(id == -1){
 			getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.bronxzoostore.com")));
-		}
+		} 
 	}
 }

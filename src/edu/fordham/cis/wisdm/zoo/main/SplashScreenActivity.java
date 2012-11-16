@@ -92,9 +92,16 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private SlidingDrawer mDrawer;
 	
 	/**
+	 * Layout contained inside the drawer
+	 */
+	private LinearLayout mDrawerFrame;
+	
+	/**
 	 * the popup list of exhibits that shows up when a user searches for an exhibit
 	 */
 	private LinearLayout searchList;
+	
+	private RelativeLayout[] mDrawerCheckBoxes = new RelativeLayout[3];
 	
 	/**
 	 * the searchbar widget
@@ -145,11 +152,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * the mapview widget
 	 */
 	private static MapView map;
-	
-	/**
-	 * The map boundary 
-	 */
-	public static MapBoundary mMapBounds;
 	
 	/**
 	 * Upper Y-coordinate of map
@@ -375,33 +377,15 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	    map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map3/%col%_%row%.png", 8192, 10240));
 	    map.getView().setOnTouchListener(this);
 	       
-	    //saves offset in memory
-	    mMapBounds = new MapBoundary(north, south, west, east);
 	    Geopoint.storeOffset(north, south, west, east);
-	    
-	    /**ArrayList<Geopoint> mapC = new ArrayList<Geopoint>();
-	    mapC.add(new Geopoint(40.84588597398253, -73.87138195108362));
-	    mapC.add(new Geopoint(40.85182053984511, -73.87148288393382));
-	    mapC.add(new Geopoint(40.85442972805145, -73.87196252919827));
-	    mapC.add(new Geopoint(40.85582005700646,-73.87378327579171));
-	    mapC.add(new Geopoint(40.85592808017936,-73.87479736815762));
-	    mapC.add(new Geopoint(40.85552555081214,-73.87669967772815));
-	    mapC.add(new Geopoint(40.85549025239517,-73.87766610915155));
-	    mapC.add(new Geopoint(40.85651197850423,-73.88081680695223));
-	    mapC.add(new Geopoint(40.84914774922606,-73.88286392501293));
-	    mapC.add(new Geopoint(40.84879625311754,-73.88265790053622));
-	    mapC.add(new Geopoint(40.84792295907428,-73.88284481696503));
-	    mapC.add(new Geopoint(40.84412209042197,-73.87715837603777));
-	    mapC.add(new Geopoint(40.8426764849847, -73.87800685885128));
-	    mapC.add(new Geopoint(40.84164811516721, -73.87439808013448));
-	    mapC.add(new Geopoint(40.84260106766941,-73.87387371670997));
-	    mapC.add(new Geopoint(40.84330545396362,-73.87288459927092));
-	    mapC.add(new Geopoint(40.84374242261602,-73.8719080319752));
-	   // mapC.add(new Geopoint(40.84588597398253,-73.87138195108362));
-		Geopoint.setMap(mapC);**/
+	   
 		me = new CurrentLocationOverlay(map.getView(), this, R.drawable.location);
+		new LoadDataTask(this, this).execute();
+		
 		startLocationUpdates();
 		nearby = new PlaceFragment(PlaceFragment.PlaceType.NEARBY, searchExhibits);
+		
+		
 		
 		me.addCurrentLocationChangedListener(meListener);
 		
@@ -445,14 +429,51 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * Adds sliding drawer for persistent locations
 	 */
+	@SuppressWarnings("deprecation")
 	private void addDrawerList(){
 		mDrawer = (SlidingDrawer) findViewById(R.id.drawer);
+		final Activity act = this;
+		
+		mDrawerFrame = (LinearLayout) mDrawer.findViewById(R.id.drawerFrame);
+		
+		LinearLayout.LayoutParams pm = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+		pm.bottomMargin = 10;
+		TextView title = new TextView(act.getApplicationContext());
+		title.setText("Amenities");
+		title.setTextSize(20);
+		mDrawerFrame.addView(title, pm);
+		
+		mDrawerCheckBoxes[0] = createIconCheckBox("Restrooms", "restrooms.txt", R.drawable.bathroom, restrooms);
+		mDrawerCheckBoxes[1] = createIconCheckBox("Gates", "gates.txt", R.drawable.fordham, gates);
+		mDrawerCheckBoxes[2] = createIconCheckBox("Parking Lots", "parking.txt" , R.drawable.car, parking);
+		
+		if(misc.isEmpty())	PlaceController.readInData(act, misc, "misc.txt");
+		
 	    mDrawer.setOnDrawerOpenListener(new OnDrawerOpenListener(){
-
+	   
 		@Override
 		public void onDrawerOpened() {
 			ImageView icon = (ImageView) mDrawer.getHandle();
 			icon.setImageResource(R.drawable.ic_action_arrow_right);
+			mDrawerFrame.removeAllViews();
+			for(int i = 0; i < mDrawerCheckBoxes.length; i++){
+				mDrawerFrame.addView(mDrawerCheckBoxes[i]);
+			}
+			PlaceController.reCalculateDistance(myLocation, misc);
+			PlaceController.readInDataIntoList(act, mDrawerFrame, misc, new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					int id = v.getId();
+					mDrawer.close();
+					PlaceItem place = misc.get(id-1);
+					LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
+					places.add(place);
+					showMap(mTransaction, list.getView(), places);
+					map.getView().animateTo(place.getPoint());
+				}
+				
+			}, true);
 		}
 	    	   
 	    });
@@ -466,36 +487,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	    
 	    });
 		
-		LinearLayout frame = (LinearLayout) mDrawer.findViewById(R.id.drawerFrame);
-		frame.removeAllViews();
-		
-		@SuppressWarnings("deprecation")
-		LinearLayout.LayoutParams pm = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		pm.bottomMargin = 10;
-		TextView title = new TextView(this);
-		title.setText("Amenities");
-		title.setTextSize(20);
-		frame.addView(title, pm);
-		
-		frame.addView(createIconCheckBox("Restrooms", "restrooms.txt", R.drawable.bathroom, restrooms));
-		frame.addView(createIconCheckBox("Gates", "gates.txt", R.drawable.fordham, gates));
-		frame.addView(createIconCheckBox("Parking Lots", "parking.txt" , R.drawable.car, parking));
-		PlaceController.readInData(this, misc, "misc.txt");
-		PlaceController.readInDataIntoList(this, frame, misc, new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				int id = v.getId();
-				mDrawer.close();
-				PlaceItem place = misc.get(id-1);
-				LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
-				places.add(place);
-				showMap(mTransaction, list.getView(), places);
-				map.getView().animateTo(place.getPoint());
-			}
-			
-		}, true);
-		map.getView().refresh();
 	}
 	
 	private RelativeLayout createIconCheckBox(final String name, final String fileName, int iconId, final LinkedList<PlaceItem> pts){
@@ -587,8 +578,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		final Activity act = this;
 		final OnClickListener onclick = this;
 
-		new LoadDataTask(this, this).execute();
-	
 		me.runOnFirstFix(new Runnable(){
 
 			@Override
@@ -596,12 +585,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				//map.animateTo(me.getPoint());
 				myLocation = me.getPoint();
 				if(!map.isShown() && !list.isVisible()){
-						 if(currentFragment == Places.EXHIBITS)		exhibit.refresh();
-					else if(currentFragment == Places.FOOD)			food.refresh();
-					else if(currentFragment == Places.SPECIAL)		special.refresh();
-					else if(currentFragment == Places.ADMIN)		admin.refresh();
-					else if(currentFragment == Places.SHOPS)		shops.refresh();
-					else if(currentFragment == Places.FIND)			nearby.refresh(searchExhibits, 10);
+					refreshFragment();
 				}
 				
 				//once we get a fix, store it in locationupdateservice
@@ -801,6 +785,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * User clicks on the main menu item
 	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
@@ -844,6 +829,18 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		else if(currentFragment == Places.MAP)		return map.getView();
 		else if(currentFragment == Places.FIND)		return nearby.getView();
 		else 										return list.getView();
+	}
+	
+	/**
+	 * Refreshes currently showing fragment
+	 */
+	private void refreshFragment(){
+		if(currentFragment == Places.EXHIBITS)			exhibit.refresh();
+		else if(currentFragment == Places.FOOD)			food.refresh();
+		else if(currentFragment == Places.SPECIAL)		special.refresh();
+		else if(currentFragment == Places.ADMIN)		admin.refresh();
+		else if(currentFragment == Places.SHOPS)		shops.refresh();
+		else if(currentFragment == Places.FIND)			nearby.refresh();
 	}
 	
 	/**
@@ -921,7 +918,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				if(f.isAdded()){
 					PlaceFragment placeFrag = (PlaceFragment) f;
 					placeFrag.refresh();
-					MessageBuilder.showToast("Updated", this);
 				} else{
 					removeFrag(mTransaction);
 					mTransaction.add(R.id.PlaceView, f).commit();
@@ -1020,7 +1016,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		} else{
 			MessageBuilder.showToast("Not found", this);
 		}
-		
 	}
 	
 	public MapView getMap(){
@@ -1029,11 +1024,13 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count){
-		searchList.removeAllViews();
-		for(int i =0; i < searchExhibits.size(); i++){
-			PlaceItem place = searchExhibits.get(i);
-			if(place.getDescription().toLowerCase().contains(s.toString().toLowerCase()))
-				searchList.addView(PlaceController.createExhibitItem(this, i+1, place, this, true));
+		if(s.length()>0){
+			searchList.removeAllViews();
+			for(int i =0; i < searchExhibits.size(); i++){
+				PlaceItem place = searchExhibits.get(i);
+				if(place.getDescription().toLowerCase().contains(s.toString().toLowerCase()))
+					searchList.addView(PlaceController.createExhibitItem(this, i+1, place, this, true));
+				}
 		}
 	}
     
