@@ -37,6 +37,10 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 			return name().toLowerCase(Locale.ENGLISH);
 		}
 		
+		/**
+		 * Returns capitalized name
+		 * @return
+		 */
 		public String toTitleString(){
 			String s = toString();
 			String first = s.substring(0, 1);
@@ -44,7 +48,6 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		}
 	};
 
-	
 	/**
 	 * The type of this fragment
 	 */
@@ -59,12 +62,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	 * The view that holds all of the child placeitem views
 	 */
 	private LinearLayout exhibitList = null;
-	
-	/**
-	 * The layout inflater for the view of this fragment
-	 */
-	private LayoutInflater inflater = null;
-	
+
 	/**
 	 * The places that will be put onto the map
 	 */
@@ -110,10 +108,8 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 	/**
 	 * Called when fragment's view is created
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
-		this.inflater = inflater;
 		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, null, false);
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
 		ImageButton refresh = (ImageButton) exhibit.findViewById(R.id.refresh);

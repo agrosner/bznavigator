@@ -22,7 +22,7 @@
 	    android:layout_toRightOf="@id/image"
 	    android:layout_toLeftOf="@id/distancetext"
 	    android:id="@+id/title"
-	    android:textSize="20dip"
+	    android:textSize="15dip"
 	    style="@style/fill_width_partial"
 	    android:layout_alignParentTop="true"
 	    />

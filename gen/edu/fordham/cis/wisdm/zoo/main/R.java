@@ -1119,16 +1119,20 @@ containing a value of this type.
         public static final int wisdmsmall=0x7f02016b;
     }
     public static final class id {
+        public static final int DontRemember=0x7f070065;
         public static final int Email=0x7f070035;
+        public static final int Later=0x7f070066;
         public static final int LoginButton=0x7f070038;
         public static final int LoginContainer=0x7f070033;
         public static final int Password=0x7f070036;
         public static final int PlaceView=0x7f07002c;
+        public static final int Remember=0x7f070064;
         public static final int RememberMe=0x7f070037;
         public static final int SearchList=0x7f07002d;
         public static final int SearchMenu=0x7f07002b;
-        public static final int Settings=0x7f070064;
+        public static final int Settings=0x7f07006c;
         public static final int SignUp=0x7f070061;
+        public static final int Title=0x7f070063;
         public static final int Welcome=0x7f070034;
         public static final int WisdmLogo=0x7f070060;
         public static final int abs__action_bar=0x7f070022;
@@ -1160,7 +1164,7 @@ containing a value of this type.
         public static final int abs__title=0x7f07001b;
         public static final int abs__titleDivider=0x7f07001c;
         public static final int abs__up=0x7f07000b;
-        public static final int action_search=0x7f070065;
+        public static final int action_search=0x7f07006d;
         public static final int alertTitle=0x7f070048;
         public static final int btn_zoom_down=0x7f07005e;
         public static final int btn_zoom_up=0x7f07005f;
@@ -1190,7 +1194,7 @@ containing a value of this type.
         public static final int mainrel=0x7f070054;
         public static final int map=0x7f07002a;
         public static final int mapframe=0x7f070029;
-        public static final int menu_settings=0x7f070063;
+        public static final int menu_settings=0x7f07006b;
         public static final int message=0x7f07004c;
         public static final int name=0x7f07005b;
         public static final int normal=0x7f070001;
@@ -1205,13 +1209,17 @@ containing a value of this type.
         public static final int relframe=0x7f07005a;
         public static final int scroll=0x7f07002f;
         public static final int scrollView=0x7f07004b;
+        public static final int selector=0x7f07006a;
         public static final int showCustom=0x7f070008;
         public static final int showHome=0x7f070005;
         public static final int showTitle=0x7f070007;
         public static final int skip=0x7f070043;
+        public static final int splash_main=0x7f070067;
         public static final int splashrel=0x7f070027;
         public static final int start=0x7f070041;
         public static final int tabMode=0x7f070003;
+        public static final int tabsLayout=0x7f070068;
+        public static final int tabsText=0x7f070069;
         public static final int title=0x7f07003e;
         public static final int titleDivider=0x7f070049;
         public static final int titleDividerTop=0x7f070046;
@@ -1269,21 +1277,29 @@ containing a value of this type.
         public static final int login_extended=0x7f030028;
         public static final int main=0x7f030029;
         public static final int placefragment=0x7f03002a;
-        public static final int progress_horizontal_holo_dark=0x7f03002b;
-        public static final int progress_horizontal_holo_light=0x7f03002c;
-        public static final int progress_indeterminate_horizontal=0x7f03002d;
-        public static final int progress_indeterminate_horizontal_holo=0x7f03002e;
-        public static final int progress_large_holo=0x7f03002f;
-        public static final int progress_medium_holo=0x7f030030;
-        public static final int progress_small_holo=0x7f030031;
-        public static final int sherlock_spinner_dropdown_item=0x7f030032;
-        public static final int sherlock_spinner_item=0x7f030033;
+        public static final int preferences=0x7f03002b;
+        public static final int prefs=0x7f03002c;
+        public static final int progress_horizontal_holo_dark=0x7f03002d;
+        public static final int progress_horizontal_holo_light=0x7f03002e;
+        public static final int progress_indeterminate_horizontal=0x7f03002f;
+        public static final int progress_indeterminate_horizontal_holo=0x7f030030;
+        public static final int progress_large_holo=0x7f030031;
+        public static final int progress_medium_holo=0x7f030032;
+        public static final int progress_small_holo=0x7f030033;
+        public static final int save_info_dialog=0x7f030034;
+        public static final int sherlock_spinner_dropdown_item=0x7f030035;
+        public static final int sherlock_spinner_item=0x7f030036;
+        public static final int splash_screen=0x7f030037;
+        public static final int survey=0x7f030038;
+        public static final int tab=0x7f030039;
+        public static final int tab_text=0x7f03003a;
     }
     public static final class menu {
-        public static final int activity_register=0x7f0e0000;
-        public static final int activity_settings=0x7f0e0001;
-        public static final int menu=0x7f0e0002;
-        public static final int search_layout=0x7f0e0003;
+        public static final int activity_nuti_test=0x7f0e0000;
+        public static final int activity_register=0x7f0e0001;
+        public static final int activity_settings=0x7f0e0002;
+        public static final int menu=0x7f0e0003;
+        public static final int search_layout=0x7f0e0004;
     }
     public static final class string {
         public static final int AndrewLaptopKey=0x7f06000e;

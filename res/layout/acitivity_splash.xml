@@ -42,20 +42,20 @@
 	               	android:id="@+id/SearchList"
                		style="@style/wrap"
                		android:orientation="vertical"
-	              
                		>
-               		
  						<!-- Content here -->              
            		</LinearLayout>           
        		</ScrollView>
        		
    		</LinearLayout>
-   		<SlidingDrawer 
+   		<edu.fordham.cis.wisdm.zoo.utils.WrapSlidingDrawer
    		    android:id="@+id/drawer"
-   		    style="@style/wrap"
+   		    android:layout_width="wrap_content"
+   		    android:layout_height="fill_parent"
    		    android:content="@+id/scroll"
    		    android:handle="@+id/icon"
-   		    android:orientation="horizontal">
+   		    android:orientation="horizontal"
+   		    android:layout_gravity="right">
        		<ImageButton 
        		    android:id="@+id/icon"
        		    style="@style/wrap"
@@ -63,12 +63,12 @@
        		    />
        		<ScrollView 
        		    android:id="@+id/scroll"
-       		    android:layout_width="wrap_content"
+       		    android:layout_width="fill_parent"
        		    android:background="@drawable/background_holo_light"
        		    android:layout_height="fill_parent">
            		<LinearLayout 
            		    android:id="@+id/drawerFrame"
-           		    android:layout_width="wrap_content"
+           		    android:layout_width="fill_parent"
        		    	android:layout_height="fill_parent"
        		    	android:orientation="vertical">
            		    	    
@@ -77,7 +77,7 @@
        		</ScrollView>
        		
    		    
-   		</SlidingDrawer>
+   		</edu.fordham.cis.wisdm.zoo.utils.WrapSlidingDrawer>
     
    </FrameLayout>   
    

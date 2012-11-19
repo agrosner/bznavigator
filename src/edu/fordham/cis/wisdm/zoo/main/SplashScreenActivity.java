@@ -35,6 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
@@ -77,6 +78,7 @@ import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragment;
 import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
+import edu.fordham.cis.wisdm.zoo.utils.WrapSlidingDrawer;
 
 
 public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener, SearchPerformListener, OnNavigationListener, TextWatcher, OnTouchListener{
@@ -89,7 +91,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * The amenities drawer
 	 */
-	private SlidingDrawer mDrawer;
+	private WrapSlidingDrawer mDrawer;
 	
 	/**
 	 * Layout contained inside the drawer
@@ -431,28 +433,38 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	@SuppressWarnings("deprecation")
 	private void addDrawerList(){
-		mDrawer = (SlidingDrawer) findViewById(R.id.drawer);
+		mDrawer = (WrapSlidingDrawer) findViewById(R.id.drawer);
+		
 		final Activity act = this;
 		
 		mDrawerFrame = (LinearLayout) mDrawer.findViewById(R.id.drawerFrame);
+		//mDrawerFrame.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, SCREEN_WIDTH/4));
 		
-		LinearLayout.LayoutParams pm = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		pm.bottomMargin = 10;
+		final LinearLayout.LayoutParams pm = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		TextView title = new TextView(act.getApplicationContext());
 		title.setText("Amenities");
 		title.setTextSize(20);
 		mDrawerFrame.addView(title, pm);
 		
+		
+		
 		mDrawerCheckBoxes[0] = createIconCheckBox("Restrooms", "restrooms.txt", R.drawable.bathroom, restrooms);
 		mDrawerCheckBoxes[1] = createIconCheckBox("Gates", "gates.txt", R.drawable.fordham, gates);
 		mDrawerCheckBoxes[2] = createIconCheckBox("Parking Lots", "parking.txt" , R.drawable.car, parking);
-		
+		for(int i = 0; i < mDrawerCheckBoxes.length; i++){
+			mDrawerFrame.addView(mDrawerCheckBoxes[i]);
+		}
 		if(misc.isEmpty())	PlaceController.readInData(act, misc, "misc.txt");
 		
-	    mDrawer.setOnDrawerOpenListener(new OnDrawerOpenListener(){
+		mDrawer.setOnDrawerOpenListener(new OnDrawerOpenListener(){
 	   
 		@Override
 		public void onDrawerOpened() {
+			mTransaction = getSupportFragmentManager().beginTransaction();
+			removeFrag(mTransaction);
+			mTransaction.commit();
+			currentFragment = Places.MAP;
+			
 			ImageView icon = (ImageView) mDrawer.getHandle();
 			icon.setImageResource(R.drawable.ic_action_arrow_right);
 			mDrawerFrame.removeAllViews();
@@ -465,7 +477,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				@Override
 				public void onClick(View v) {
 					int id = v.getId();
-					mDrawer.close();
+					mDrawer.animateClose();
 					PlaceItem place = misc.get(id-1);
 					LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 					places.add(place);
@@ -474,8 +486,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				}
 				
 			}, true);
+			
 		}
-	    	   
+	    	 
 	    });
 	    mDrawer.setOnDrawerCloseListener(new OnDrawerCloseListener(){
 	    	
@@ -575,9 +588,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		 	 
 		Toast.makeText(this, locationMessage, Toast.LENGTH_SHORT).show();
 		final ContextWrapper con = this;
-		final Activity act = this;
-		final OnClickListener onclick = this;
-
 		me.runOnFirstFix(new Runnable(){
 
 			@Override
@@ -585,14 +595,14 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				//map.animateTo(me.getPoint());
 				myLocation = me.getPoint();
 				if(!map.isShown() && !list.isVisible()){
-					refreshFragment();
+					getCurrentPlaceFragment().refresh();
 				}
 				
 				//once we get a fix, store it in locationupdateservice
 				LocationUpdateService.storeFirstLocation(me.getLastFix(), con);
-				
 				PlaceController.reCalculateDistance(myLocation, searchExhibits, misc);
 				//loader.dismiss();
+				
 				MessageBuilder.showToast("GPS lock found", getApplicationContext());
 				map.getView().reDrawOverlays(true);
 			}
@@ -704,10 +714,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			message.setNeutralButton("Ok", null);
 			message.create().show();
 		} else if(item.getTitle().equals("Search")){
-			showMap(mTransaction, getCurrentFragment());
+			showMap(mTransaction, getCurrentFragmentView());
 		} else if(item.getTitle().equals(ActionEnum.FOLLOW.toString())){
 			if(!map.isShown()){	
-				showMap(mTransaction, getCurrentFragment());
+				showMap(mTransaction, getCurrentFragmentView());
 			}
 			if(!isTracking){
 				if (myLocation!=null){
@@ -768,12 +778,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			
 			mTransaction = this.getSupportFragmentManager().beginTransaction();
 			
-			if(currentFragment == Places.EXHIBITS)		mTransaction.remove(exhibit).commit();
-			else if(currentFragment == Places.FOOD)		mTransaction.remove(food).commit();
-			else if(currentFragment == Places.SPECIAL)	mTransaction.remove(special).commit();
-			else if(currentFragment == Places.SHOPS)	mTransaction.remove(shops).commit();
-			else if(currentFragment == Places.ADMIN)	mTransaction.remove(admin).commit();
-			else if(currentFragment == Places.FIND)		mTransaction.remove(nearby).commit();
+			PlaceFragment f = getCurrentPlaceFragment();
+			if(f!=null)	mTransaction.remove(f).commit();
+			
 		} else{
 			//if the actual view within the listfragment is not visible, make it visible
 			if(!list.getView().isShown())	Operations.addView(list.getView());
@@ -799,14 +806,15 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 			 if(position == Places.MAP.toInt()) 		showMap(mTransaction, list.getView());
 		else if(position == Places.NEWS.toInt()) 		MessageBuilder.showToast("Coming soon", this);
+		else if(position == Places.AMENITIES.toInt()){	showMap(mTransaction, list.getView());
+														if(!mDrawer.isOpened()) mDrawer.animateOpen();}
 		else if(position == Places.FIND.toInt())		showFragment(nearby, position);
 		else if(position == Places.SHOPS.toInt()) 		showFragment(shops, position);
 		else if(position == Places.SPECIAL.toInt()) 	showFragment(special, position);
 		else if(position == Places.FOOD.toInt()) 		showFragment(food, position);
 		else if(position == Places.EXHIBITS.toInt()) 	showFragment(exhibit, position);
-		else if(position == Places.AMENITIES.toInt()){	showMap(mTransaction, list.getView());
-														if(!mDrawer.isOpened()) mDrawer.open();}
 		else if(position == Places.ADMIN.toInt()) 		showFragment(admin, position);
+		
 		
 		try{	 
 			mTransaction.commit();
@@ -820,28 +828,22 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * Returns the current view of showing fragment
 	 * @return
 	 */
-	private View getCurrentFragment(){
-			 if(currentFragment == Places.EXHIBITS)	return exhibit.getView();
-		else if(currentFragment == Places.FOOD)		return food.getView();
-		else if(currentFragment == Places.SPECIAL)	return special.getView();
-		else if(currentFragment == Places.SHOPS)	return shops.getView();
-		else if(currentFragment == Places.ADMIN)	return admin.getView();
-		else if(currentFragment == Places.MAP)		return map.getView();
-		else if(currentFragment == Places.FIND)		return nearby.getView();
-		else 										return list.getView();
+	private View getCurrentFragmentView(){
+		if(currentFragment == Places.MAP)		return map.getView();
+		else if(currentFragment == Places.LIST)	return list.getView();
+		else 									return getCurrentPlaceFragment().getView();
 	}
 	
-	/**
-	 * Refreshes currently showing fragment
-	 */
-	private void refreshFragment(){
-		if(currentFragment == Places.EXHIBITS)			exhibit.refresh();
-		else if(currentFragment == Places.FOOD)			food.refresh();
-		else if(currentFragment == Places.SPECIAL)		special.refresh();
-		else if(currentFragment == Places.ADMIN)		admin.refresh();
-		else if(currentFragment == Places.SHOPS)		shops.refresh();
-		else if(currentFragment == Places.FIND)			nearby.refresh();
+	private PlaceFragment getCurrentPlaceFragment(){
+		if(currentFragment == Places.EXHIBITS)			return exhibit;
+		else if(currentFragment == Places.FOOD)			return food;
+		else if(currentFragment == Places.SPECIAL)		return special;
+		else if(currentFragment == Places.ADMIN)		return admin;
+		else if(currentFragment == Places.SHOPS)		return shops;
+		else if(currentFragment == Places.FIND)			return nearby;
+		else											return null;
 	}
+
 	
 	/**
 	 * Shows the map from any showing fragment, taking into account if the screen is large or not
@@ -886,23 +888,16 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	}
 	
 	/**
-	 * Reshows a fragment
-	 */
-	protected void showFragment(){
-			 if(currentFragment == Places.EXHIBITS)	showFragment(exhibit, currentFragment.toInt());
-		else if(currentFragment == Places.FOOD)		showFragment(food, currentFragment.toInt());
-		else if(currentFragment == Places.SPECIAL)	showFragment(special, currentFragment.toInt());
-		else if(currentFragment == Places.SHOPS)	showFragment(shops, currentFragment.toInt());
-		else if(currentFragment == Places.ADMIN)	showFragment(admin, currentFragment.toInt());
-		else if(currentFragment == Places.FIND)		showFragment(nearby, currentFragment.toInt());
-	}
-	
-	/**
 	 * Handles showing fragments in the activity
 	 * @param fragment
 	 */
 	protected void showFragment(Fragment f, int position){
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
+		
+		if(mDrawer.isOpened()){
+			mDrawer.animateClose();
+		}
+		
 		if(!isLargeScreen && currentFragment!=Places.MAP){
 			
 			if(!f.isAdded())	mTransaction.replace(android.R.id.content, f).commit();
@@ -931,12 +926,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * Removes currently showing fragment from screen, call mTransaction.commit() from called location
 	 */
 	private void removeFrag(FragmentTransaction mTransaction){
-			 if(currentFragment == Places.EXHIBITS)		mTransaction.remove(exhibit);
-		else if(currentFragment == Places.FOOD)			mTransaction.remove(food);
-		else if(currentFragment == Places.SPECIAL)		mTransaction.remove(special);
-		else if(currentFragment == Places.SHOPS)		mTransaction.remove(shops);
-		else if(currentFragment == Places.ADMIN)		mTransaction.remove(admin);
-		else if(currentFragment == Places.FIND)			mTransaction.remove(nearby);
+		PlaceFragment p = getCurrentPlaceFragment();
+		if(p!=null)	mTransaction.remove(p);
 	}
 	
 	/**

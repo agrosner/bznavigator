@@ -98,9 +98,9 @@ public class LocationUpdateService extends Service implements LocationListener{
 	private int outsideCount = 0;
 	
 	/**
-	 * The number of times a location is said to not exist within the zoo map
+	 * The number of times a location is said to not exist within the zoo map (approx 5 mins)
 	 */
-	private static final int SHUTDOWN_NUMBER = 6;
+	private static final int SHUTDOWN_NUMBER = 15;
 	
 	/**
 	 * map polygon

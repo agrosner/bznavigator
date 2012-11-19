@@ -48,7 +48,7 @@ public class WrapSlidingDrawer extends SlidingDrawer{
         }
         else {
             int width = widthSpecSize - handle.getMeasuredWidth() - mTopOffset;
-            getContent().measure(MeasureSpec.makeMeasureSpec(width, widthSpecMode), heightMeasureSpec);
+            content.measure(MeasureSpec.makeMeasureSpec(width, widthSpecMode), heightMeasureSpec);
             widthSpecSize = handle.getMeasuredWidth() + mTopOffset + content.getMeasuredWidth();
             heightSpecSize = content.getMeasuredHeight();
             if (handle.getMeasuredHeight() > heightSpecSize) heightSpecSize = handle.getMeasuredHeight();
