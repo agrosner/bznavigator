@@ -9,11 +9,11 @@ package asia.ivity.android.tiledscrollview;
 public final class R {
 	public static final class id {
 		public static final int icon = 0x7f070030;
-		public static final int distance = 0x7f07005c;
+		public static final int distance = 0x7f07005b;
 		public static final int relframe = 0x7f07005a;
 		public static final int btn_zoom_down = 0x7f07005e;
 		public static final int btn_zoom_up = 0x7f07005f;
-		public static final int name = 0x7f07005b;
+		public static final int name = 0x7f07005c;
 	}
 	public static final class anim {
 		public static final int fadeout = 0x7f040001;
@@ -35,19 +35,19 @@ public final class R {
 		public static final int asia_ivity_android_tiledscrollview_TiledScrollView_image_width = 3;
 	}
 	public static final class drawable {
-		public static final int btn_zoom_down_pressed = 0x7f0200b5;
-		public static final int btn_zoom_up_selected = 0x7f0200bc;
-		public static final int btn_zoom_up_disabled = 0x7f0200b8;
-		public static final int btn_zoom_down_disabled_focused = 0x7f0200b3;
-		public static final int btn_zoom_up = 0x7f0200b7;
-		public static final int btn_zoom_down_normal = 0x7f0200b4;
-		public static final int btn_zoom_down_disabled = 0x7f0200b2;
-		public static final int btn_zoom_up_normal = 0x7f0200ba;
-		public static final int ic_maps_indicator_current_position = 0x7f0200fe;
-		public static final int btn_zoom_up_pressed = 0x7f0200bb;
-		public static final int btn_zoom_up_disabled_focused = 0x7f0200b9;
-		public static final int btn_zoom_down = 0x7f0200b1;
-		public static final int btn_zoom_down_selected = 0x7f0200b6;
+		public static final int btn_zoom_down_pressed = 0x7f0200b4;
+		public static final int btn_zoom_up_selected = 0x7f0200bb;
+		public static final int btn_zoom_up_disabled = 0x7f0200b7;
+		public static final int btn_zoom_down_disabled_focused = 0x7f0200b2;
+		public static final int btn_zoom_up = 0x7f0200b6;
+		public static final int btn_zoom_down_normal = 0x7f0200b3;
+		public static final int btn_zoom_down_disabled = 0x7f0200b1;
+		public static final int btn_zoom_up_normal = 0x7f0200b9;
+		public static final int ic_maps_indicator_current_position = 0x7f0200f5;
+		public static final int btn_zoom_up_pressed = 0x7f0200ba;
+		public static final int btn_zoom_up_disabled_focused = 0x7f0200b8;
+		public static final int btn_zoom_down = 0x7f0200b0;
+		public static final int btn_zoom_down_selected = 0x7f0200b5;
 	}
 	public static final class attr {
 		public static final int tile_width = 0x7f010052;

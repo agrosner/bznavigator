@@ -48,7 +48,7 @@
        		</ScrollView>
        		
    		</LinearLayout>
-   		<edu.fordham.cis.wisdm.zoo.utils.WrapSlidingDrawer
+   		<SlidingDrawer
    		    android:id="@+id/drawer"
    		    android:layout_width="wrap_content"
    		    android:layout_height="fill_parent"
@@ -77,7 +77,7 @@
        		</ScrollView>
        		
    		    
-   		</edu.fordham.cis.wisdm.zoo.utils.WrapSlidingDrawer>
+   		</SlidingDrawer>
     
    </FrameLayout>   
    

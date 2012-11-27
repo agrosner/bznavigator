@@ -165,6 +165,10 @@ public class PlaceController {
 						}
 						int drawableId = act.getResources().getIdentifier(lineArray[1], "drawable", act.getPackageName());
 						
+						if(fName.equals("admin.txt")){
+							lineArray[0]+="(Staff Only)";
+						}
+						
 						points.add(new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), lineArray[0], String.valueOf(distance), R.layout.exhibitmenu, drawableId).setIconResId(lineArray[1]));
 					} 
 				}

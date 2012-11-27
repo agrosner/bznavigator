@@ -36,6 +36,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
@@ -91,13 +95,14 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * The amenities drawer
 	 */
-	private WrapSlidingDrawer mDrawer;
+	private SlidingDrawer mDrawer;
 	
 	/**
 	 * Layout contained inside the drawer
 	 */
 	private LinearLayout mDrawerFrame;
 	
+
 	/**
 	 * the popup list of exhibits that shows up when a user searches for an exhibit
 	 */
@@ -119,7 +124,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * the list fragment displays on splash screen
 	 */
 	private static ArrayListFragment list = null;
-	
+
 	/**
 	 * restroom locator fragment
 	 */
@@ -150,6 +155,14 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	private static PlaceFragment nearby = null;
 	
+	private Animation showViewRight = null;
+	
+	private Animation showViewLeft = null;
+	
+	private Animation hideViewLeft = null;
+	
+	private Animation hideViewRight;
+
 	/**
 	 * the mapview widget
 	 */
@@ -363,11 +376,15 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		setUpViews();
 	}
 	
-	
 	public void setUpViews(){
 		//hide name, icon, 
 		ActionBar mAction = this.getSupportActionBar();
 		mAction.setDisplayHomeAsUpEnabled(true);
+		
+		showViewRight = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
+		showViewLeft = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
+		hideViewLeft = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
+		hideViewRight = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
 		
 		overlays = map.getOverlays();
 		
@@ -386,8 +403,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		startLocationUpdates();
 		nearby = new PlaceFragment(PlaceFragment.PlaceType.NEARBY, searchExhibits);
-		
-		
 		
 		me.addCurrentLocationChangedListener(meListener);
 		
@@ -433,7 +448,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	@SuppressWarnings("deprecation")
 	private void addDrawerList(){
-		mDrawer = (WrapSlidingDrawer) findViewById(R.id.drawer);
+		mDrawer = (SlidingDrawer) findViewById(R.id.drawer);
 		
 		final Activity act = this;
 		
@@ -446,14 +461,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		title.setTextSize(20);
 		mDrawerFrame.addView(title, pm);
 		
+		mDrawerCheckBoxes[0] = createIconCheckBox("Restrooms", R.drawable.bathroom, 0);
+		mDrawerCheckBoxes[1] = createIconCheckBox("Gates", R.drawable.fordham, 1);
+		mDrawerCheckBoxes[2] = createIconCheckBox("Parking Lots", R.drawable.car, 2);
 		
-		
-		mDrawerCheckBoxes[0] = createIconCheckBox("Restrooms", "restrooms.txt", R.drawable.bathroom, restrooms);
-		mDrawerCheckBoxes[1] = createIconCheckBox("Gates", "gates.txt", R.drawable.fordham, gates);
-		mDrawerCheckBoxes[2] = createIconCheckBox("Parking Lots", "parking.txt" , R.drawable.car, parking);
-		for(int i = 0; i < mDrawerCheckBoxes.length; i++){
-			mDrawerFrame.addView(mDrawerCheckBoxes[i]);
-		}
 		if(misc.isEmpty())	PlaceController.readInData(act, misc, "misc.txt");
 		
 		mDrawer.setOnDrawerOpenListener(new OnDrawerOpenListener(){
@@ -461,8 +472,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		@Override
 		public void onDrawerOpened() {
 			mTransaction = getSupportFragmentManager().beginTransaction();
-			removeFrag(mTransaction);
-			mTransaction.commit();
+			removeFrag(mTransaction, true).commit();
 			currentFragment = Places.MAP;
 			
 			ImageView icon = (ImageView) mDrawer.getHandle();
@@ -502,22 +512,43 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 	}
 	
-	private RelativeLayout createIconCheckBox(final String name, final String fileName, int iconId, final LinkedList<PlaceItem> pts){
+	private OnCheckedChangeListener mCheckboxListener = new OnCheckedChangeListener(){
+
+		@Override
+		public void onCheckedChanged(CompoundButton but, boolean isChecked) {
+			LinkedList<PlaceItem> pts = null;
+			String fileName = "";
+			
+			switch(but.getId()){
+			case 0:
+				showRestrooms = isChecked;
+				pts = restrooms;
+				fileName = "restrooms.txt";
+				break;
+			case 1:
+				showGates = isChecked;
+				pts = gates;
+				fileName = "gates.txt";
+				break;
+			case 2:
+				showParking = isChecked;
+				pts = parking;
+				fileName = "parking.txt";
+				break;
+			}
+			
+			if(isChecked)	readInPlaces(pts, fileName, mTransaction);
+			else			map.getView().removeOverlayList(pts);
+		}
+		
+	};
+	
+	private RelativeLayout createIconCheckBox(final String name, int iconId, int id){
 		RelativeLayout iconCheckbox = (RelativeLayout) this.getLayoutInflater().inflate(R.layout.icon_checkbox_item, null);
 		CheckBox check = (CheckBox) iconCheckbox.findViewById(R.id.check);
 		check.setText(name);
-		check.setOnCheckedChangeListener(new OnCheckedChangeListener(){
-
-			@Override
-			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
-				if(isChecked)	readInPlaces(pts, fileName, mTransaction);
-				else			map.getView().removeOverlayList(pts);
-
-				if(name.equals("Restrooms")) 			showRestrooms = isChecked;
-				else if(name.equals("Gates"))			showGates = isChecked;
-				else if(name.equals("Parking Lots"))	showParking = isChecked;
-			}
-		});
+		check.setId(id);
+		check.setOnCheckedChangeListener(mCheckboxListener);
 		check.setChecked(true);
 		ImageView icon = (ImageView) iconCheckbox.findViewById(R.id.icon);
 		icon.setImageResource(iconId);
@@ -625,14 +656,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 	@Override
 	public void onBackPressed(){
-		if(!list.getView().isShown()){
+		if(currentFragment!=Places.LIST){
 			showList();
-			if(map.isShown() && !isLargeScreen)	Operations.removeView(map);
-		} else if(isLargeScreen &&currentFragment!=Places.LIST && currentFragment!=Places.MAP){
-			mTransaction = this.getSupportFragmentManager().beginTransaction();
-			removeFrag(mTransaction);
-			mTransaction.commit();
-			currentFragment = Places.LIST;
 		}else{
 		
 			//ask user whether quit or not
@@ -771,20 +796,23 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * Handles showing the list widget
 	 */
 	private void showList(){
-		
-		//if a fragment is replacing the listview, remove it and add the list
-		if(!list.isVisible()){
-			Operations.addView(list.getView());
-			
-			mTransaction = this.getSupportFragmentManager().beginTransaction();
-			
-			PlaceFragment f = getCurrentPlaceFragment();
-			if(f!=null)	mTransaction.remove(f).commit();
-			
+	
+		if(!isLargeScreen&&currentFragment!=Places.LIST && currentFragment==Places.MAP){
+			Operations.swapViewsAnimate(map, list.getView(), hideViewRight, showViewLeft);
 		} else{
-			//if the actual view within the listfragment is not visible, make it visible
-			if(!list.getView().isShown())	Operations.addView(list.getView());
-			else if(isLargeScreen)			Operations.removeView(list.getView());
+		
+			if(isLargeScreen && currentFragment!=Places.MAP){
+				mTransaction = this.getSupportFragmentManager().beginTransaction();
+				removeFrag(mTransaction, true).commit();
+			} else if(!isLargeScreen && currentFragment!=Places.LIST){
+				mTransaction = this.getSupportFragmentManager().beginTransaction();
+				removeFrag(mTransaction, false).commit();
+				Operations.addViewAnimate(list.getView(), showViewLeft);
+			} else{
+			//	if the actual view within the listfragment is not visible, make it visible
+				//if(!list.getView().isShown())	Operations.addViewAnimate(list.getView(), showViewLeft);
+				//else if(isLargeScreen)			Operations.removeViewAnimate(list.getView(), hideViewLeft);
+			}
 		}
 		currentFragment = Places.LIST;
 	}
@@ -802,7 +830,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			Operations.removeView(searchList);
 			searchItem.getMenuItem().collapseActionView();
 		}
-		removeFrag(mTransaction);
+		removeFrag(mTransaction, true);
 	
 			 if(position == Places.MAP.toInt()) 		showMap(mTransaction, list.getView());
 		else if(position == Places.NEWS.toInt()) 		MessageBuilder.showToast("Coming soon", this);
@@ -851,22 +879,22 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * @param v
 	 */
 	protected void showMap(FragmentTransaction mTransaction, View v){
+		if(mDrawer.isOpened()){
+			mDrawer.animateClose();
+		}
 		clearMapData();
-		if(!isLargeScreen && currentFragment!=Places.MAP)	Operations.swapViews(v, map);
+		if(!isLargeScreen && currentFragment!=Places.MAP)	Operations.swapViewsAnimate(v, map, hideViewLeft, showViewRight);
 		else if(!map.isShown())	Operations.addView(map);
 		
 		if(isLargeScreen){
-			removeFrag(mTransaction);
 			try{
-				mTransaction.commit();
+				removeFrag(mTransaction, true).commit();
 			} catch(IllegalStateException i){
 				i.printStackTrace();
 			}
 		}
 		
 		Operations.addView(mDrawer);
-		
-		map.getView().invalidate();
 		currentFragment = Places.MAP;
 	}
 	
@@ -893,7 +921,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	protected void showFragment(Fragment f, int position){
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
-		
+		mTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
 		if(mDrawer.isOpened()){
 			mDrawer.animateClose();
 		}
@@ -901,21 +929,20 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		if(!isLargeScreen && currentFragment!=Places.MAP){
 			
 			if(!f.isAdded())	mTransaction.replace(android.R.id.content, f).commit();
-			else				Operations.addView(f.getView());
+			else				Operations.addViewAnimate(f.getView(), showViewRight);
 			
 			Operations.removeView(list.getView());
 			Operations.removeView(mDrawer);
 		} else if(isLargeScreen){
 			if(map.isShown()){
-				removeFrag(mTransaction);
+				removeFrag(mTransaction, true);
 				if(!f.isAdded())	mTransaction.add(R.id.PlaceView, f).commit();
 			} else{
 				if(f.isAdded()){
 					PlaceFragment placeFrag = (PlaceFragment) f;
 					placeFrag.refresh();
 				} else{
-					removeFrag(mTransaction);
-					mTransaction.add(R.id.PlaceView, f).commit();
+					removeFrag(mTransaction, true).add(R.id.PlaceView, f).commit();
 				}
 			}
 		} 
@@ -925,9 +952,14 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * Removes currently showing fragment from screen, call mTransaction.commit() from called location
 	 */
-	private void removeFrag(FragmentTransaction mTransaction){
+	private FragmentTransaction removeFrag(FragmentTransaction mTransaction, boolean removeLeft){
+		int id;
+		if(removeLeft)	id = R.anim.slide_out_left;
+		else			id = android.R.anim.slide_out_right;
+		mTransaction.setCustomAnimations(R.anim.slide_in_right, id);
 		PlaceFragment p = getCurrentPlaceFragment();
 		if(p!=null)	mTransaction.remove(p);
+		return mTransaction;
 	}
 	
 	/**
@@ -935,16 +967,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	private void clearMapData(){
 		if(overlays.size()!=0){
-			while(!overlays.isEmpty()){
-				OverlayItem place = overlays.remove(0);
-				map.getView().getmContainer().removeView(place.getIcon());
-			}
+			while(!overlays.isEmpty())	map.getView().getmContainer().removeView(overlays.remove(0).getIcon());
 		}
 		
 		if(lastPlaces != null){
-			while(!lastPlaces.isEmpty()){
-				map.getView().getmContainer().removeView(lastPlaces.poll().getIcon());
-			}
+			while(!lastPlaces.isEmpty())	map.getView().getmContainer().removeView(lastPlaces.poll().getIcon());
 			lastPlaces = null;
 		}
 		
