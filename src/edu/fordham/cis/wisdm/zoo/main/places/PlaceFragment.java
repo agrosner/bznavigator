@@ -114,6 +114,8 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
 		ImageButton refresh = (ImageButton) exhibit.findViewById(R.id.refresh);
 		refresh.setOnClickListener(this);
+		ImageButton exit = (ImageButton) exhibit.findViewById(R.id.exit);
+		exit.setOnClickListener(this);
 		
 		refresh();
 		
@@ -160,7 +162,11 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		if(id == R.id.refresh){
 			refresh();
 			Toast.makeText(this.getActivity(), "Refreshed", Toast.LENGTH_SHORT).show();
-		} else if(id > 0){
+		} else if(id == R.id.exit){
+			act.onBackPressed();
+		}
+		
+		else if(id > 0){
 			PlaceItem place = points.get(id-1);
 			LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 			places.add(place);

@@ -1,7 +1,9 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
 import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
 
 import cis.fordham.edu.wisdm.utils.FormChecker;
 import cis.fordham.edu.wisdm.utils.Operations;
@@ -25,6 +27,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class Entry extends SherlockActivity implements OnClickListener, UserConstants{
@@ -73,12 +76,10 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_extended);
+        //setContentView(R.layout.login_extended);
        
         //initialize shared preference object
         Preference.initPrefForContext(this);
-        
-        setUpView();
         
         isMember = Preference.getBoolean(REMEMBER_ME_LOC, false);
         
@@ -136,10 +137,26 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     	rememberMe = (CheckBox) findViewById(R.id.RememberMe);
     }
     
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item){
+		if(item.getItemId() == android.R.id.home)	{
+			Intent intent = getIntent();
+	    	finish();
+	    	startActivity(intent);
+		}
+		return false;
+	}
+    
     /**
      * Changes the layout objects if member, large screen, and chosen to remember
      */
     private void enhance(){
+    	setContentView(R.layout.login_extended);
+    	setUpView();
+    	
+    	ActionBar mAction = this.getSupportActionBar();
+		mAction.setDisplayHomeAsUpEnabled(true);
+        mAction.setTitle("Choose Login");
     	largeScreen = false;
     	
     	DisplayMetrics display = new DisplayMetrics();
@@ -154,7 +171,6 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     		rememberMe.setChecked(false);
     	}
     	
-    	this.getSupportActionBar().hide();
     	
     	//play around with widgets and resize them
     	if(largeScreen){
@@ -164,6 +180,9 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(newWidth, LayoutParams.WRAP_CONTENT);
     		params.addRule(RelativeLayout.CENTER_IN_PARENT);
     		loginScreen.setLayoutParams(params);
+    		
+    		TextView title = (TextView) loginScreen.findViewById(R.id.Welcome);
+    		title.setTextSize(40);
     		
     	}
     	
@@ -204,13 +223,6 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     	fields[1].setText(password);
     }
     
-    @Override
-    public void onBackPressed(){
-    	Intent intent = getIntent();
-    	finish();
-    	startActivity(intent);
-    }
-
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){

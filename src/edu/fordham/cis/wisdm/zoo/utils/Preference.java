@@ -14,7 +14,7 @@ public class Preference {
 	private static SharedPreferences sprefs;
 	
 	/**
-	 * Initializes preferences
+	 * Initializes preferences (only needs to be called once in program)
 	 * @param con
 	 */
 	public static void initPrefForContext(Context con){
@@ -51,5 +51,13 @@ public class Preference {
 	
 	public static void putLong(String loc, long val){
 		sprefs.edit().putLong(loc, val).commit();
+	}
+	
+	public static float getFloat(String loc, float defVal){
+		return sprefs.getFloat(loc, defVal);
+	}
+	
+	public static void putFloat(String loc, float val){
+		sprefs.edit().putFloat(loc, val).commit();
 	}
 }

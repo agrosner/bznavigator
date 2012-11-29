@@ -80,6 +80,7 @@ import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragment;
 import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
+import edu.fordham.cis.wisdm.zoo.utils.IconTextItem;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.WrapSlidingDrawer;
@@ -155,12 +156,24 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	private static PlaceFragment nearby = null;
 	
+	/**
+	 * Animation that slides in a view from the right
+	 */
 	private Animation showViewRight = null;
 	
+	/**
+	 * Slides a view in from the left
+	 */
 	private Animation showViewLeft = null;
 	
+	/**
+	 * Hides a view out to the left
+	 */
 	private Animation hideViewLeft = null;
 	
+	/**
+	 * Hides a view out to the right
+	 */
 	private Animation hideViewRight;
 
 	/**
@@ -260,9 +273,24 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private MenuItem follow  = null;
 	
 	/**
+	 * Whether the user has picked a location or not for parking
+	 */
+	private boolean isParked = false;
+	
+	/**
 	 * If the user has internet and GPS connection while using the app
 	 */
 	private boolean isLocation = true;
+	
+	/**
+	 * Location that will be stored in preferences
+	 */
+	private Geopoint mParkingLocation = null;
+	
+	/**
+	 * Item that will go on map when user saves parking spot
+	 */
+	private PlaceItem mParkingPlace = null;
 
 	/**
 	 * Provides an action when the user's current location changes
@@ -277,6 +305,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		}
 		
 	};
+	
+	/**
+	 * The actionbar icon that allows a user to find where they parked
+	 */
+	private MenuItem park = null;
 	
 	/**
 	 * current fragment enum 
@@ -372,6 +405,18 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		admin = PlaceFragment.initFrag(admin, PlaceFragment.PlaceType.ADMIN);
 		
 		email = getIntent().getExtras().getString("email");
+		isParked = Preference.getBoolean("parking", false);
+		if(isParked){
+			float lat = Preference.getFloat("parking-lat", 0);
+			float lon = Preference.getFloat("parking-lon", 0);
+			
+			mParkingLocation = new Geopoint(lon, lat, "Parking Location");
+			mParkingPlace = new PlaceItem(mParkingLocation, "My Parking Spot", "", R.layout.exhibitmenu, R.drawable.ic_action_globe_green);
+	
+			park.setIcon(R.drawable.ic_action_key_blue);
+		} else{
+			park.setIcon(R.drawable.ic_action_key);
+		}
 		
 		setUpViews();
 	}
@@ -387,6 +432,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		hideViewRight = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
 		
 		overlays = map.getOverlays();
+		if(mParkingPlace!=null) overlays.add(mParkingPlace);
 		
 		determineScreenLayout();
 	
@@ -432,6 +478,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
         	//scale the width of the sidebar to specified size
 			LayoutParams lp = new LayoutParams((SCREEN_WIDTH/4), LayoutParams.FILL_PARENT);
         	list.getView().setLayoutParams(lp);
+        	
+        	IconTextItem item = (IconTextItem) list.getListAdapter().getView(0, null, null);
+        	TextView text = (TextView) item.findViewById(R.id.name);
+        	text.setText("Clear Map");
+        	
         	isLargeScreen = true;
         	this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else{//small screen we want to hide it
@@ -626,7 +677,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				//map.animateTo(me.getPoint());
 				myLocation = me.getPoint();
 				if(!map.isShown() && !list.isVisible()){
-					getCurrentPlaceFragment().refresh();
+					try{
+						getCurrentPlaceFragment().refresh();
+					} catch(NullPointerException r){
+						
+					}
 				}
 				
 				//once we get a fix, store it in locationupdateservice
@@ -650,15 +705,16 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 private void stopLocationUpdates(){
 		 me.disableMyLocation();
 		 overlays.remove(me);
-		 map.getView().refresh();
-		 map.postInvalidate();
 	 }
 	
 	@Override
 	public void onBackPressed(){
-		if(currentFragment!=Places.LIST){
+		 if(mDrawer.isOpened()){
+			mDrawer.animateClose();
+		} else if((currentFragment!=Places.LIST && currentFragment!=Places.MAP) 
+				|| (!isLargeScreen && currentFragment!=Places.LIST)){
 			showList();
-		}else{
+		} else{
 		
 			//ask user whether quit or not
 			AlertDialog.Builder message = new AlertDialog.Builder(this);
@@ -710,8 +766,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		//add action items
 		follow = menu.add(ActionEnum.FOLLOW.toString()).setOnMenuItemClickListener(this).setIcon(R.drawable.ic_action_location);
-		follow.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
-				| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+			follow.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		park = menu.add(ActionEnum.PARK.toString()).setOnMenuItemClickListener(this);
+			park.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add(ActionEnum.ABOUT.toString()).setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		menu.add(ActionEnum.SETTINGS.toString()).setOnMenuItemClickListener(this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
@@ -757,10 +814,76 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				MessageBuilder.showToast("Following Off", this);
 			}
 			me.follow(isTracking);
-		} else if(item.getTitle().equals(ActionEnum.NEAREST.toString()) || item.getTitle().equals(ActionEnum.SETTINGS.toString())){
-			MessageBuilder.showToast("Coming Soon", this);
-		} 
+		} else if(item.getTitle().equals(ActionEnum.PARK.toString())){
+			if(isParked){
+				//bring up menu
+				final HoloAlertDialogBuilder confirm = new HoloAlertDialogBuilder(this);
+				confirm.setTitle("What would you like to do?");
+				confirm.setPositiveButton("Delete Location", new DialogInterface.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						deactivateParkingSpot();
+					}
+					
+				});
+				confirm.setNeutralButton("Reset", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						activateParkingSpot();
+					}
+				});
+				
+				confirm.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						confirm.create().dismiss();
+					}
+				});
+				
+				confirm.create().show();
+				
+				
+			} else{
+				if(myLocation!=null){
+					activateParkingSpot();
+				} else{
+					MessageBuilder.showToast("Saving Parking Location Not Available When GPS is Not Found", this);
+				}
+			}
+		}
 		return false;
+	}
+	
+	private void activateParkingSpot(){
+		park.setIcon(R.drawable.ic_action_key_blue);
+		Preference.putFloat("parking-lat", (float) myLocation.getLatitude());
+		Preference.putFloat("parking-lon", (float) myLocation.getLongitude());
+		Preference.putBoolean("parking", true);
+		MessageBuilder.showToast("Parking Location Now Saved", this);
+		isParked = true;
+		
+		if(mParkingPlace!=null){
+			if(overlays.contains(mParkingPlace)){
+				map.getView().removeOverlay(mParkingPlace);
+			}
+		}
+		
+		mParkingLocation = new Geopoint(myLocation);
+		mParkingPlace = new PlaceItem(mParkingLocation, "My Parking Spot", "", R.layout.exhibitmenu, R.drawable.ic_action_globe_green);
+		
+		map.addOverlayItem(mParkingPlace);
+		map.getView().reDrawOverlays(false);
+	}
+	
+	private void deactivateParkingSpot(){
+		park.setIcon(R.drawable.ic_action_key);
+		isParked = false;
+		Preference.putBoolean("parking", false);
+		Preference.putFloat("parking-lat", 0);
+		Preference.putFloat("parking-lon", 0);
+		map.getView().removeOverlay(mParkingPlace);
 	}
 	
 	/**
@@ -803,15 +926,12 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 			if(isLargeScreen && currentFragment!=Places.MAP){
 				mTransaction = this.getSupportFragmentManager().beginTransaction();
+				mTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
 				removeFrag(mTransaction, true).commit();
 			} else if(!isLargeScreen && currentFragment!=Places.LIST){
 				mTransaction = this.getSupportFragmentManager().beginTransaction();
 				removeFrag(mTransaction, false).commit();
 				Operations.addViewAnimate(list.getView(), showViewLeft);
-			} else{
-			//	if the actual view within the listfragment is not visible, make it visible
-				//if(!list.getView().isShown())	Operations.addViewAnimate(list.getView(), showViewLeft);
-				//else if(isLargeScreen)			Operations.removeViewAnimate(list.getView(), hideViewLeft);
 			}
 		}
 		currentFragment = Places.LIST;
@@ -921,22 +1041,22 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	protected void showFragment(Fragment f, int position){
 		mTransaction = this.getSupportFragmentManager().beginTransaction();
-		mTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
+		mTransaction.setCustomAnimations(R.anim.slide_in_right, 0);
 		if(mDrawer.isOpened()){
 			mDrawer.animateClose();
 		}
 		
 		if(!isLargeScreen && currentFragment!=Places.MAP){
-			
+			Operations.removeViewAnimate(list.getView(), hideViewLeft);
 			if(!f.isAdded())	mTransaction.replace(android.R.id.content, f).commit();
 			else				Operations.addViewAnimate(f.getView(), showViewRight);
 			
-			Operations.removeView(list.getView());
 			Operations.removeView(mDrawer);
 		} else if(isLargeScreen){
-			if(map.isShown()){
+			if(currentFragment==Places.MAP){
 				removeFrag(mTransaction, true);
 				if(!f.isAdded())	mTransaction.add(R.id.PlaceView, f).commit();
+				else				mTransaction.commit();
 			} else{
 				if(f.isAdded()){
 					PlaceFragment placeFrag = (PlaceFragment) f;
@@ -979,6 +1099,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		if(showParking)		overlays.addAll(parking);
 		if(showRestrooms)	overlays.addAll(restrooms);
 		overlays.add(me);
+		if(isParked)	overlays.add(mParkingPlace);
 		
 		map.getView().reDrawOverlays(true);
 		map.invalidate();

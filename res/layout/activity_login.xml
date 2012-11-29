@@ -18,7 +18,7 @@
 	           android:text="Bronx Zoo Navigator"
 	           android:background="@drawable/edit_text_holo_light"
 	           android:textColor="@color/forestgreen"
-	           android:textSize="35dip"
+	           android:textSize="25dip"
 	           style="@style/wrap"
 	           />
 	       <EditText 

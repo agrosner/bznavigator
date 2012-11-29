@@ -1,5 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.utils;
 
+import java.util.Locale;
+
 /**
  * ActionBar tab label enums for SplashScreen Activity
  * @author agrosner
@@ -8,24 +10,13 @@ package edu.fordham.cis.wisdm.zoo.utils;
 public enum ActionEnum {
 
 	FOLLOW,
-	NEAREST,
+	PARK,
 	ABOUT,
 	SETTINGS;
 	
 	@Override
 	public String toString(){
-		switch(this){
-		case FOLLOW:
-			return "Follow Me";
-		case NEAREST:
-			return "Nearest";
-		case ABOUT:
-			return "About";
-		case SETTINGS:
-			return "Settings";
-		default:
-				return "error";
-		}
+		return name().toLowerCase(Locale.ENGLISH);
 	}
 	
 }

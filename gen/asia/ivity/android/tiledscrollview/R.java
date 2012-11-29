@@ -43,7 +43,7 @@ public final class R {
 		public static final int btn_zoom_down_normal = 0x7f0200b3;
 		public static final int btn_zoom_down_disabled = 0x7f0200b1;
 		public static final int btn_zoom_up_normal = 0x7f0200b9;
-		public static final int ic_maps_indicator_current_position = 0x7f0200f5;
+		public static final int ic_maps_indicator_current_position = 0x7f0200f8;
 		public static final int btn_zoom_up_pressed = 0x7f0200ba;
 		public static final int btn_zoom_up_disabled_focused = 0x7f0200b8;
 		public static final int btn_zoom_down = 0x7f0200b0;
