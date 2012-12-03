@@ -236,7 +236,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		
 		//if request to not fill, will request smaller size
 		if(wrap && SplashScreenActivity.isLargeScreen)
-			exhibitItem.setLayoutParams(new LayoutParams(SplashScreenActivity.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
+			exhibitItem.setLayoutParams(new LayoutParams(SplashScreenController.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
 		
 		
 		if(!drawablePath.equals("0")){

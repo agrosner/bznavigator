@@ -23,6 +23,7 @@ import com.grosner.mapview.PlaceItem;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
+import edu.fordham.cis.wisdm.zoo.main.SplashScreenController;
 
 /**
  * Class provides operations on creating and manipulating place data
@@ -61,7 +62,7 @@ public class PlaceController {
 		
 		//if request to not fill, will request smaller size
 		if(wrap && SplashScreenActivity.isLargeScreen)
-			exhibitItem.setLayoutParams(new LayoutParams(SplashScreenActivity.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
+			exhibitItem.setLayoutParams(new LayoutParams(SplashScreenController.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
 		
 		
 		if(!drawablePath.equals("0")){

@@ -8,6 +8,10 @@
          <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">fill_parent</item>
     </style>
+    <style name="fill_height">
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
     <style name="fill_width_partial" parent="fill_width">
         <item name="android:layout_marginLeft">10dip</item>
         <item name="android:layout_marginRight">10dip</item>
@@ -42,6 +46,14 @@
     <style name="underline" parent="wrap">
         <item name="android:background">@color/lightgreen</item>
         <item name="android:layout_height">4dip</item>
+    </style>
+    
+    <style name="divider">
+       <item name="android:layout_marginTop">10dip</item>
+	   <item name="android:layout_height">35dip</item>
+	   <item name="android:layout_width">2dip</item>      
+       <item name="android:background">@color/holo_blue_light</item>
+       <item name="android:paddingTop">10dip</item>
     </style>
     
 </resources>

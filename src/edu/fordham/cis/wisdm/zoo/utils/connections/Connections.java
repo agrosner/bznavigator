@@ -145,7 +145,7 @@ public class Connections {
 
 		try {
 			SocketParser.writeAuthReq(con.getmEmail().split("@")[0], con.getmPassword(), 
-					con.getmEmail() , con.getmDevId(), mOutputStream, mInputStream);
+					con.getmEmail() , con.getmDevId(), mOutputStream);
 			checkWrite = true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -413,7 +413,7 @@ public class Connections {
 			String resp = responses.get(index);
 			Log.v(TAG, resp);
 			if(resp.length()>=1){
-				if(type.length()>= 7 && type.subSequence(0, 7).equals("MultiStr")){
+				if(type.length()>= 7 && type.equals("MultiStr")){
 					String[] resps = resp.split(",");
 					int id = qids.get(index);
 					for(String respo: resps){

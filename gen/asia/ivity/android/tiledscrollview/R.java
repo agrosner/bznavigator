@@ -35,19 +35,19 @@ public final class R {
 		public static final int asia_ivity_android_tiledscrollview_TiledScrollView_image_width = 3;
 	}
 	public static final class drawable {
-		public static final int btn_zoom_down_pressed = 0x7f0200b4;
-		public static final int btn_zoom_up_selected = 0x7f0200bb;
-		public static final int btn_zoom_up_disabled = 0x7f0200b7;
-		public static final int btn_zoom_down_disabled_focused = 0x7f0200b2;
-		public static final int btn_zoom_up = 0x7f0200b6;
-		public static final int btn_zoom_down_normal = 0x7f0200b3;
-		public static final int btn_zoom_down_disabled = 0x7f0200b1;
-		public static final int btn_zoom_up_normal = 0x7f0200b9;
-		public static final int ic_maps_indicator_current_position = 0x7f0200f8;
-		public static final int btn_zoom_up_pressed = 0x7f0200ba;
-		public static final int btn_zoom_up_disabled_focused = 0x7f0200b8;
-		public static final int btn_zoom_down = 0x7f0200b0;
-		public static final int btn_zoom_down_selected = 0x7f0200b5;
+		public static final int btn_zoom_down_pressed = 0x7f0200b6;
+		public static final int btn_zoom_up_selected = 0x7f0200bd;
+		public static final int btn_zoom_up_disabled = 0x7f0200b9;
+		public static final int btn_zoom_down_disabled_focused = 0x7f0200b4;
+		public static final int btn_zoom_up = 0x7f0200b8;
+		public static final int btn_zoom_down_normal = 0x7f0200b5;
+		public static final int btn_zoom_down_disabled = 0x7f0200b3;
+		public static final int btn_zoom_up_normal = 0x7f0200bb;
+		public static final int ic_maps_indicator_current_position = 0x7f0200fb;
+		public static final int btn_zoom_up_pressed = 0x7f0200bc;
+		public static final int btn_zoom_up_disabled_focused = 0x7f0200ba;
+		public static final int btn_zoom_down = 0x7f0200b2;
+		public static final int btn_zoom_down_selected = 0x7f0200b7;
 	}
 	public static final class attr {
 		public static final int tile_width = 0x7f010052;

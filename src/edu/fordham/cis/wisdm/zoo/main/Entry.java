@@ -219,8 +219,8 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     }
     
     public static void setFields(String email, String password){
-    	fields[0].setText(email);
-    	fields[1].setText(password);
+   		fields[0].setText(email);
+   		fields[1].setText(password);
     }
     
 	@Override
@@ -270,6 +270,7 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 		@Override
 		protected void onPostExecute(Void aarg){
 			if(!isConnected){
+				enhance();
 				Toast.makeText(mContext, "Connection failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
 				setFields(mConnection.getmEmail(), mConnection.getmPassword());
 				rememberMe.setChecked(true);
