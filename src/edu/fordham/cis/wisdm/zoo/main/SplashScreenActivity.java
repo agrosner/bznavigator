@@ -73,6 +73,7 @@ import com.grosner.mapview.ZoomLevel;
 
 import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
+import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragment;
 import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
@@ -81,7 +82,7 @@ import edu.fordham.cis.wisdm.zoo.utils.Places;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
 
-public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener, SearchPerformListener, OnNavigationListener, TextWatcher, OnTouchListener{
+public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener, SearchPerformListener, OnNavigationListener, TextWatcher, OnTouchListener, UserConstants{
 
 	/**
 	 * Performs most of the view manipulation and handling
@@ -203,14 +204,29 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	static LinkedList<PlaceItem> lastPlaces = new LinkedList<PlaceItem>();
 	
+	/**
+	 * Restrooms list
+	 */
 	LinkedList<PlaceItem> restrooms = new LinkedList<PlaceItem>();
 	
+	/**
+	 * Gates list
+	 */
 	LinkedList<PlaceItem> gates = new LinkedList<PlaceItem>();
 	
+	/**
+	 * Parking list
+	 */
 	LinkedList<PlaceItem> parking = new LinkedList<PlaceItem>();
 	
+	/**
+	 * List of searchable places
+	 */
 	private LinkedList<PlaceItem> searchExhibits = new LinkedList<PlaceItem>();
 	
+	/**
+	 * Misc places that are too few to be categorized
+	 */
 	LinkedList<PlaceItem> misc = new LinkedList<PlaceItem>();
 	
 	/**
@@ -222,7 +238,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * determine whether tablet or not to optimize screen real estate 
 	 */
 	public static boolean isLargeScreen = false;
-	
 	
 	/**
 	 * manages location changes
@@ -544,8 +559,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	@Override
 	public void onBackPressed(){
 		 if(!mController.closeDrawer()){
-			 if((currentFragment!=Places.LIST && currentFragment!=Places.MAP) 
-				|| (!isLargeScreen && currentFragment!=Places.LIST)){
+			 if((currentFragment.isPlaceFragment()) || (!isLargeScreen && currentFragment!=Places.LIST)){
 				 showList();
 			 } else{
 				 
@@ -557,7 +571,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 					 @Override
 					 public void onClick(DialogInterface dialog, int which) {
 						 stopService(new Intent(getApplicationContext(), LocationUpdateService.class));
-						 Preference.putBoolean("edu.fordham.cis.wisdm.zoo.askagain", false);
+						 Preference.putBoolean(REMEMBER_ME_LOC, false);
 						 
 						 Intent upIntent = new Intent(act, Entry.class);
 						 if (NavUtils.shouldUpRecreateTask(act, upIntent)) {
@@ -796,13 +810,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		else if(position == Places.NEWS.toInt()) 		MessageBuilder.showToast("Coming soon", this);
 		else if(position == Places.AMENITIES.toInt()){	showMap(mTransaction, list.getView());
 														mController.openDrawer();}
-		else if(position == Places.FIND.toInt())		showFragment(nearby, position);
-		else if(position == Places.SHOPS.toInt()) 		showFragment(shops, position);
-		else if(position == Places.SPECIAL.toInt()) 	showFragment(special, position);
-		else if(position == Places.FOOD.toInt()) 		showFragment(food, position);
-		else if(position == Places.EXHIBITS.toInt()) 	showFragment(exhibit, position);
-		else if(position == Places.ADMIN.toInt()) 		showFragment(admin, position);
-		
+		else if(Places.isIntPlaceFragment(position)){
+			showFragment(getFragmentFromPlace(Places.toPlace(position)), position);}
 		
 		try{	 
 			mTransaction.commit();
@@ -822,14 +831,27 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		else 									return getCurrentPlaceFragment().getView();
 	}
 	
+	/**
+	 * Returns current showing/focused place fragment
+	 * @return
+	 */
 	public PlaceFragment getCurrentPlaceFragment(){
-		if(currentFragment == Places.EXHIBITS)			return exhibit;
-		else if(currentFragment == Places.FOOD)			return food;
-		else if(currentFragment == Places.SPECIAL)		return special;
-		else if(currentFragment == Places.ADMIN)		return admin;
-		else if(currentFragment == Places.SHOPS)		return shops;
-		else if(currentFragment == Places.FIND)			return nearby;
-		else											return null;
+		return getFragmentFromPlace(currentFragment);
+	}
+	
+	/**
+	 * Converts the places enum into a placefragment (if its a place fragment)
+	 * @param place
+	 * @return
+	 */
+	private PlaceFragment getFragmentFromPlace(Places place){
+		if(place == Places.EXHIBITS)		return exhibit;
+		else if(place == Places.FOOD)		return food;
+		else if(place == Places.SPECIAL)	return special;
+		else if(place == Places.ADMIN)		return admin;
+		else if(place == Places.SHOPS)		return shops;
+		else if(place == Places.FIND)		return nearby;
+		else								return null;
 	}
 
 	

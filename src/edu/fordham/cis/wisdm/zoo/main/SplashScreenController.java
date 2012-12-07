@@ -78,6 +78,9 @@ public class SplashScreenController {
 	 */
 	private boolean showParking = true;
 	
+	/**
+	 * Called when a checkbox on screen is touched
+	 */
 	private OnCheckedChangeListener mCheckboxListener = new OnCheckedChangeListener(){
 
 		@Override

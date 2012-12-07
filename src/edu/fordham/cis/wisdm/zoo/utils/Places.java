@@ -51,4 +51,21 @@ public enum Places {
 		else if(position == 8) return ADMIN;
 		else 				   return LIST;
 	}
+	
+	/**
+	 * Whether this is considered a place fragment type
+	 * @return
+	 */
+	public boolean isPlaceFragment(){
+		return !(this == MAP || this == LIST || this == NEWS);
+	}
+	
+	/**
+	 * Whether an int position is a place fragment
+	 * @param position
+	 * @return
+	 */
+	public static boolean isIntPlaceFragment(int position){
+		return toPlace(position).isPlaceFragment();
+	}
 }

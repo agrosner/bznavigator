@@ -96,6 +96,11 @@ public class Connections {
 	private static boolean isAuthorized = false;
 	
 	/**
+	 * Flag whether user already exists
+	 */
+	public boolean userExists = false;
+	
+	/**
 	 * the unique ID of the current visit that will be pulled from the server initially
 	 */
 	private static int mVisitID = -1;
@@ -197,11 +202,23 @@ public class Connections {
 	}
 	
 	/**
-	 * Attempts to connect and authorize user with the server
+	 * Attempts to connect and authorize user with the server\
+	 * If user is a guest, it attempts to create an account for them
 	 * @param con
 	 * @return
 	 */
 	public static boolean prepare(Connections con){
+		if(con.getmEmail().equals("") && con.getmPassword().equals("")){
+			//create temp password
+			con.mEmail = con.mDevId + "@wisdmproject.com";
+			con.mPassword = con.mDevId;
+			
+			if(Connections.createUser(con) || con.userExists)
+				return connect() && authorize(con);
+			else
+				return false;
+		}
+		
 		return connect() && authorize(con);
 	}
 	
@@ -267,12 +284,13 @@ public class Connections {
 	 * @return
 	 */
 	public static boolean createUser(Connections con){
-		if(connect()){
+		if(connect() && !con.userExists){
 			try {
 				SocketParser.writeUsrReq(mOutputStream, con.mEmail.split("@")[0], con.mPassword, con.mEmail, con.mDevId);
 				byte smsg = mInputStream.readByte();
 				if(smsg == SocketParser.USR_TAKEN){
 					mServerMessage+="\nUser taken";
+					con.userExists = true;
 					return false;
 				} else if(smsg == SocketParser.AUTH_CODE){
 					mServerMessage+="\nUser created!";
@@ -417,14 +435,11 @@ public class Connections {
 					String[] resps = resp.split(",");
 					int id = qids.get(index);
 					for(String respo: resps){
-						mOutputStream.write(SocketParser.SURVEY_ANS_CODE);
 						SocketParser.writeSurvQ(mOutputStream, id, respo);
 					}
 				} else if(type.length() ==3 && type.equals("Str")){
-					mOutputStream.write(SocketParser.SURVEY_ANS_CODE);
 					SocketParser.writeSurvQ(mOutputStream, qids.get(index), resp);
 				} else if(type.length() == 3 && type.equals("Num")){
-					mOutputStream.write(SocketParser.SURVEY_ANS_CODE);
 					int res = 0;
 					try{
 						res = Integer.valueOf(resp);

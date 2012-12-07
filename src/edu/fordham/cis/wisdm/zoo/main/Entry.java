@@ -5,6 +5,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 
+import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.FormChecker;
 import cis.fordham.edu.wisdm.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
@@ -20,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.util.DisplayMetrics;
+import android.util.Patterns;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -73,6 +75,8 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 	
 	public static final int PASS_LENGTH = 5;
 	
+	private boolean start = false;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +94,12 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
         } else{
         	chooseLogin();
         }
+    }
+    
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	if(start)	chooseLogin();
     }
     
     /**
@@ -117,7 +127,7 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 			public void onClick(DialogInterface dialog, int which) {
 				Preference.putBoolean("member", false);
 				isMember = false;
-				enhance();
+				login("","", false);
 			}
 		}).setCancelable(false).show();
     }
@@ -165,13 +175,6 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
                 
     	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	largeScreen = true;
     	
-    	if(!isMember){
-    		Operations.removeView(fields[1]);
-    		Operations.removeView(rememberMe);
-    		rememberMe.setChecked(false);
-    	}
-    	
-    	
     	//play around with widgets and resize them
     	if(largeScreen){
     		int newWidth = display.widthPixels/2;
@@ -192,29 +195,30 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
      * Begins the login process
      */
     private void login(String email, String password, boolean remember){
-		if(!FormChecker.checkEmail(email)){
-			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure email is entered correctly").show();
+    	if(email.equals("") && isMember){
+    		MessageBuilder.showToast("Email cannot be blank", this);
+    	} else if(isMember && !Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure a valid email is entered correctly").setPositiveButton("OK", null).show();
 		} else if(password.length() < PASS_LENGTH && isMember){
-			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure password is more than 8 characters").show();
+			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure password is more than " + PASS_LENGTH + " characters").show();
 		} else{
 			Preference.putBoolean(REMEMBER_ME_LOC, remember);
+			mConnection = new Connections(email, password, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
+			
     		if(isMember){
     			Preference.putString(EMAIL_LOC, email);
     			Preference.putString(PASS_LOC, password);
-    			mConnection = new Connections(email, password, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
-    			new ConnectToServerTask(mConnection, this).execute();
     		} else{
     			Preference.putString(EMAIL_LOC, "");
     			Preference.putString(PASS_LOC, "");
-    			startActivity(new Intent(this, SurveyActivity.class)
-				.putExtra("email", email)
-				.putExtra("password", password));
     		}
+    		new ConnectToServerTask(mConnection, this).execute();
     	}
     }
     
     private void signUp(){
     	Intent signup = new Intent(this, RegisterActivity.class);
+    	mConnection = new Connections(fields[0].getText().toString(), fields[1].getText().toString(), Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
     	startActivity(signup);
     }
     
@@ -269,13 +273,16 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 		
 		@Override
 		protected void onPostExecute(Void aarg){
-			if(!isConnected){
+			if(!isConnected && isMember){
 				enhance();
 				Toast.makeText(mContext, "Connection failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
 				setFields(mConnection.getmEmail(), mConnection.getmPassword());
 				rememberMe.setChecked(true);
+				Preference.putBoolean("member", false);
+				Preference.putBoolean(REMEMBER_ME_LOC, false);
+	    		
 			}else{
-				if(!gotVisit){
+				if(!gotVisit && isMember){
 					Toast.makeText(mContext, "Could not register visit for some reason", Toast.LENGTH_SHORT).show();
 				}else{
 					startActivity(new Intent(mContext, SurveyActivity.class)
@@ -284,6 +291,7 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 				}
 			}
 			dia.dismiss();
+			start = true;
 		}
 		
 	}

@@ -10,8 +10,11 @@ import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.actionbarsherlock.app.SherlockActivity;
 
+import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
+import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.connections.Connections;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -20,6 +23,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,7 +49,7 @@ import android.widget.Toast;
  * @author Isaac
  * @version 1.0
  */
-public class SurveyActivity extends SherlockActivity implements OnClickListener, OnSeekBarChangeListener, OnTouchListener {
+public class SurveyActivity extends SherlockActivity implements OnClickListener, OnSeekBarChangeListener, OnTouchListener, UserConstants {
 	
 	
 	private Connections mConnection;
@@ -400,13 +405,29 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			reloadResponses();
 		}
 		else{
+			final Activity act = this;
+			
 			AlertDialog.Builder message = new AlertDialog.Builder(this);
-			message.setTitle("No previous questions! Quit Survey?");
+			message.setTitle("No previous questions! Logout and Quit Survey?");
 			message.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					finish();
+					Preference.putBoolean(REMEMBER_ME_LOC, false);
+					 
+					 Intent upIntent = new Intent(act, Entry.class);
+					 if (NavUtils.shouldUpRecreateTask(act, upIntent)) {
+						 // This activity is not part of the application's task, so create a new task
+						 // with a synthesized back stack.
+						 TaskStackBuilder.from(act)
+	                        	.addNextIntent(upIntent)
+	                        	.startActivities();
+						 finish();
+					 } else {
+						 // 	This activity is part of the application's task, so simply
+						 // navigate up to the hierarchical parent activity.
+						 NavUtils.navigateUpTo(act, upIntent);
+					 }
 				}
 			});
 			message.setNegativeButton("No", new DialogInterface.OnClickListener() {
