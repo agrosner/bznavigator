@@ -431,6 +431,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map2/%col%_%row%.png", 4096, 5120));
 	    map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map3/%col%_%row%.png", 8192, 10240));
 	    map.getView().setOnTouchListener(this);
+	    map.hideItemMenu();
 	       
 	    Geopoint.storeOffset(north, south, west, east);
 	   
@@ -709,7 +710,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	private void createParkingItems(Geopoint location){
 		mParkingLocation = new Geopoint(location);
-		mParkingPlace = new PlaceItem(mParkingLocation, "My Parking Spot", "", R.layout.exhibitmenu, R.drawable.car);
+		mParkingPlace = new PlaceItem(mParkingLocation,"", R.layout.exhibitmenu, R.drawable.car);
 	}
 	
 	private void activateParkingSpot(){
@@ -762,11 +763,13 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		places.add(place);
 			
 		showMap(mTransaction, list.getView(), places);
-		map.animateTo(place.getPoint()); 
+		place.getOnPressListener().onPress();
 		if(searchList.isShown()){
 			Operations.removeView(searchList);
 			searchItem.getMenuItem().collapseActionView();
 		}
+		map.animateTo(place.getPoint()); 
+		
 	}
 	
 	/**
@@ -863,6 +866,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	protected void showMap(FragmentTransaction mTransaction, View v){
 		mController.closeDrawer();
 		mController.clearMapData();
+		map.hideItemMenu();
 		if(!isLargeScreen && currentFragment!=Places.MAP)	Operations.swapViewsAnimate(v, map, hideViewLeft, showViewRight);
 		else if(!map.isShown())	Operations.addView(map);
 		
@@ -949,6 +953,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				place.add(placeFound);
 				this.showMap(mTransaction, list.getView(), place);
 				map.animateTo(placeFound.getPoint());
+				map.setItemMenu(placeFound, this);
 				try {
 					FileOutputStream fs = openFileOutput("queries.txt", Context.MODE_APPEND);
 					OutputStreamWriter ow = new OutputStreamWriter(fs);

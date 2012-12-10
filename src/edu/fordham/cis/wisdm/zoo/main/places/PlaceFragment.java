@@ -175,7 +175,7 @@ public class PlaceFragment extends SherlockFragment{
 				LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 				places.add(place);
 				act.showMap(mTransaction, getView(), places);
-				
+				place.getOnPressListener().onPress();
 				//tries to move map to center on both current location and point
 				//if(SplashScreenActivity.myLocation!=null){
 					//ZoomLevel zoom = place.getPoint().pixelsToZoom(act.getMap().getView(), SplashScreenActivity.myLocation);

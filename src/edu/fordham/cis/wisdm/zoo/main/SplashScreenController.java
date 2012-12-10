@@ -36,6 +36,7 @@ import android.widget.SlidingDrawer.OnDrawerOpenListener;
  * @author agrosner
  *
  */
+@SuppressWarnings("deprecation")
 public class SplashScreenController {
 
 	/**
@@ -123,7 +124,6 @@ public class SplashScreenController {
 	/**
 	 * Adds sliding drawer for persistent locations
 	 */
-	@SuppressWarnings("deprecation")
 	void addDrawerList(){
 		mDrawer = (SlidingDrawer) mActivity.findViewById(R.id.drawer);
 	
@@ -144,6 +144,7 @@ public class SplashScreenController {
 		
 		mDrawer.setOnDrawerOpenListener(new OnDrawerOpenListener(){
 	   
+		@SuppressWarnings("unchecked")
 		@Override
 		public void onDrawerOpened() {
 			SplashScreenActivity.mTransaction = mActivity.getSupportFragmentManager().beginTransaction();
@@ -156,7 +157,7 @@ public class SplashScreenController {
 			for(int i = 0; i < mDrawerCheckBoxes.length; i++){
 				mDrawerFrame.addView(mDrawerCheckBoxes[i]);
 			}
-			PlaceController.reCalculateDistance(mActivity.myLocation, mActivity.misc);
+			PlaceController.reCalculateDistance(SplashScreenActivity.myLocation, mActivity.misc);
 			PlaceController.readInDataIntoList(mActivity, mDrawerFrame, mActivity.misc, new OnClickListener(){
 
 				@Override
@@ -168,6 +169,7 @@ public class SplashScreenController {
 					places.add(place);
 					mActivity.showMap(SplashScreenActivity.mTransaction, SplashScreenActivity.list.getView(), places);
 					mActivity.getMap().getView().animateTo(place.getPoint());
+					place.getOnPressListener().onPress();
 				}
 				
 			}, true);
@@ -235,32 +237,40 @@ public class SplashScreenController {
 	/**
 	 * Changes screen orientation and layout flow depending on whether screen is larger that LARGE qualifier
 	 */
-	@SuppressWarnings("deprecation") 
 	void determineScreenLayout(){
-		//get screen width to optimize layout
-        DisplayMetrics display = new DisplayMetrics();
-        mActivity.getWindowManager().getDefaultDisplay().getMetrics(display);
-        SCREEN_WIDTH = display.widthPixels;
-		
-        int screensize = mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-        if((screensize == Configuration.SCREENLAYOUT_SIZE_XLARGE || screensize == Configuration.SCREENLAYOUT_SIZE_LARGE)){
-        	//scale the width of the sidebar to specified size
-			LayoutParams lp = new LayoutParams((SCREEN_WIDTH/4), LayoutParams.FILL_PARENT);
-        	SplashScreenActivity.list.getView().setLayoutParams(lp);
+       //get screen width to optimize layout
+       DisplayMetrics display = new DisplayMetrics();
+       mActivity.getWindowManager().getDefaultDisplay().getMetrics(display);
+       if(mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+    	   SCREEN_WIDTH = display.widthPixels;
+       else	SCREEN_WIDTH = display.heightPixels;
+       
+       //list layout params
+       LayoutParams lp;
+        
+       int screensize = mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+       if((screensize == Configuration.SCREENLAYOUT_SIZE_XLARGE || screensize == Configuration.SCREENLAYOUT_SIZE_LARGE)){
+    	   //scale the width of the sidebar to specified size
+    	   mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            
+    	   lp = new LayoutParams((SCREEN_WIDTH/4), LayoutParams.FILL_PARENT);
+    	   
+    	   IconTextItem item = (IconTextItem) SplashScreenActivity.list.getListAdapter().getView(0, null, null);
+    	   TextView text = (TextView) item.findViewById(R.id.name);
+    	   text.setText("Clear Map");
         	
-        	IconTextItem item = (IconTextItem) SplashScreenActivity.list.getListAdapter().getView(0, null, null);
-        	TextView text = (TextView) item.findViewById(R.id.name);
-        	text.setText("Clear Map");
+    	   SplashScreenActivity.isLargeScreen = true;
         	
-        	SplashScreenActivity.isLargeScreen = true;
-        	mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else{//small screen we want to hide it
         	Operations.removeView(mActivity.getMap());
-        	//addListButton();
+        	mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        	
         	SplashScreenActivity.isLargeScreen = false;
-    		SplashScreenActivity.list.getView().setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-    		mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    		
+        	lp = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+    		
         }
+       SplashScreenActivity.list.getView().setLayoutParams(lp);
 	}
 	
 	

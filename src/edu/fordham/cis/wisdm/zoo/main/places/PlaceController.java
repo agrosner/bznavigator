@@ -170,7 +170,7 @@ public class PlaceController {
 							lineArray[0]+="(Staff Only)";
 						}
 						
-						points.add(new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), lineArray[0], String.valueOf(distance), R.layout.exhibitmenu, drawableId).setIconResId(lineArray[1]));
+						points.add(new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), String.valueOf(distance), R.layout.exhibitmenu, drawableId).setIconResId(lineArray[1]));
 					} 
 				}
 			}

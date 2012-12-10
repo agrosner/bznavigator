@@ -436,20 +436,23 @@ public class Connections {
 					int id = qids.get(index);
 					for(String respo: resps){
 						SocketParser.writeSurvQ(mOutputStream, id, respo);
+						mOutputStream.flush();
 					}
 				} else if(type.length() ==3 && type.equals("Str")){
 					SocketParser.writeSurvQ(mOutputStream, qids.get(index), resp);
+					mOutputStream.flush();
 				} else if(type.length() == 3 && type.equals("Num")){
-					int res = 0;
+					float res = 0;
 					try{
-						res = Integer.valueOf(resp);
+						res = Float.valueOf(resp);
 					} catch(NumberFormatException n){//catch possible errors or ex: 5+ --> 5
 						n.printStackTrace();
 						int length = resp.length();
 						resp = resp.substring(0, length-1);
-						res = Integer.valueOf(resp);
+						res = Float.valueOf(resp);
 					} finally{
 						SocketParser.writeSurvQ(mOutputStream, qids.get(index), res);
+						mOutputStream.flush();
 					}
 				}
 			}
