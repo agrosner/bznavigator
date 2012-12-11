@@ -146,7 +146,7 @@ public class PlaceController {
 	 * @param fName
 	 * @param points
 	 */
-	private static void readInData(Activity act, String fName, LinkedList<PlaceItem> points){
+	private static void readInData(Activity act, String fName, LinkedList<PlaceItem> points, OnClickListener onInfoClick){
 		try {
 			Scanner mScanner = new Scanner(act.getAssets().open(fName));
 			int idIndex = -1;
@@ -170,7 +170,7 @@ public class PlaceController {
 							lineArray[0]+="(Staff Only)";
 						}
 						
-						points.add(new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), String.valueOf(distance), R.layout.exhibitmenu, drawableId).setIconResId(lineArray[1]));
+						points.add(new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), String.valueOf(distance), R.layout.exhibitmenu, drawableId, onInfoClick).setIconResId(lineArray[1]));
 					} 
 				}
 			}
@@ -188,9 +188,9 @@ public class PlaceController {
 	 * @param points
 	 * @param fNames
 	 */
-	public static void readInData(Activity act, LinkedList<PlaceItem> points, String... fNames){
+	public static void readInData(Activity act, OnClickListener onInfoClick, LinkedList<PlaceItem> points, String... fNames){
 		for(String fName: fNames){
-			readInData(act, fName, points);
+			readInData(act, fName, points, onInfoClick);
 		}
 	}
 	

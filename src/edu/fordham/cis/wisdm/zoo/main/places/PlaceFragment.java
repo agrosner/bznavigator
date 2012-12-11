@@ -145,8 +145,9 @@ public class PlaceFragment extends SherlockFragment{
 		title.setText(type.toTitleString());
 		
 		String fName = type.toString() + ".txt";
+		SplashScreenActivity act = (SplashScreenActivity) getActivity();
 		
-		if(points.isEmpty())	PlaceController.readInData(getActivity(), points, fName);
+		if(points.isEmpty())	PlaceController.readInData(act, act.onInfoClickedListener, points, fName);
 		else 	PlaceController.reCalculateDistance(SplashScreenActivity.myLocation, points);
 		
 		PlaceController.readInDataIntoList(getActivity(), exhibitList, points, mOnClickListener, true);

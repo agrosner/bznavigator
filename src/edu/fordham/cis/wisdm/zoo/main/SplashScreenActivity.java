@@ -308,6 +308,21 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	private static Places currentFragment = Places.LIST;
 	
+	/**
+	 * Called when the info button on placeitem menu is clicked
+	 */
+	public OnClickListener onInfoClickedListener = new OnClickListener(){
+
+		@Override
+		public void onClick(View arg0) {
+			//Intent i = new Intent(this, InfoActivity.this);
+			//i.putStringExtra("name", map.getMenuItemTitle().split("\n")[0]);
+			//startActivity(i);
+			Toast.makeText(getApplicationContext(), "Info Clicked", Toast.LENGTH_SHORT).show();
+		}
+		
+	};
+	
 	@Override
 	public void onCreate(Bundle instance){
 		super.onCreate(instance);
@@ -424,14 +439,14 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		overlays = map.getOverlays();
 		if(mParkingPlace!=null) overlays.add(mParkingPlace);
 		
-		mController.determineScreenLayout();
-	
+		
 		map.init(this, "map0/%col%_%row%.png", 1024, 1280);
 	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map1/%col%_%row%.png", 2048, 2560));
 	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map2/%col%_%row%.png", 4096, 5120));
 	    map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map3/%col%_%row%.png", 8192, 10240));
 	    map.getView().setOnTouchListener(this);
 	    map.hideItemMenu();
+	    map.animateTo(new Geopoint(0,0));
 	       
 	    Geopoint.storeOffset(north, south, west, east);
 	   
@@ -453,6 +468,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
         Operations.removeView(searchList);
        
    		mController.addDrawerList();
+   		mController.determineScreenLayout();
+   		
 	}
 	
 	
@@ -710,7 +727,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 */
 	private void createParkingItems(Geopoint location){
 		mParkingLocation = new Geopoint(location);
-		mParkingPlace = new PlaceItem(mParkingLocation,"", R.layout.exhibitmenu, R.drawable.car);
+		mParkingPlace = new PlaceItem(mParkingLocation,"", R.layout.exhibitmenu, R.drawable.car, null);
 	}
 	
 	private void activateParkingSpot(){
@@ -953,7 +970,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				place.add(placeFound);
 				this.showMap(mTransaction, list.getView(), place);
 				map.animateTo(placeFound.getPoint());
-				map.setItemMenu(placeFound, this);
+				map.setItemMenu(placeFound, onInfoClickedListener);
 				try {
 					FileOutputStream fs = openFileOutput("queries.txt", Context.MODE_APPEND);
 					OutputStreamWriter ow = new OutputStreamWriter(fs);
@@ -1042,8 +1059,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			//reads exhibits into the searchbar list of places
-			PlaceController.readInData(mActivity, searchExhibits, "exhibits.txt", "food.txt", "shops.txt",
-					"gates.txt", "parking.txt", "admin.txt", "restrooms.txt", "misc.txt");
+			PlaceController.readInData(mActivity, onInfoClickedListener, searchExhibits, "exhibits.txt", "food.txt", "shops.txt",
+					"gates.txt", "parking.txt", "admin.txt", "special.txt", "restrooms.txt", "misc.txt");
 			
 			return null;
 		}

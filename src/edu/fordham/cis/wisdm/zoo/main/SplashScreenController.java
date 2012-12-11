@@ -140,7 +140,7 @@ public class SplashScreenController {
 		mDrawerCheckBoxes[1] = createIconCheckBox("Gates", R.drawable.fordham, 1);
 		mDrawerCheckBoxes[2] = createIconCheckBox("Parking Lots", R.drawable.fordhamparking, 2);
 		
-		if(mActivity.misc.isEmpty())	PlaceController.readInData(mActivity, mActivity.misc, "misc.txt");
+		if(mActivity.misc.isEmpty())	PlaceController.readInData(mActivity, mActivity.onInfoClickedListener, mActivity.misc, "misc.txt");
 		
 		mDrawer.setOnDrawerOpenListener(new OnDrawerOpenListener(){
 	   
@@ -287,7 +287,7 @@ public class SplashScreenController {
 	 * @param fName
 	 */
 	 public void readInPlaces(LinkedList<PlaceItem> pts, String fName, FragmentTransaction mTransaction){
-		if(pts.size()==0)	PlaceController.readInData(mActivity, pts, fName);
+		if(pts.size()==0)	PlaceController.readInData(mActivity, mActivity.onInfoClickedListener, pts, fName);
 		
 		mActivity.getMap().getOverlays().addAll(pts);
 		mActivity.getMap().getView().reDrawOverlays(true);
