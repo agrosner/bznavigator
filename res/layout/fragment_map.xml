@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <fragment 
+		android:id="@+id/mapFragment"
+		xmlns:map="http://schemas.android.com/apk/res-auto"
+		android:name="com.google.android.gms.maps.SupportMapFragment"
+		style="@style/fill"     
+		map:cameraTargetLat="40.851391"  	   
+		map:cameraTargetLng="-73.877555" 
+		map:cameraZoom="16"
+       	/>
+       	<RelativeLayout 
+       		style="@style/fill"
+       	    >
+       	    <Button 
+       	        android:layout_alignParentTop="true"
+       	      	android:id="@+id/overview"
+       	       	style="@style/wrap"
+       	       	android:text="Zoo Overview"
+       	       	android:layout_margin="5dip"
+       	       	android:drawableLeft="@drawable/ic_action_map"
+       	    />
+       	    <ImageButton 
+       	        android:layout_alignParentBottom="true"
+       	        android:layout_alignParentLeft="true"
+       	        android:id="@+id/normal"
+       	        android:layout_margin="10dip"
+       	        style="@style/wrap"
+       	        android:src="@drawable/ic_action_map"
+       	     />
+       	    <ImageButton 
+       	        android:layout_toRightOf="@id/normal"
+       	        android:layout_alignParentBottom="true"
+       	        android:id="@+id/satellite"
+       	        android:layout_margin="10dip"
+       	        style="@style/wrap"
+       	        android:src="@drawable/ic_action_globe"
+       	    />
+       </RelativeLayout>
+       	    
+</FrameLayout>

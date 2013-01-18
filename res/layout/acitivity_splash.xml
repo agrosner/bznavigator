@@ -16,8 +16,9 @@
        android:id="@+id/mapframe"
        android:layout_toRightOf="@id/listfragment"
        style="@style/wrap">
-       	<com.grosner.mapview.MapView
-       	    android:id="@+id/map"
+       	<fragment 
+       	    android:name="edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment"
+       	    android:id="@+id/mapfragment"
        	    style="@style/fill"
        	    />
        	<LinearLayout

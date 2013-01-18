@@ -5,19 +5,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -25,12 +24,13 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 //import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,19 +39,13 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SlidingDrawer;
 import android.widget.SlidingDrawer.OnDrawerCloseListener;
 import android.widget.SlidingDrawer.OnDrawerOpenListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.RelativeLayout.LayoutParams;
-
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.Operations;
 
@@ -62,14 +56,16 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
-import com.grosner.mapview.CurrentLocationChangedListener;
-import com.grosner.mapview.CurrentLocationOverlay;
-import com.grosner.mapview.Geopoint;
-import com.grosner.mapview.MapScale;
-import com.grosner.mapview.MapView;
-import com.grosner.mapview.OverlayItem;
-import com.grosner.mapview.PlaceItem;
-import com.grosner.mapview.ZoomLevel;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 
 import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
@@ -77,12 +73,20 @@ import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragment;
 import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
-import edu.fordham.cis.wisdm.zoo.utils.IconTextItem;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
+import edu.fordham.cis.wisdm.zoo.utils.map.CurrentLocationManager;
+import edu.fordham.cis.wisdm.zoo.utils.map.Exhibit;
+import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
+import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
+import edu.fordham.cis.wisdm.zoo.utils.map.Path;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItemWindowAdapter;
+import edu.fordham.cis.wisdm.zoo.utils.map.TextMarker;
+import edu.fordham.cis.wisdm.zoo.utils.map.TextMarkerManager;
 
 
-public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener, SearchPerformListener, OnNavigationListener, TextWatcher, OnTouchListener, UserConstants{
+public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener, SearchPerformListener, OnNavigationListener, TextWatcher, OnTouchListener, UserConstants, OnMapClickListener{
 
 	/**
 	 * Performs most of the view manipulation and handling
@@ -165,39 +169,39 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private Animation hideViewRight;
 
 	/**
-	 * the mapview widget
+	 * the map fragment
 	 */
-	private static MapView map;
+	private static MapViewFragment map;
+	
+	/**
+	 * the map object contained in the map fragment
+	 */
+	private static GoogleMap mGoogleMap;
 	
 	/**
 	 * Upper Y-coordinate of map
 	 */
-	public static int north = (int)(40.85988281739409*1E6);
+	public static double north = 40.85988281739409;
 	
 	/**
 	 * Lower y-coordinate of map
 	 */
-	public static int south = (int)(40.83874984609*1E6);
+	public static double south = 40.83874984609;
 	
 	/**
 	 * Left-most x-coordinate on map
 	 */
-	public static int west = (int)(-73.88877402139309*1E6);
+	public static double west = -73.88877402139309;
 	
 	/**
 	 * Right-most x-coordinate on map
 	 */
-	public static int east = (int)(-73.86642400707782*1E6);
+	public static double east = -73.86642400707782;
 	
 	/**
 	 * whether location should be enabled
 	 */
 	private boolean enableLoc = false;
-	
-	/**
-	 * the mapview's overlays
-	 */
-	private static List<OverlayItem> overlays; 
 	
 	/**
 	 * the last group of places shown
@@ -245,14 +249,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private LocationManager lManager = null;
 		
 	/**
-	 * shows current location
-	 */
-	public static CurrentLocationOverlay me = null;
-
-	/**
 	 * point contained in the current location "me"
 	 */
-	public static Geopoint myLocation = null;
+	public static Location myLocation = null;
 	
 	/**
 	 * Whether the map is following the users location on the map
@@ -277,22 +276,23 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * Location that will be stored in preferences
 	 */
-	private Geopoint mParkingLocation = null;
+	private LatLng mParkingLocation = null;
 	
 	/**
 	 * Item that will go on map when user saves parking spot
 	 */
 	PlaceItem mParkingPlace = null;
 
+	private CurrentLocationManager mManager= null;
+	
 	/**
 	 * Provides an action when the user's current location changes
 	 */
-	private CurrentLocationChangedListener meListener = new CurrentLocationChangedListener(){
+	private Runnable meListener = new Runnable(){
 
-		@SuppressWarnings("unchecked")
 		@Override
-		public void OnCurrentLocationChange(Geopoint point) {
-			myLocation = me.getPoint();
+		public void run() {
+			myLocation = mManager.getLastKnownLocation();
 			PlaceController.reCalculateDistance(myLocation, searchExhibits, parking, gates, restrooms);
 		}
 		
@@ -334,9 +334,37 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		list = (ArrayListFragment) this.getSupportFragmentManager().findFragmentById(R.id.listfragment);
 		list.getListView().setOnItemClickListener(this);
 		
-		//init map objects
-		map = null;
-		map = (MapView) findViewById(R.id.map);
+		try {
+			MapsInitializer.initialize(this);
+		} catch (GooglePlayServicesNotAvailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+			Dialog dialog = GooglePlayServicesUtil.getErrorDialog(GooglePlayServicesUtil.isGooglePlayServicesAvailable(this), this, 0, new OnCancelListener(){
+
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					finish();
+				}
+				
+			});
+			dialog.setOnDismissListener(new OnDismissListener(){
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					start();
+				}
+				
+			});
+			dialog.show();
+		}
+		map = (MapViewFragment) this.getSupportFragmentManager().findFragmentById(R.id.mapfragment);
+		mGoogleMap = map.getMap().getMap();
+		if(mGoogleMap!=null) start();
+	}
+		
+	private void start(){
+		mGoogleMap.setOnMapClickListener(this);
 		
 		loader = ProgressDialog.show(this, "Loading Data", "Please Wait");
 		
@@ -345,7 +373,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		
 		//gives user an option to accept terms or leave the app
 		final HoloAlertDialogBuilder termsDialogBuilder = new HoloAlertDialogBuilder(this);
-		
+	
 		//cancel button used for both dialogs
 		DialogInterface.OnClickListener cancel = new DialogInterface.OnClickListener() {
 			
@@ -368,10 +396,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			}
 					
 		});
-		
+	
 		termsDialogBuilder.setCancelable(false).create().show();
 		
-		//if network error message
+		//	if network error message
 		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 			final HoloAlertDialogBuilder gpsInternetDialogBuilder = new HoloAlertDialogBuilder(this);
 			
@@ -398,7 +426,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			
 			gpsInternetDialogBuilder.create().show();
 		} 
-		
 	}
 	private void init(){
 		enableLoc = true;
@@ -417,7 +444,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			float lat = Preference.getFloat("parking-lat", 0);
 			float lon = Preference.getFloat("parking-lon", 0);
 			
-			createParkingItems(new Geopoint(lon, lat, "Parking Location"));
+			Location loc = new Location("My Parking Location");
+			loc.setLatitude(lat);
+			loc.setLongitude(lon);
+			createParkingItems(loc);
 			park.setIcon(R.drawable.ic_action_key_blue);
 		} else{
 			park.setIcon(R.drawable.ic_action_key);
@@ -436,27 +466,17 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		hideViewLeft = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
 		hideViewRight = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
 		
-		overlays = map.getOverlays();
-		if(mParkingPlace!=null) overlays.add(mParkingPlace);
+		if(mParkingPlace!=null) mParkingPlace.addDraggableMarker(mGoogleMap);
 		
 		
-		map.init(this, "map0/%col%_%row%.png", 1024, 1280);
-	    map.addMapScale(ZoomLevel.LEVEL_1, new MapScale("map1/%col%_%row%.png", 2048, 2560));
-	    map.addMapScale(ZoomLevel.LEVEL_2, new MapScale("map2/%col%_%row%.png", 4096, 5120));
-	    map.addMapScale(ZoomLevel.LEVEL_3, new MapScale("map3/%col%_%row%.png", 8192, 10240));
-	    map.getView().setOnTouchListener(this);
-	    map.hideItemMenu();
-	    map.animateTo(new Geopoint(0,0));
-	       
-	    Geopoint.storeOffset(north, south, west, east);
-	   
-		me = new CurrentLocationOverlay(map.getView(), this, R.drawable.location);
+	    //map.hideItemMenu();
+		mManager = new CurrentLocationManager(this, mGoogleMap);
 		new LoadDataTask(this, this).execute();
 		
 		startLocationUpdates();
 		nearby = new PlaceFragment(PlaceFragment.PlaceType.NEARBY, searchExhibits);
 		
-		me.addCurrentLocationChangedListener(meListener);
+		mManager.runOnFirstFix(meListener);
 		
 		Intent i = new Intent(this.getApplicationContext(), LocationUpdateService.class);
 		i.putExtra("email", String.copyValueOf(email.toCharArray()));
@@ -470,13 +490,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
    		mController.addDrawerList();
    		mController.determineScreenLayout();
    		
-	}
-	
-	
-	@Override
-	public void onLowMemory(){
-		//refresh the map resources when memory is low
-		map.getView().refresh();
 	}
 	
 	@Override
@@ -495,6 +508,12 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	public void onDestroy(){
 		super.onDestroy();
 		if(enableLoc) stopLocationUpdates();
+		
+	}
+	
+	public static void saveParkingSpot(LatLng lat){
+		Preference.putFloat("parking-lat", (float) lat.latitude);
+		Preference.putFloat("parking-lon", (float) lat.longitude);
 	}
 	
 	/**
@@ -503,11 +522,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private void startLocationUpdates(){
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		
-		me.enableMyLocation();
-		if(!overlays.contains(me))	overlays.add(me);
+		mManager.start();
+		mGoogleMap.setMyLocationEnabled(true);
 		
-		map.postInvalidate();
-		 
 		String locationMessage = null;
 		 
 		if (lManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
@@ -537,13 +554,13 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		 	 
 		Toast.makeText(this, locationMessage, Toast.LENGTH_SHORT).show();
 		final ContextWrapper con = this;
-		me.runOnFirstFix(new Runnable(){
+		mManager.runOnFirstFix(new Runnable(){
 
 			@Override
 			public void run() {
 				//map.animateTo(me.getPoint());
-				myLocation = me.getPoint();
-				if(!map.isShown() && !list.isVisible()){
+				myLocation = mManager.getLastKnownLocation();
+				if(!map.getView().isShown() && !list.isVisible()){
 					try{
 						getCurrentPlaceFragment().refresh();
 					} catch(NullPointerException r){
@@ -552,12 +569,11 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				}
 				
 				//once we get a fix, store it in locationupdateservice
-				LocationUpdateService.storeFirstLocation(me.getLastFix(), con);
+				LocationUpdateService.storeFirstLocation(myLocation, con);
 				PlaceController.reCalculateDistance(myLocation, searchExhibits, misc);
 				//loader.dismiss();
 				
 				MessageBuilder.showToast("GPS lock found", getApplicationContext());
-				map.getView().reDrawOverlays(true);
 			}
 			 
 		 });
@@ -570,8 +586,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	 * Stops updates and removes mylocationoverlay from the map
 	 */
 	 private void stopLocationUpdates(){
-		 me.disableMyLocation();
-		 overlays.remove(me);
+		 mManager.stop();
+		 mGoogleMap.setMyLocationEnabled(false);
 	 }
 	
 	@Override
@@ -663,22 +679,22 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		} else if(item.getTitle().equals("Search")){
 			showMap(mTransaction, getCurrentFragmentView());
 		} else if(item.getTitle().equals(ActionEnum.FOLLOW.toString())){
-			if(!map.isShown()){	
+			if(!map.getView().isShown()){	
 				showMap(mTransaction, getCurrentFragmentView());
 			}
 			if(!isTracking){
 				if (myLocation!=null){
 					item.setIcon(R.drawable.ic_action_location_blue);
-					map.animateTo(myLocation);
+					MapUtils.animateTo(map.getGoogleMap(), myLocation);
 					isTracking = true;
-					MessageBuilder.showToast("Now Following Current Location", this);
+					MessageBuilder.showToast("Now Following Current Location, Tap Map to Cancel", this);
 				}	else MessageBuilder.showLongToast("Cannot find current location",  this);
 			} else{
 				item.setIcon(R.drawable.ic_action_location);
 				isTracking = false;
 				MessageBuilder.showToast("Following Off", this);
 			}
-			me.follow(isTracking);
+			mManager.follow(isTracking);
 		} else if(item.getTitle().equals(ActionEnum.PARK.toString())){
 			if(isParked){
 				//bring up menu
@@ -725,9 +741,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	/**
 	 * Initializes the parking location geopoint and placeitem
 	 */
-	private void createParkingItems(Geopoint location){
-		mParkingLocation = new Geopoint(location);
-		mParkingPlace = new PlaceItem(mParkingLocation,"", R.layout.exhibitmenu, R.drawable.car, null);
+	private void createParkingItems(Location location){
+		mParkingLocation = new LatLng(location.getLatitude(), location.getLongitude());
+		mParkingPlace = new PlaceItem().point(mParkingLocation).iconId(R.drawable.car).name("My Parking Spot");
 	}
 	
 	private void activateParkingSpot(){
@@ -735,18 +751,15 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		Preference.putFloat("parking-lat", (float) myLocation.getLatitude());
 		Preference.putFloat("parking-lon", (float) myLocation.getLongitude());
 		Preference.putBoolean("parking", true);
-		MessageBuilder.showToast("Parking Location Now Saved", this);
+		MessageBuilder.showLongToast("Parking Location Now Saved. Press and hold icon to drag to desired location", this);
 		isParked = true;
 		
 		if(mParkingPlace!=null){
-			if(overlays.contains(mParkingPlace)){
-				map.getView().removeOverlay(mParkingPlace);
-			}
+			mParkingPlace.remove();
 		}
 		createParkingItems(myLocation);
 		
-		map.addOverlayItem(mParkingPlace);
-		map.getView().reDrawOverlays(false);
+		mParkingPlace.addDraggableMarker(mGoogleMap);
 	}
 	
 	private void deactivateParkingSpot(){
@@ -755,7 +768,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		Preference.putBoolean("parking", false);
 		Preference.putFloat("parking-lat", 0);
 		Preference.putFloat("parking-lon", 0);
-		map.getView().removeOverlay(mParkingPlace);
+		mParkingPlace.remove();
 	}
 	
 	/**
@@ -778,15 +791,13 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		PlaceItem place = searchExhibits.get(id-1);
 		LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 		places.add(place);
-			
+		
 		showMap(mTransaction, list.getView(), places);
-		place.getOnPressListener().onPress();
 		if(searchList.isShown()){
 			Operations.removeView(searchList);
 			searchItem.getMenuItem().collapseActionView();
 		}
-		map.animateTo(place.getPoint()); 
-		
+		MapUtils.moveRelativeToCurrentLocation(place.getPoint(), mGoogleMap);
 	}
 	
 	/**
@@ -795,7 +806,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	private void showList(){
 	
 		if(!isLargeScreen&&currentFragment!=Places.LIST && currentFragment==Places.MAP){
-			Operations.swapViewsAnimate(map, list.getView(), hideViewRight, showViewLeft);
+			Operations.swapViewsAnimate(map.getView(), list.getView(), hideViewRight, showViewLeft);
 		} else{
 		
 			if(isLargeScreen && currentFragment!=Places.MAP){
@@ -883,9 +894,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	protected void showMap(FragmentTransaction mTransaction, View v){
 		mController.closeDrawer();
 		mController.clearMapData();
-		map.hideItemMenu();
-		if(!isLargeScreen && currentFragment!=Places.MAP)	Operations.swapViewsAnimate(v, map, hideViewLeft, showViewRight);
-		else if(!map.isShown())	Operations.addView(map);
+		//map.hideItemMenu();
+		if(!isLargeScreen && currentFragment!=Places.MAP)	Operations.swapViewsAnimate(v, map.getView(), hideViewLeft, showViewRight);
+		else if(!map.getView().isShown())	Operations.addView(map.getView());
 		
 		if(isLargeScreen){
 			try{
@@ -909,10 +920,12 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	@SuppressWarnings("unchecked")
 	public void showMap(FragmentTransaction mTransaction,View v, LinkedList<PlaceItem> place){
 		showMap(mTransaction, v);
-		if (place!=null)	overlays.addAll(place);
+		if (place!=null)	{
+			MapUtils.addToMap(mGoogleMap, place);
+			
+		}
 		
 		lastPlaces = (LinkedList<PlaceItem>) place.clone();
-		map.getView().reDrawOverlays(true);
 		
 	}
 	
@@ -956,7 +969,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		PlaceItem placeFound = null;
 		
 		for(PlaceItem place: searchExhibits){
-			String name = place.getDescription().toLowerCase();
+			String name = place.getName().toLowerCase();
 			if(name.contains(querie)){
 				found = true;
 				placeFound = place;
@@ -969,8 +982,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				LinkedList<PlaceItem> place = new LinkedList<PlaceItem>();
 				place.add(placeFound);
 				this.showMap(mTransaction, list.getView(), place);
-				map.animateTo(placeFound.getPoint());
-				map.setItemMenu(placeFound, onInfoClickedListener);
+				mGoogleMap.animateCamera(CameraUpdateFactory.newLatLng(placeFound.getPoint()));
+				//map.setItemMenu(placeFound, onInfoClickedListener);
 				try {
 					FileOutputStream fs = openFileOutput("queries.txt", Context.MODE_APPEND);
 					OutputStreamWriter ow = new OutputStreamWriter(fs);
@@ -991,12 +1004,20 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		}
 	}
 	
-	public MapView getMap(){
-		return map;
+	public GoogleMap getMap(){
+		return mGoogleMap;
+	}
+	
+	public View getMapView(){
+		return map.getView();
 	}
 	
 	public static Places getCurrentFragment() {
 		return currentFragment;
+	}
+	
+	public CurrentLocationManager getCurrentLocationManager(){
+		return mManager;
 	}
 	
 	public static void setCurrentFragment(Places currentFragment) {
@@ -1008,7 +1029,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			searchList.removeAllViews();
 			for(int i =0; i < searchExhibits.size(); i++){
 				PlaceItem place = searchExhibits.get(i);
-				if(place.getDescription().toLowerCase().contains(s.toString().toLowerCase()))
+				if(place.getName().toLowerCase().contains(s.toString().toLowerCase()))
 					searchList.addView(PlaceController.createExhibitItem(this, i+1, place, this, true));
 				}
 		}
@@ -1026,13 +1047,13 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 
 	@Override
 	public boolean onTouch(View v, MotionEvent e) {
-		if(v.equals(map.getView())){
+		if(v.equals(map)){
 			int action = e.getAction() & MotionEvent.ACTION_MASK;
 	     	if(action == MotionEvent.ACTION_MOVE){
 	        	if(isTracking){
 	        		follow.setIcon(R.drawable.ic_action_location);
 					isTracking = false;
-					me.follow(isTracking);
+					mManager.follow(isTracking);
 					MessageBuilder.showToast("Following Off", this);
 	        	}
 	        	
@@ -1062,6 +1083,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			PlaceController.readInData(mActivity, onInfoClickedListener, searchExhibits, "exhibits.txt", "food.txt", "shops.txt",
 					"gates.txt", "parking.txt", "admin.txt", "special.txt", "restrooms.txt", "misc.txt");
 			
+			
+			
 			return null;
 		}
 		
@@ -1071,5 +1094,16 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			
 		}
 	}
+
+	@Override
+	public void onMapClick(LatLng point) {
+		if(isTracking){
+    		follow.setIcon(R.drawable.ic_action_location);
+			isTracking = false;
+			mManager.follow(isTracking);
+			MessageBuilder.showToast("Following Off", this);
+    	}
+	}
+	
 }
 

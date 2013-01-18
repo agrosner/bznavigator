@@ -3,7 +3,10 @@ package edu.fordham.cis.wisdm.zoo.main.places;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import android.app.Activity;
 import android.location.Location;
@@ -18,12 +21,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import cis.fordham.edu.wisdm.utils.Operations;
 
-import com.grosner.mapview.Geopoint;
-import com.grosner.mapview.PlaceItem;
-
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenController;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
 /**
  * Class provides operations on creating and manipulating place data
@@ -112,7 +113,7 @@ public class PlaceController {
 	 * @return
 	 */
 	public static RelativeLayout createExhibitItem(Activity act, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
-		return createExhibitItem(act, id, place.getIconDrawablePath(), place.getDescription(), calculateDistance(SplashScreenActivity.myLocation, place.getPoint()) +"ft", mListener, wrap);
+		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistance(SplashScreenActivity.myLocation, place.getLocation()) +"ft", mListener, wrap);
 	}
 
 	/**
@@ -130,7 +131,7 @@ public class PlaceController {
 			synchronized(points){
 				for(PlaceItem place: points){
 					idIndex++;
-					String distance = place.getSnippet();
+					String distance = place.getDistance();
 					int index = findIndex(exhibitList, Integer.valueOf(distance));
 					exhibitList.addView(createExhibitItem(act,idIndex, place, onClick, wrap), index);
 				}
@@ -146,7 +147,7 @@ public class PlaceController {
 	 * @param fName
 	 * @param points
 	 */
-	private static void readInData(Activity act, String fName, LinkedList<PlaceItem> points, OnClickListener onInfoClick){
+	private static void readInData(Activity act, String fName, List<PlaceItem> points, OnClickListener onInfoClick){
 		try {
 			Scanner mScanner = new Scanner(act.getAssets().open(fName));
 			int idIndex = -1;
@@ -155,12 +156,14 @@ public class PlaceController {
 				idIndex++;
 				if(idIndex!=0){
 					String[] lineArray = line.split(",");
-					//	TODO: add latitude, longitude coordinates
 					String distance = "0";
 					if(lineArray.length>=4){
 						double lat = Double.valueOf(lineArray[2]);
 						double lon = Double.valueOf(lineArray[3]);
-						distance = calculateDistance(SplashScreenActivity.myLocation, lineArray[2], lineArray[3]);
+						Location loc = new Location("");
+						loc.setLatitude(lat);
+						loc.setLongitude(lon);
+						distance = calculateDistance(SplashScreenActivity.myLocation, loc);
 						if(lineArray[0].toLowerCase().contains("restroom")){
 							lineArray[0] = "Restroom";
 						}
@@ -170,7 +173,7 @@ public class PlaceController {
 							lineArray[0]+="(Staff Only)";
 						}
 						
-						points.add(new PlaceItem(new Geopoint(lon, lat, lineArray[0]).setId(idIndex), String.valueOf(distance), R.layout.exhibitmenu, drawableId, onInfoClick).setIconResId(lineArray[1]));
+						points.add(new PlaceItem().point(new LatLng(lat, lon)).name(lineArray[0]).id(idIndex).iconId(drawableId).drawablePath(lineArray[1]).distance(distance));
 					} 
 				}
 			}
@@ -237,7 +240,7 @@ public class PlaceController {
 				text = distanceText.getText().toString().replace("ft", "");
 			} else if(ob instanceof PlaceItem){
 				PlaceItem place = (PlaceItem) ob;
-				text = place.getSnippet().replace("ft", "");
+				text = place.getDistance().replace("ft", "");
 			}
 			int dist = Integer.valueOf(text);
 			if(distance<dist)	break;
@@ -253,47 +256,28 @@ public class PlaceController {
 	 * @param currentLoc
 	 * @return "<?>ft"
 	 */
-	public static String calculateDistance(Geopoint currentLoc, String latitude, String longitude){
+	public static String calculateDistance(Location currentLoc, Location next){
 		if(currentLoc!=null){
-			Location l = new Location("start");
-			Location place = new Location("place");
-			
-			l.setLatitude(currentLoc.getLatitude());
-			l.setLongitude(currentLoc.getLongitude());
-		
-			place.setLatitude(Double.valueOf(latitude));
-			place.setLongitude(Double.valueOf(longitude));
-		
-			double distance = l.distanceTo(place)*METERS_TO_FT;
+			double distance = currentLoc.distanceTo(next)*METERS_TO_FT;
 			distance = Math.round(distance);
 			return String.valueOf(distance).replace(".0", "");
 		} else{
 			return "0";
 		}
-	}
-	
-	/**
-	 * Calculates distance between two geopoints and returns human-readable string
-	 * @param current
-	 * @param toThis
-	 * @return "<?>ft"
-	 */
-	public static String calculateDistance(Geopoint current, Geopoint toThis){
-		return calculateDistance(current, String.valueOf(toThis.getLatitude()), String.valueOf(toThis.getLongitude()));
-	}
+	} 
 	
 	/**
 	 * Regenerates the distances to the exhibits
 	 * @param currentLoc
 	 * @param points
 	 */
-	public static void reCalculateDistance(Geopoint currentLoc, LinkedList<PlaceItem>... points){
+	public static void reCalculateDistance(Location currentLoc, LinkedList<PlaceItem>... points){
 		if(currentLoc!=null){
 			for (LinkedList<PlaceItem> point: points){
 				int size = point.size();
 				for(int i =0 ; i< size; i++){
 					PlaceItem place = point.poll();
-					place.setSnippet(calculateDistance(currentLoc, place.getPoint()));
+					place.distance(calculateDistance(currentLoc, place.getLocation()));
 					point.addLast(place);
 				}
 			}
@@ -305,15 +289,15 @@ public class PlaceController {
 	 * @param currentLoc
 	 * @param points
 	 */
-	public static void reOrderByDistance(Geopoint currentLoc, LinkedList<PlaceItem> points){
+	public static void reOrderByDistance(Location currentLoc, LinkedList<PlaceItem> points){
 		if(currentLoc!=null){
 			LinkedList<PlaceItem> temp = new LinkedList<PlaceItem>();
 			int size = points.size();
 			for(int i =0 ; i< size; i++){
 				PlaceItem place = points.poll();
-				String dist = calculateDistance(currentLoc, place.getPoint());
+				String dist = calculateDistance(currentLoc, place.getLocation());
 				int index = findIndex(points, Integer.valueOf(dist));
-				place.setSnippet(dist);
+				place.distance(dist);
 				temp.add(index, place);
 			}
 			points = temp;

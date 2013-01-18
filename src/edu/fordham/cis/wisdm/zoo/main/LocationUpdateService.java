@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.grosner.mapview.Geopoint;
+import com.google.android.gms.maps.model.LatLng;
 
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 import edu.fordham.cis.wisdm.zoo.utils.Polygon;
@@ -304,7 +304,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 			@Override
 			public void run() {
 				try{
-					Geopoint g = files[0].getGeopoint();
+					LatLng g = files[0].getLatLng();
 					if(/**Geopoint.isInsideMap(g)**/mPolygon.contains(g)){
 						outsideCount = 0;
 						if(!isStreaming)	files[0].writeLocation(TAG);

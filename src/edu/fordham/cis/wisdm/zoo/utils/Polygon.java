@@ -1,6 +1,6 @@
 package edu.fordham.cis.wisdm.zoo.utils;
 
-import com.grosner.mapview.Geopoint;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Minimum Polygon class for Android.
@@ -31,8 +31,8 @@ public class Polygon {
      * @param g
      * @return
      */
-    public boolean contains(Geopoint g){
-    	return contains(g.getX(), g.getY());
+    public boolean contains(LatLng g){
+    	return contains((int)(g.longitude*1E6), (int)(g.latitude*1E6));
     }
 
     /**

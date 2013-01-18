@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import com.grosner.mapview.Geopoint;
+import com.google.android.gms.maps.model.LatLng;
 
 import android.location.Location;
 import android.util.Log;
@@ -87,8 +87,8 @@ public class GPSWriter extends BufferedWriter{
 		Log.d(TAG, getDataLine());
 	}
 	
-	public Geopoint getGeopoint(){
-		return new Geopoint(coords[1],coords[0], "");
+	public LatLng getLatLng(){
+		return new LatLng(coords[0],coords[1]);
 	}
 	
 	

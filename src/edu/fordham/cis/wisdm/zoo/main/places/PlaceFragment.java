@@ -20,10 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.grosner.mapview.PlaceItem;
+import com.google.android.gms.maps.CameraUpdateFactory;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
+import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
 /**
  * These fragments represent different, sorted locations. Each will display individual locations from a specified file and option to view all on the map.
@@ -176,7 +178,7 @@ public class PlaceFragment extends SherlockFragment{
 				LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 				places.add(place);
 				act.showMap(mTransaction, getView(), places);
-				place.getOnPressListener().onPress();
+				//place.getOnPressListener().onPress();
 				//tries to move map to center on both current location and point
 				//if(SplashScreenActivity.myLocation!=null){
 					//ZoomLevel zoom = place.getPoint().pixelsToZoom(act.getMap().getView(), SplashScreenActivity.myLocation);
@@ -184,7 +186,8 @@ public class PlaceFragment extends SherlockFragment{
 					//view.center(place.getPoint(), SplashScreenActivity.myLocation);
 					//view.changeZoomLevel(zoom);
 				//} else{
-					act.getMap().animateTo(place.getPoint());
+					
+					//MapUtils.moveRelativeToCurrentLocation(place.getPoint(), act.getMap());
 				//}
 			} else if(id == 0){
 				if(type !=  PlaceType.NEARBY) act.showMap(mTransaction, getView(), points);
@@ -202,33 +205,4 @@ public class PlaceFragment extends SherlockFragment{
 		
 	};
 
-	
-	/**
-	 * Performs reading in data into the fragment, then adds the data on the UI afterwards
-	 * @author agrosner
-	 *
-	 */
-	/**private class GetDataTask extends AsyncTask<Void, Void, Void>{
-
-		private String fName = null;
-		
-		public GetDataTask(String fname){
-			fName = fname;
-		}
-		
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			if(points.isEmpty())	PlaceController.readInData(getActivity(), points, fName);
-			else 	PlaceController.reCalculateDistance(SplashScreenActivity.myLocation, points);
-			
-			return null;
-		}
-		
-		
-		protected Void onPostExecute(Void... param){
-			PlaceController.readInDataIntoList(getActivity(), exhibitList, points, mOnClickListener, true);
-			return null;
-		}
-		
-	}**/
 }

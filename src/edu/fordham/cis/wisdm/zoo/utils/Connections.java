@@ -144,7 +144,7 @@ public class Connections {
 
 		try {
 			SocketParser.writeAuthReq(con.getmEmail().split("@")[0], con.getmPassword(), 
-					con.getmEmail() , con.getmDevId(), mOutputStream, mInputStream);
+					con.getmEmail() , con.getmDevId(), mOutputStream);
 			checkWrite = true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

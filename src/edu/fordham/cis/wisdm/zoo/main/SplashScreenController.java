@@ -3,16 +3,17 @@ package edu.fordham.cis.wisdm.zoo.main;
 import java.util.LinkedList;
 import java.util.List;
 
-import cis.fordham.edu.wisdm.utils.Operations;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 
-import com.grosner.mapview.MapView;
-import com.grosner.mapview.OverlayItem;
-import com.grosner.mapview.PlaceItem;
+import cis.fordham.edu.wisdm.utils.Operations;
 
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragment;
 import edu.fordham.cis.wisdm.zoo.utils.IconTextItem;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
+import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.support.v4.app.FragmentTransaction;
@@ -108,7 +109,7 @@ public class SplashScreenController {
 			}
 			
 			if(isChecked)	readInPlaces(pts, fileName, SplashScreenActivity.mTransaction);
-			else			mActivity.getMap().getView().removeOverlayList(pts);
+			else			MapUtils.removeList(pts);
 		}
 		
 	};
@@ -168,8 +169,7 @@ public class SplashScreenController {
 					LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 					places.add(place);
 					mActivity.showMap(SplashScreenActivity.mTransaction, SplashScreenActivity.list.getView(), places);
-					mActivity.getMap().getView().animateTo(place.getPoint());
-					place.getOnPressListener().onPress();
+					MapUtils.moveRelativeToCurrentLocation(place.getPoint(), mActivity.getMap());
 				}
 				
 			}, true);
@@ -193,27 +193,13 @@ public class SplashScreenController {
 	 * Clears all showing place items from the screen
 	 */
 	void clearMapData(){
-		MapView map = mActivity.getMap();
-		List<OverlayItem> overlays = mActivity.getMap().getOverlays();
+		GoogleMap map = mActivity.getMap();
+		MapUtils.removeList(mActivity.lastPlaces);
 		
-		
-		if(overlays.size()!=0){
-			while(!overlays.isEmpty())	map.getView().getmContainer().removeView(overlays.remove(0).getIcon());
-		}
-		
-		if(SplashScreenActivity.lastPlaces != null){
-			while(!SplashScreenActivity.lastPlaces.isEmpty())	map.getView().getmContainer().removeView(SplashScreenActivity.lastPlaces.poll().getIcon());
-			SplashScreenActivity.lastPlaces = null;
-		}
-		
-		if(showGates)			overlays.addAll(mActivity.gates);
-		if(showParking)			overlays.addAll(mActivity.parking);
-		if(showRestrooms)		overlays.addAll(mActivity.restrooms);
-		if(mActivity.isParked)	overlays.add(mActivity.mParkingPlace);
-		overlays.add(SplashScreenActivity.me);
-		
-		map.getView().reDrawOverlays(true);
-		map.invalidate();
+		/**if(showGates)			MapUtils.addAll(map, mActivity.gates);
+		if(showParking)			MapUtils.addAll(map, mActivity.parking);
+		if(showRestrooms)		MapUtils.addAll(map, mActivity.restrooms);
+		if(mActivity.isParked)	mActivity.mParkingPlace.addMarker(map);**/
 	}
 	
 	/**
@@ -262,7 +248,7 @@ public class SplashScreenController {
     	   SplashScreenActivity.isLargeScreen = true;
         	
         } else{//small screen we want to hide it
-        	Operations.removeView(mActivity.getMap());
+        	Operations.removeView(mActivity.getMapView());
         	mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         	
         	SplashScreenActivity.isLargeScreen = false;
@@ -289,8 +275,7 @@ public class SplashScreenController {
 	 public void readInPlaces(LinkedList<PlaceItem> pts, String fName, FragmentTransaction mTransaction){
 		if(pts.size()==0)	PlaceController.readInData(mActivity, mActivity.onInfoClickedListener, pts, fName);
 		
-		mActivity.getMap().getOverlays().addAll(pts);
-		mActivity.getMap().getView().reDrawOverlays(true);
+		MapUtils.addToMap(mActivity.getMap(), pts);
 	}
 	
 	

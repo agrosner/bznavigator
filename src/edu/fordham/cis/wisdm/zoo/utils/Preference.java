@@ -38,7 +38,11 @@ public class Preference {
 	}
 	
 	public static boolean getBoolean(String loc, boolean defVal){
-		return sprefs.getBoolean(loc, defVal);
+		try{
+			return sprefs.getBoolean(loc, defVal);
+		} catch (NullPointerException n){
+			return false;
+		}
 	}
 	
 	public static String getEmail(){

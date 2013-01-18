@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <ImageButton 
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/exit"
+        style="@style/wrap"
+        android:src="@drawable/ic_action_cancel"
+        />
+    <ImageButton 
+        android:layout_toRightOf="@id/exit"
+       	android:id="@+id/navigate"
+        style="@style/wrap"
+        android:src="@drawable/ic_action_navigate"
+        />
+    <TextView 
+        android:id="@+id/title"
+        style="@style/wrap"
+        android:text="Title"
+        android:textSize="20dip"
+        android:padding="10dip"
+        android:layout_below="@id/exit"
+        android:layout_alignParentRight="true"
+        />
+	<TextView 
+	    android:layout_marginTop="10dip"
+	    android:layout_below="@id/title"
+	    android:layout_alignParentLeft="true"
+	    android:text="This is where the information goes."
+	    android:textSize="16dip"
+	    style="@style/wrap"
+	    />
+
+	<TextView
+	    android:id="@+id/distance"
+	    style="@style/wrap"
+	    android:layout_alignParentRight="true"
+	    android:layout_alignParentTop="true"
+	    android:layout_marginTop="15dip"
+	    android:layout_marginRight="15dp"
+	    android:text="0ft"
+	    android:textSize="18dip" />
+
+</RelativeLayout>

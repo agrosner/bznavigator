@@ -208,6 +208,9 @@ public class Connections {
 	 * @return
 	 */
 	public static boolean prepare(Connections con){
+		if(con==null){
+			return false;
+		}
 		if(con.getmEmail().equals("") && con.getmPassword().equals("")){
 			//create temp password
 			con.mEmail = con.mDevId + "@wisdmproject.com";
