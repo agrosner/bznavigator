@@ -1,13 +1,13 @@
 ++++
 TITLE:What is your age?
-QID:0
+QID:5
 VAL:Num
 TYPE:Seek Bar
 CHOICE:100
 -----
 +++++
 TITLE:What is your sex?
-QID:1
+QID:6
 VAL:Str
 TYPE:Radio Buttons
 CHOICE:Male
@@ -15,7 +15,7 @@ CHOICE:Female
 -----
 +++++
 TITLE:How many times have you visited the Bronx Zoo in the past year?
-QID:2
+QID:7
 VAL:Num
 TYPE:Radio Buttons
 CHOICE:0
@@ -27,7 +27,7 @@ CHOICE:5+
 -----
 +++++
 TITLE:Are you a member of the Bronx Zoo?
-QID:3
+QID:8
 VAL:Str
 TYPE:Radio Buttons
 CHOICE:Yes
@@ -35,14 +35,14 @@ CHOICE:No
 -----
 +++++
 TITLE:How many are in your group today?
-QID:4
+QID:9
 VAL:Num
 TYPE:Seek Bar
 CHOICE:10
 -----
 +++++
 TITLE:Do you have any of the following with you?
-QID:5
+QID:10
 VAL:MultiStr
 TYPE:Check Boxes
 CHOICE:Stroller
@@ -50,7 +50,7 @@ CHOICE:Wheelchair
 -----
 +++++
 TITLE:Where do you live?
-QID:6
+QID:11
 VAL:Str
 TYPE:Radio Buttons
 CHOICE:Bronx
@@ -63,7 +63,7 @@ CHOICE:OTHER
 -----
 +++++
 TITLE:How did you get here today?
-QID:7
+QID:12
 VAL:Str
 TYPE:Radio Buttons
 CHOICE:Walk
