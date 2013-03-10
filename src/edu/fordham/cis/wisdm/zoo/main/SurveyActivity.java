@@ -12,7 +12,7 @@ import com.actionbarsherlock.app.SherlockActivity;
 
 import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
-import edu.fordham.cis.wisdm.zoo.utils.connections.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.Connections;
 
 import android.app.Activity;
 import android.app.AlertDialog;

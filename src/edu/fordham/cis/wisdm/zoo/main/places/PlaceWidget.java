@@ -1,6 +1,5 @@
 package edu.fordham.cis.wisdm.zoo.main.places;
 
-import cis.fordham.edu.wisdm.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenController;
@@ -8,8 +7,6 @@ import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;

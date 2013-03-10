@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import edu.fordham.cis.wisdm.utils.SocketParser;
@@ -47,7 +48,7 @@ public class Connections {
 	/**
 	 * port for connection
 	 */
-	private static int PORT = 2324;
+	private static int PORT = 2325;
 	
 	/**
 	 * hostname
@@ -93,6 +94,11 @@ public class Connections {
 	 * Whether authentication has passed or not
 	 */
 	private static boolean isAuthorized = false;
+	
+	/**
+	 * Flag whether user already exists
+	 */
+	public boolean userExists = false;
 	
 	/**
 	 * the unique ID of the current visit that will be pulled from the server initially
@@ -196,11 +202,26 @@ public class Connections {
 	}
 	
 	/**
-	 * Attempts to connect and authorize user with the server
+	 * Attempts to connect and authorize user with the server\
+	 * If user is a guest, it attempts to create an account for them
 	 * @param con
 	 * @return
 	 */
 	public static boolean prepare(Connections con){
+		if(con==null){
+			return false;
+		}
+		if(con.getmEmail().equals("") && con.getmPassword().equals("")){
+			//create temp password
+			con.mEmail = con.mDevId + "@wisdmproject.com";
+			con.mPassword = con.mDevId;
+			
+			if(Connections.createUser(con) || con.userExists)
+				return connect() && authorize(con);
+			else
+				return false;
+		}
+		
 		return connect() && authorize(con);
 	}
 	
@@ -230,7 +251,7 @@ public class Connections {
 			e.printStackTrace();
 		}
 		
-		return true;
+		return mVisitID!=0;
 	}
 	
 	/**
@@ -266,12 +287,13 @@ public class Connections {
 	 * @return
 	 */
 	public static boolean createUser(Connections con){
-		if(connect()){
+		if(connect() && !con.userExists){
 			try {
 				SocketParser.writeUsrReq(mOutputStream, con.mEmail.split("@")[0], con.mPassword, con.mEmail, con.mDevId);
 				byte smsg = mInputStream.readByte();
 				if(smsg == SocketParser.USR_TAKEN){
 					mServerMessage+="\nUser taken";
+					con.userExists = true;
 					return false;
 				} else if(smsg == SocketParser.AUTH_CODE){
 					mServerMessage+="\nUser created!";
@@ -361,7 +383,7 @@ public class Connections {
 					floats[i-2] = Float.valueOf(values[i]);
 				}
 				
-				GPSWriter.printDataLine(TAG, floats, Long.valueOf(values[1]), SocketParser.GPS_TUPLE_CODE);
+				//GPSWriter.printDataLine(TAG, floats, Long.valueOf(values[1]), SocketParser.GPS_TUPLE_CODE);
 				if(!sendLine(Long.valueOf(values[1]), floats, SocketParser.GPS_TUPLE_CODE))
 					more = false;
 				lines++;
@@ -392,6 +414,55 @@ public class Connections {
 		}
 		Connections.disconnect();
 		
+	}
+	
+	/**
+	 * Sends survey data in one fell swoop
+	 * @param conn
+	 * @param responses
+	 * @param qids
+	 * @param types
+	 * @throws IOException
+	 */
+	public static void sendSurvey(Connections conn, ArrayList<String> responses, ArrayList<Integer> qids, ArrayList<String> types) throws IOException{
+		if(!prepare(conn) || !(visitAuth(conn))){
+			return;
+		}
+		
+		int index= 0;
+		for(String type: types){
+			String resp = responses.get(index);
+			Log.v(TAG, resp);
+			if(resp.length()>=1){
+				if(type.length()>= 7 && type.equals("MultiStr")){
+					String[] resps = resp.split(",");
+					int id = qids.get(index);
+					for(String respo: resps){
+						SocketParser.writeSurvQ(mOutputStream, id, respo);
+						mOutputStream.flush();
+					}
+				} else if(type.length() ==3 && type.equals("Str")){
+					SocketParser.writeSurvQ(mOutputStream, qids.get(index), resp);
+					mOutputStream.flush();
+				} else if(type.length() == 3 && type.equals("Num")){
+					float res = 0;
+					try{
+						res = Float.valueOf(resp);
+					} catch(NumberFormatException n){//catch possible errors or ex: 5+ --> 5
+						n.printStackTrace();
+						int length = resp.length();
+						resp = resp.substring(0, length-1);
+						res = Float.valueOf(resp);
+					} finally{
+						SocketParser.writeSurvQ(mOutputStream, qids.get(index), res);
+						mOutputStream.flush();
+					}
+				}
+			}
+			index++;
+		}
+		mOutputStream.flush();
+		disconnect();
 	}
 	
 	

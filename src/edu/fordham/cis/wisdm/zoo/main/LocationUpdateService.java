@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 import edu.fordham.cis.wisdm.zoo.utils.Polygon;
-import edu.fordham.cis.wisdm.zoo.utils.connections.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import android.app.Service;
 import android.content.Context;
 import android.content.ContextWrapper;
