@@ -27,9 +27,7 @@ import android.text.TextWatcher;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.AsyncTask;
-//import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,12 +37,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.SlidingDrawer;
-import android.widget.SlidingDrawer.OnDrawerCloseListener;
-import android.widget.SlidingDrawer.OnDrawerOpenListener;
-import android.widget.TextView;
 import android.widget.Toast;
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.Operations;
@@ -60,11 +53,8 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
@@ -76,16 +66,15 @@ import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.map.CurrentLocationManager;
-import edu.fordham.cis.wisdm.zoo.utils.map.Exhibit;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
-import edu.fordham.cis.wisdm.zoo.utils.map.Path;
 import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
-import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItemWindowAdapter;
-import edu.fordham.cis.wisdm.zoo.utils.map.TextMarker;
-import edu.fordham.cis.wisdm.zoo.utils.map.TextMarkerManager;
 
-
+/**
+ * The main screen activity that handles the map, each placefragment, and displaying everything else 
+ * @author Andrew Grosner
+ *
+ */
 public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener, SearchPerformListener, OnNavigationListener, TextWatcher, OnTouchListener, UserConstants, OnMapClickListener{
 
 	/**
@@ -1106,4 +1095,3 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	}
 	
 }
-

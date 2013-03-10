@@ -251,7 +251,7 @@ public class Connections {
 			e.printStackTrace();
 		}
 		
-		return true;
+		return mVisitID!=0;
 	}
 	
 	/**

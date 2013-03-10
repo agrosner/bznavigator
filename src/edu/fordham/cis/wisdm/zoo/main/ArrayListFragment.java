@@ -9,6 +9,11 @@ import com.actionbarsherlock.app.SherlockListFragment;
 
 import edu.fordham.cis.wisdm.zoo.utils.IconTextListAdapter;
 
+/**
+ * This class is responsible for displaying the main splash screen menu.
+ * @author Andrew Grosner
+ *
+ */
 public class ArrayListFragment extends SherlockListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){

@@ -32,17 +32,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * This is the first screen the user sees. Handles the login screen.
+ * @author Andrew
+ *
+ */
 public class Entry extends SherlockActivity implements OnClickListener, UserConstants{
-	
-	/**
-	 * Button collection
-	 */
-	private static Button[] buttons = new Button[2];
 	
 	/**
 	 * Form fields
 	 */
-	private static EditText[] fields = new EditText[2];
+	private EditText[] fields = new EditText[2];
 	
 	/**
 	 * "Remember Me" checkbox widget
@@ -80,7 +80,6 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.login_extended);
        
         //initialize shared preference object
         Preference.initPrefForContext(this);
@@ -106,45 +105,25 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
      * A popup dialog will ask a new user whether he/she wants to register or login as a guest
      */
     private void chooseLogin(){
-    	HoloAlertDialogBuilder builder = new HoloAlertDialogBuilder(this);
-    	builder.setTitle("Choose your login");
-    	builder.setMessage("Register for an account and receive multiple benefits!" +
-    			"\nIncludes (future) visit path viewing, personal settings, social features, and many more");
-    	builder.setPositiveButton("Member Login", new DialogInterface.OnClickListener(){
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Preference.putBoolean("member", true);
-				isMember = true;
-				enhance();
-			}
-    		
-    	});
-    	
-    	builder.setNegativeButton("Login as Guest", new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Preference.putBoolean("member", false);
-				isMember = false;
-				login("","", false);
-			}
-		}).setCancelable(false).show();
-    }
-    
-    /*
-     * Loads up widgets into memory
-     */
-    private void setUpView(){
-    	//set up buttons
-    	int id[] = {R.id.SignUp, R.id.LoginButton};
-    	Operations.findButtonViewsByIds(this, buttons, id);
-    	Operations.setOnClickListeners(this, buttons);
-    	
-    	//set up text fields
-    	int ids[] = {R.id.Email, R.id.Password};
-    	Operations.findEditTextViewsByIds(this, fields, ids);
-    	rememberMe = (CheckBox) findViewById(R.id.RememberMe);
+    	new HoloAlertDialogBuilder(this).setTitle("Choose your login")
+    		.setMessage("Register for an account and receive multiple benefits!" +
+    			"\nIncludes (future) visit path viewing, personal settings, social features, and many more")
+    		.setPositiveButton("Member Login", new DialogInterface.OnClickListener(){
+    			@Override
+    			public void onClick(DialogInterface dialog, int which) {
+    				Preference.putBoolean("member", true);
+    				isMember = true;
+    				enhance();
+    			}
+    		})
+    		.setNegativeButton("Login as Guest", new DialogInterface.OnClickListener() {
+    			@Override
+    			public void onClick(DialogInterface dialog, int which) {
+    				Preference.putBoolean("member", false);
+    				isMember = false;
+    				login("","", false);
+    			}
+    		}).setCancelable(false).show();
     }
     
     @Override
@@ -162,7 +141,13 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
      */
     private void enhance(){
     	setContentView(R.layout.login_extended);
-    	setUpView();
+    	
+    	//set up buttons
+    	Operations.setViewOnClickListeners(this, this, R.id.SignUp, R.id.LoginButton);
+    	
+    	//set up text fields
+    	Operations.findEditTextViewsByIds(this, fields, R.id.Email, R.id.Password);
+    	rememberMe = (CheckBox) findViewById(R.id.RememberMe);
     	
     	ActionBar mAction = this.getSupportActionBar();
 		mAction.setDisplayHomeAsUpEnabled(true);
@@ -171,7 +156,7 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     	
     	DisplayMetrics display = new DisplayMetrics();
     	this.getWindowManager().getDefaultDisplay().getMetrics(display);
-    	 int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+    	int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
                 
     	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	largeScreen = true;
     	
@@ -218,13 +203,22 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
     
     private void signUp(){
     	Intent signup = new Intent(this, RegisterActivity.class);
-    	mConnection = new Connections(fields[0].getText().toString(), fields[1].getText().toString(), Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
-    	startActivity(signup);
+    	mConnection = new Connections(
+    			fields[0].getText().toString(), 
+    			fields[1].getText().toString(), 
+    			Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
+    	startActivityForResult(signup, 0);
     }
     
-    public static void setFields(String email, String password){
-   		fields[0].setText(email);
-   		fields[1].setText(password);
+    @Override
+    public void onActivityResult(int requestCode,int resultCode, Intent data){
+    	super.onActivityResult(requestCode, resultCode, data);
+    	
+    	Bundle ex = data.getExtras();
+    	if(ex.containsKey("reg") && resultCode == RESULT_OK){
+    		Operations.setViewTexts(fields, ex.getStringArray("reg"));
+    	}
+    	
     }
     
 	@Override
@@ -276,7 +270,7 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 			if(!isConnected && isMember){
 				enhance();
 				Toast.makeText(mContext, "Connection failed:\n" + Connections.mServerMessage, Toast.LENGTH_SHORT).show();
-				setFields(mConnection.getmEmail(), mConnection.getmPassword());
+				Operations.setViewTexts(fields, mConnection.getmEmail(), mConnection.getmPassword());
 				rememberMe.setChecked(true);
 				Preference.putBoolean("member", false);
 				Preference.putBoolean(REMEMBER_ME_LOC, false);
@@ -296,5 +290,3 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 		
 	}
 }
-
-			
