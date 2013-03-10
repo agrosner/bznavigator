@@ -57,13 +57,7 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 		if(item.getItemId() == android.R.id.home)	onBackPressed();
 		return false;
 	}
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.activity_register, menu);
-        return true;
-    }
-
+	
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){

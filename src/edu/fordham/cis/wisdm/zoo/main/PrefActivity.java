@@ -22,13 +22,6 @@ public class PrefActivity extends SherlockPreferenceActivity implements OnPrefer
        Preference pref = this.findPreference("delete");
        pref.setOnPreferenceClickListener(this);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.activity_settings, menu);
-        return true;
-    }
-
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
