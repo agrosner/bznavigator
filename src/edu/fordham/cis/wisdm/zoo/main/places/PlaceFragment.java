@@ -171,24 +171,11 @@ public class PlaceFragment extends SherlockFragment{
 				Toast.makeText(getActivity(), "Refreshed", Toast.LENGTH_SHORT).show();
 			} else if(id == R.id.exit){
 				act.onBackPressed();
-			}
-			
-			else if(id > 0){
+			} else if(id > 0){
 				PlaceItem place = points.get(id-1);
 				LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
 				places.add(place);
 				act.showMap(mTransaction, getView(), places);
-				//place.getOnPressListener().onPress();
-				//tries to move map to center on both current location and point
-				//if(SplashScreenActivity.myLocation!=null){
-					//ZoomLevel zoom = place.getPoint().pixelsToZoom(act.getMap().getView(), SplashScreenActivity.myLocation);
-					//MapInternalView view = act.getMap().getView();
-					//view.center(place.getPoint(), SplashScreenActivity.myLocation);
-					//view.changeZoomLevel(zoom);
-				//} else{
-					
-					//MapUtils.moveRelativeToCurrentLocation(place.getPoint(), act.getMap());
-				//}
 			} else if(id == 0){
 				if(type !=  PlaceType.NEARBY) act.showMap(mTransaction, getView(), points);
 				else{

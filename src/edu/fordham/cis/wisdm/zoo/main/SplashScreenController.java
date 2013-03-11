@@ -58,27 +58,12 @@ public class SplashScreenController {
 	/**
 	 * Holds references to the sliding drawer checkboxes for quick reference
 	 */
-	private RelativeLayout[] mDrawerCheckBoxes = new RelativeLayout[3];
+	private RelativeLayout[] mDrawerCheckBoxes = new RelativeLayout[4];
 	
 	/**
 	 * determine screen width for sidebar
 	 */
 	public static int SCREEN_WIDTH = 0;
-	
-	/**
-	 * whether to show the restrooms icons on the map
-	 */
-	private boolean showRestrooms = true;
-	
-	/**
-	 *  whether to show the gate icons on the map
-	 */
-	private boolean showGates = true;
-	
-	/**
-	 *  whether to show the parking icons on the map
-	 */
-	private boolean showParking = true;
 	
 	/**
 	 * Called when a checkbox on screen is touched
@@ -92,20 +77,20 @@ public class SplashScreenController {
 			
 			switch(but.getId()){
 			case 0:
-				showRestrooms = isChecked;
 				pts = mActivity.restrooms;
 				fileName = "restrooms.txt";
 				break;
 			case 1:
-				showGates = isChecked;
 				pts = mActivity.gates;
 				fileName = "gates.txt";
 				break;
 			case 2:
-				showParking = isChecked;
 				pts = mActivity.parking;
 				fileName = "parking.txt";
 				break;
+			case 3:
+				pts = mActivity.shop;
+				fileName = "shops.txt";
 			}
 			
 			if(isChecked)	readInPlaces(pts, fileName, SplashScreenActivity.mTransaction);
@@ -140,6 +125,7 @@ public class SplashScreenController {
 		mDrawerCheckBoxes[0] = createIconCheckBox("Restrooms", R.drawable.bathroom, 0);
 		mDrawerCheckBoxes[1] = createIconCheckBox("Gates", R.drawable.fordham, 1);
 		mDrawerCheckBoxes[2] = createIconCheckBox("Parking Lots", R.drawable.fordhamparking, 2);
+		mDrawerCheckBoxes[3] = createIconCheckBox("Shops", R.drawable.shop, 3);
 		
 		if(mActivity.misc.isEmpty())	PlaceController.readInData(mActivity, mActivity.onInfoClickedListener, mActivity.misc, "misc.txt");
 		
@@ -195,6 +181,7 @@ public class SplashScreenController {
 	void clearMapData(){
 		GoogleMap map = mActivity.getMap();
 		MapUtils.removeList(mActivity.lastPlaces);
+		mActivity.getMapFrag().clearFocus();
 		
 		/**if(showGates)			MapUtils.addAll(map, mActivity.gates);
 		if(showParking)			MapUtils.addAll(map, mActivity.parking);

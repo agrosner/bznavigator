@@ -36,8 +36,7 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
         
         ID = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
         
-        ActionBar action = this.getSupportActionBar();
-        action.setTitle("Create Account");
+        getSupportActionBar().setTitle("Create Account");
         
         Operations.findEditTextViewsByIds(this, fields, R.id.email, R.id.password, R.id.password_confirm);
         

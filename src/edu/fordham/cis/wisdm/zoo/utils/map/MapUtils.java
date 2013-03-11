@@ -36,9 +36,19 @@ public class MapUtils {
 	 * @param places
 	 */
 	public static void addToMap(GoogleMap map, LinkedList<PlaceItem> places){
-		LatLngBounds.Builder builder = new LatLngBounds.Builder();
 		for(PlaceItem place: places){
 			place.addMarker(map);
+		}
+	}
+	
+	/**
+	 * Generates a LatLngBounds.Builder() object that the passed map moves to and includes current location
+	 * @param map
+	 * @param places
+	 */
+	public static void moveToBounds(GoogleMap map, LinkedList<PlaceItem> places){
+		LatLngBounds.Builder builder = new LatLngBounds.Builder();
+		for(PlaceItem place: places){
 			builder.include(place.getPoint());
 		}
 		if(SplashScreenActivity.myLocation!=null)
@@ -139,6 +149,10 @@ public class MapUtils {
 	
 	public static float getDip(Context con, float size){
 		return con.getResources().getDisplayMetrics().density*size;
+	}
+	
+	public static boolean locationsEqual(Location loc1, Location loc2){
+		return (loc1.getLatitude()==loc2.getLatitude()) && (loc1.getLongitude()==loc2.getLongitude());
 	}
 	
 }

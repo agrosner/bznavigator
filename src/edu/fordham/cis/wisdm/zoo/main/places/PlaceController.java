@@ -40,6 +40,7 @@ public class PlaceController {
 	
 	public static double MILES_TO_FT = 5280;
 	
+	public static final String MILES = " Miles";
 	/**
 	 * Builds the layout for listing nearby exhibits with title, distance, and custom image
 	 * @param act
@@ -113,7 +114,7 @@ public class PlaceController {
 	 * @return
 	 */
 	public static RelativeLayout createExhibitItem(Activity act, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
-		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistance(SplashScreenActivity.myLocation, place.getLocation()) +"ft", mListener, wrap);
+		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistance(SplashScreenActivity.myLocation, place.getLocation()), mListener, wrap);
 	}
 
 	/**
@@ -132,7 +133,7 @@ public class PlaceController {
 				for(PlaceItem place: points){
 					idIndex++;
 					String distance = place.getDistance();
-					int index = findIndex(exhibitList, Integer.valueOf(distance));
+					int index = findIndex(exhibitList, Double.valueOf(distance.replace(MILES, "")));
 					exhibitList.addView(createExhibitItem(act,idIndex, place, onClick, wrap), index);
 				}
 				exhibitList.postInvalidate();
@@ -203,7 +204,7 @@ public class PlaceController {
 	 * @param distance
 	 * @return
 	 */
-	private static int findIndex(LinearLayout exhibitList, int distance){
+	private static int findIndex(LinearLayout exhibitList, double distance){
 		int index = 0;
 		for(int i =0; i < exhibitList.getChildCount(); i++){
 			View child = exhibitList.getChildAt(i);
@@ -211,8 +212,8 @@ public class PlaceController {
 				RelativeLayout view = (RelativeLayout) exhibitList.getChildAt(i);
 				TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
 				if(distanceText!=null){
-					String text = distanceText.getText().toString().replace("ft", "");
-					int dist = Integer.valueOf(text);
+					String text = distanceText.getText().toString().replace("ft", "").replace(MILES, "");
+					double dist = Double.valueOf(text);
 					if(distance<dist)	break;
 				}	
 			}
@@ -229,7 +230,7 @@ public class PlaceController {
 	 * @param distance
 	 * @return
 	 */
-	static int findIndex(LinkedList<? extends Object> exhibitList, int distance){
+	static int findIndex(LinkedList<? extends Object> exhibitList, double distance){
 		int index = 0;
 		for(int i =0; i < exhibitList.size(); i++){
 			Object ob = exhibitList.get(i);
@@ -237,12 +238,12 @@ public class PlaceController {
 			if(ob instanceof RelativeLayout){
 				RelativeLayout view = (RelativeLayout) ob;
 				TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
-				text = distanceText.getText().toString().replace("ft", "");
+				text = distanceText.getText().toString().replace("ft", "").replace(MILES, "");
 			} else if(ob instanceof PlaceItem){
 				PlaceItem place = (PlaceItem) ob;
-				text = place.getDistance().replace("ft", "");
+				text = place.getDistance().replace("ft", "").replace(MILES, "");
 			}
-			int dist = Integer.valueOf(text);
+			double dist = Double.valueOf(text);
 			if(distance<dist)	break;
 			
 			index++;
@@ -260,7 +261,10 @@ public class PlaceController {
 		if(currentLoc!=null){
 			double distance = currentLoc.distanceTo(next)*METERS_TO_FT;
 			distance = Math.round(distance);
-			return String.valueOf(distance).replace(".0", "");
+			if(distance>=5280){
+				distance/=5280;
+				return String.format("%.2f" + MILES, distance);
+			} else	return String.valueOf(distance).replace(".0", "") + " ft";
 		} else{
 			return "0";
 		}

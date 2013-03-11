@@ -111,7 +111,11 @@ public class PlaceItem {
 	}
 	
 	public void remove(){
-		mMarker.remove();
+		try{
+			mMarker.remove();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	public String getDistance(){
@@ -147,6 +151,10 @@ public class PlaceItem {
 		} else{
 			return mLocation;
 		}
+	}
+	
+	public boolean equals(PlaceItem place){
+		return (mPoint.equals(place.mPoint)) && mName.equals(place.getName());
 	}
 
 	

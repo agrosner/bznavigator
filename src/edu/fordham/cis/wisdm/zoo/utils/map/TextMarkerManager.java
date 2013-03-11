@@ -9,7 +9,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 
@@ -26,16 +28,15 @@ public class TextMarkerManager {
 	public TextMarkerManager(Context con, GoogleMap map){
 		mContext = con;
 		mGoogleMap = map;
-		TextMarker.DENSITY_SCALE = con.getResources().getDisplayMetrics().density;
 	}
 	
-	public void readInData(String...fNames) throws IOException{
+	public void readInData(Activity act, String...fNames) throws IOException{
 		for(String file: fNames){
-			readInData(file);
+			readInData(act, file);
 		}
 	}
 	
-	private void readInData(String fName) throws IOException{
+	private void readInData(Activity act, String fName) throws IOException{
 		Scanner mScanner = new Scanner(mContext.getAssets().open(fName));
 		int idIndex = -1;
 		while(mScanner.hasNextLine()){
@@ -56,15 +57,51 @@ public class TextMarkerManager {
 					if(fName.equals("admin.txt")){
 						lineArray[0]+="(Staff Only)";
 					}
-					
-					mMarkers.add((TextMarker) 
+					int drawableId = act.getResources().getIdentifier(lineArray[1], "drawable", act.getPackageName());
+
+					mMarkers.add(((TextMarker) 
 							new TextMarker()
 							.point(new LatLng(lat, lon))
-							.name(lineArray[0]));
+							.name(lineArray[0])).setImage(act.getResources(), drawableId));
 				} 
 			}
 		}
 		mScanner.close();
+	}
+	
+	/**
+	 * add specific location to have focus
+	 * @param place
+	 */
+	public boolean addFocus(PlaceItem place){
+		if(!contains(place))	return false;
+		for(TextMarker text: mMarkers){
+			if(text.equals(place)){
+				text.useImage(true);
+				text.setFocus(true);
+				text.refresh(mGoogleMap);
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Clears all places from focus
+	 */
+	public void clearFocus(){
+		for(TextMarker text: mMarkers){
+			text.useImage(false);
+			text.setFocus(false);
+			text.refresh(mGoogleMap);
+		}
+	}
+	
+	public boolean contains(PlaceItem place){
+		for(TextMarker text: mMarkers){
+			if(text.equals(place))
+				return true;
+		}
+		return false;
 	}
 	
 	public void addToMap(){
@@ -89,5 +126,6 @@ public class TextMarkerManager {
 			}
 		}
 	}
+	
 	
 }

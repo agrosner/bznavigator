@@ -105,7 +105,7 @@ public class MapViewFragment extends SherlockFragment implements OnClickListener
 			mPaths = new Path(mGoogleMap).readFiles(getActivity());
 			mExhibits = new Exhibit(mGoogleMap).readFiles(getActivity());
 			mTextMarkerManager = new TextMarkerManager(getActivity(), mGoogleMap);
-			mTextMarkerManager.readInData("exhibits.txt");
+			mTextMarkerManager.readInData(getActivity(),"exhibits.txt", "special.txt");
 			mTextMarkerManager.addToMap();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -133,6 +133,18 @@ public class MapViewFragment extends SherlockFragment implements OnClickListener
 	
 	public LatLngBounds getMapBounds(){
 		return mBuilder.build();
+	}
+	
+	/**
+	 * This will put the focus on a location that the user navigates to, 
+	 * adding an icon to the text label
+	 */
+	public boolean setMarkerFocus(PlaceItem place){
+		return mTextMarkerManager.addFocus(place);
+	}
+	
+	public void clearFocus(){
+		mTextMarkerManager.clearFocus();
 	}
 	
 

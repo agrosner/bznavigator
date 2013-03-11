@@ -213,6 +213,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	LinkedList<PlaceItem> parking = new LinkedList<PlaceItem>();
 	
 	/**
+	 * Shops list
+	 */
+	LinkedList<PlaceItem> shop = new LinkedList<PlaceItem>();
+	/**
 	 * List of searchable places
 	 */
 	private LinkedList<PlaceItem> searchExhibits = new LinkedList<PlaceItem>();
@@ -910,12 +914,16 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	public void showMap(FragmentTransaction mTransaction,View v, LinkedList<PlaceItem> place){
 		showMap(mTransaction, v);
 		if (place!=null)	{
-			MapUtils.addToMap(mGoogleMap, place);
-			
+			MapUtils.moveToBounds(mGoogleMap, place);
+			int size = place.size();
+			for(int i =0 ; i < size; i++){
+				PlaceItem p = place.poll();
+				if(!map.setMarkerFocus(p)){
+					p.addMarker(mGoogleMap);
+					lastPlaces.add(p);
+				}
+			}
 		}
-		
-		lastPlaces = (LinkedList<PlaceItem>) place.clone();
-		
 	}
 	
 	/**
@@ -999,6 +1007,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 	public View getMapView(){
 		return map.getView();
+	}
+	
+	public MapViewFragment getMapFrag(){
+		return map;
 	}
 	
 	public static Places getCurrentFragment() {

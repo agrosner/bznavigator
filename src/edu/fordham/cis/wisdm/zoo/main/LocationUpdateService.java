@@ -11,6 +11,8 @@ import com.google.android.gms.maps.model.LatLng;
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 import edu.fordham.cis.wisdm.zoo.utils.Polygon;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -22,6 +24,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.Settings.Secure;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 /**
@@ -30,8 +34,6 @@ import android.util.Log;
  * @version 1.0
  */
 public class LocationUpdateService extends Service implements LocationListener{
-	
-	
 	/**
 	 * LocationUpdateService
 	 */
@@ -109,6 +111,8 @@ public class LocationUpdateService extends Service implements LocationListener{
 	
 	private static boolean isStreaming = false;
 	
+	private NotificationManager mNotificationManager;
+	
 	@Override
 	public void onCreate(){
 		super.onCreate();
@@ -119,6 +123,9 @@ public class LocationUpdateService extends Service implements LocationListener{
 		wLock = pManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "myTag");
 		wLock.acquire();
 		
+		mNotificationManager = (NotificationManager) 
+				getSystemService(Context.NOTIFICATION_SERVICE);
+	
 		try {
 			readPolygonCoords();
 		} catch (IOException e) {
@@ -160,10 +167,11 @@ public class LocationUpdateService extends Service implements LocationListener{
 		
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	public void onStart(Intent i, int startid){
-		super.onStart(i, startid);
+	public int onStartCommand(Intent i, int flags, int startid){
+		super.onStartCommand(i, flags, startid);
+		
+		startNotification();
 		String em = null;
 		String ps = null;
 		try{
@@ -190,7 +198,34 @@ public class LocationUpdateService extends Service implements LocationListener{
 		startTimer();
 		startStream();
 		
+		return START_STICKY;
 	}
+	
+	private void startNotification(){
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+		builder.setSmallIcon(R.drawable.appicon)
+				.setContentTitle("BZNavigator is running")
+				.setContentText("Click to open to recording screen.")
+				.setOngoing(true);
+		Intent click = new Intent(this, SplashScreenActivity.class);
+		click.setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		// Adds the back stack for the Intent (but not the Intent itself)
+		stackBuilder.addParentStack(SplashScreenActivity.class);
+		// Adds the Intent that starts the Activity to the top of the stack
+		stackBuilder.addNextIntent(click);
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, click, 0);
+		builder.setContentIntent(resultPendingIntent);
+			// mId allows you to update the notification later on.
+		startForeground(0, builder.build());
+		mNotificationManager.notify(0, builder.build());
+	}
+	
+	private void stopNotification(){
+		stopForeground(true);
+		mNotificationManager.cancel(0);
+	}
+	
 	
 	@Override
 	public void onDestroy(){
@@ -199,8 +234,9 @@ public class LocationUpdateService extends Service implements LocationListener{
 		stopTimer();
 		stopStream();
 		closeFiles();
-		wLock.release();
 		Log.d(TAG, "Service Stopped");
+		stopNotification();
+		wLock.release();
 		stopSelf();
 	}
 	
@@ -219,8 +255,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 	private void startLocation(){
 		if (lManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 			lManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSUpdate, 0, this);
-		}
-		if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+		} else if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
 			lManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, GPSUpdate, 0, this);
 		} else{
 			Log.v(TAG, "Locational services are not available");
