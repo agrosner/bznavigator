@@ -182,11 +182,6 @@ public class SplashScreenController {
 		GoogleMap map = mActivity.getMap();
 		MapUtils.removeList(mActivity.lastPlaces);
 		mActivity.getMapFrag().clearFocus();
-		
-		/**if(showGates)			MapUtils.addAll(map, mActivity.gates);
-		if(showParking)			MapUtils.addAll(map, mActivity.parking);
-		if(showRestrooms)		MapUtils.addAll(map, mActivity.restrooms);
-		if(mActivity.isParked)	mActivity.mParkingPlace.addMarker(map);**/
 	}
 	
 	/**

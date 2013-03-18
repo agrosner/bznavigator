@@ -33,7 +33,7 @@
         android:theme="@style/Theme.HoloEverywhereLight.Sherlock.ForceOverflow" >
         <meta-data
     	android:name="com.google.android.maps.v2.API_KEY"
-    	android:value="@string/google_debug_key2"/>
+    	android:value="@string/google_debug_key3"/>
         <activity android:name=".Entry" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -24,11 +24,13 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -63,6 +65,7 @@ import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragment;
 import edu.fordham.cis.wisdm.zoo.utils.ActionEnum;
+import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Places;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.map.CurrentLocationManager;
@@ -76,6 +79,8 @@ import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
  *
  */
 public class SplashScreenActivity extends SherlockFragmentActivity implements OnMenuItemClickListener, OnClickListener, OnItemClickListener, SearchPerformListener, OnNavigationListener, TextWatcher, OnTouchListener, UserConstants, OnMapClickListener{
+
+	private static final String TAG = "SplashScreenActivity";
 
 	/**
 	 * Performs most of the view manipulation and handling
@@ -791,6 +796,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			searchItem.getMenuItem().collapseActionView();
 		}
 		MapUtils.moveRelativeToCurrentLocation(place.getPoint(), mGoogleMap);
+		sendSearchQuery(place.getName());
 	}
 	
 	/**
@@ -887,10 +893,8 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	protected void showMap(FragmentTransaction mTransaction, View v){
 		mController.closeDrawer();
 		mController.clearMapData();
-		//map.hideItemMenu();
 		if(!isLargeScreen && currentFragment!=Places.MAP)	Operations.swapViewsAnimate(v, map.getView(), hideViewLeft, showViewRight);
 		else if(!map.getView().isShown())	Operations.addView(map.getView());
-		
 		if(isLargeScreen){
 			try{
 				mController.removeFrag(mTransaction, true).commit();
@@ -981,20 +985,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 				this.showMap(mTransaction, list.getView(), place);
 				mGoogleMap.animateCamera(CameraUpdateFactory.newLatLng(placeFound.getPoint()));
 				//map.setItemMenu(placeFound, onInfoClickedListener);
-				try {
-					FileOutputStream fs = openFileOutput("queries.txt", Context.MODE_APPEND);
-					OutputStreamWriter ow = new OutputStreamWriter(fs);
-					BufferedWriter writer = new BufferedWriter(ow);
-
-					writer.write(System.currentTimeMillis() + ", " + placeFound + "," + myLocation.getLatitude() + "," + myLocation.getLongitude() + ",\n");
-					writer.close();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				sendSearchQuery(querie);
 			}
 		} else{
 			MessageBuilder.showToast("Not found", this);
@@ -1064,6 +1055,24 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	}
 	
 	/**
+	 * 
+	 * @param querie
+	 */
+	private void sendSearchQuery(final String querie){
+		new Thread(){
+			@Override
+			public void run(){
+			if(!Connections.sendSearchQuery(
+				new Connections(email, getIntent().getExtras().getString("password"), 
+						Secure.getString(getContentResolver(), Secure.ANDROID_ID)),
+						querie, myLocation))
+				Log.e(TAG, "Failed sending query: " + querie);
+				else Log.d(TAG, "Query sent: " + querie); 
+			}
+		}.start();
+	}
+	
+	/**
 	 * Loads data in the background, updating the UI along the way
 	 * @author Andrew Grosner
 	 *
@@ -1083,9 +1092,6 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			//reads exhibits into the searchbar list of places
 			PlaceController.readInData(mActivity, onInfoClickedListener, searchExhibits, "exhibits.txt", "food.txt", "shops.txt",
 					"gates.txt", "parking.txt", "admin.txt", "special.txt", "restrooms.txt", "misc.txt");
-			
-			
-			
 			return null;
 		}
 		

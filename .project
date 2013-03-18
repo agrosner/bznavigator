@@ -34,17 +34,12 @@
 		<link>
 			<name>at-utils</name>
 			<type>2</type>
-			<location>C:/Users/Andrew/workspace/at-utils</location>
-		</link>
-		<link>
-			<name>bz-server</name>
-			<type>2</type>
-			<location>C:/home/agrosner/workspace/bz-server</location>
+			<location>/Users/andrewgrosner/Programming/android/at-utils</location>
 		</link>
 		<link>
 			<name>bzsrc</name>
 			<type>2</type>
-			<location>C:/Users/Andrew/workspace/bz-server/src</location>
+			<location>/Users/andrewgrosner/Programming/android/bz-server/src</location>
 		</link>
 	</linkedResources>
 </projectDescription>

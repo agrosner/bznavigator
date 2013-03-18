@@ -58,9 +58,7 @@ public class PlaceController {
 		RelativeLayout exhibitItem = (RelativeLayout) v.findViewById(R.id.mainrel);
 		final RelativeLayout expandBar = (RelativeLayout) v.findViewById(R.id.expandLayout);
 		Operations.removeView(expandBar);
-		
-		TextView titleText = (TextView) exhibitItem.findViewById(R.id.title);
-		titleText.setText(title);
+		Operations.setViewText(exhibitItem, title, R.id.title);
 		
 		//if request to not fill, will request smaller size
 		if(wrap && SplashScreenActivity.isLargeScreen)
@@ -96,8 +94,7 @@ public class PlaceController {
 		}
 		
 		if(!distance.equals("")){
-			TextView distText = (TextView) exhibitItem.findViewById(R.id.distancetext);
-			distText.setText(distance);
+			Operations.setViewText(exhibitItem, distance, R.id.distancetext);
 		}
 		
 		return exhibitItem;
@@ -114,7 +111,7 @@ public class PlaceController {
 	 * @return
 	 */
 	public static RelativeLayout createExhibitItem(Activity act, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
-		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistance(SplashScreenActivity.myLocation, place.getLocation()), mListener, wrap);
+		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistanceString(SplashScreenActivity.myLocation, place.getLocation()), mListener, wrap);
 	}
 
 	/**
@@ -132,8 +129,7 @@ public class PlaceController {
 			synchronized(points){
 				for(PlaceItem place: points){
 					idIndex++;
-					String distance = place.getDistance();
-					int index = findIndex(exhibitList, Double.valueOf(distance.replace(MILES, "")));
+					int index = findIndex(exhibitList, place.getDistance());
 					exhibitList.addView(createExhibitItem(act,idIndex, place, onClick, wrap), index);
 				}
 				exhibitList.postInvalidate();
@@ -157,14 +153,17 @@ public class PlaceController {
 				idIndex++;
 				if(idIndex!=0){
 					String[] lineArray = line.split(",");
-					String distance = "0";
+					float distance = 0;
 					if(lineArray.length>=4){
 						double lat = Double.valueOf(lineArray[2]);
 						double lon = Double.valueOf(lineArray[3]);
 						Location loc = new Location("");
 						loc.setLatitude(lat);
 						loc.setLongitude(lon);
-						distance = calculateDistance(SplashScreenActivity.myLocation, loc);
+						
+						if(SplashScreenActivity.myLocation==null)	distance = 0; 
+						else	distance = loc.distanceTo(SplashScreenActivity.myLocation);
+						
 						if(lineArray[0].toLowerCase().contains("restroom")){
 							lineArray[0] = "Restroom";
 						}
@@ -204,7 +203,7 @@ public class PlaceController {
 	 * @param distance
 	 * @return
 	 */
-	private static int findIndex(LinearLayout exhibitList, double distance){
+	private static int findIndex(LinearLayout exhibitList, float distance){
 		int index = 0;
 		for(int i =0; i < exhibitList.getChildCount(); i++){
 			View child = exhibitList.getChildAt(i);
@@ -234,18 +233,16 @@ public class PlaceController {
 		int index = 0;
 		for(int i =0; i < exhibitList.size(); i++){
 			Object ob = exhibitList.get(i);
-			String text = "";
+			float dist = 0;
 			if(ob instanceof RelativeLayout){
 				RelativeLayout view = (RelativeLayout) ob;
 				TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
-				text = distanceText.getText().toString().replace("ft", "").replace(MILES, "");
+				dist = Float.valueOf(distanceText.getText().toString().replace("ft", "").replace(MILES, ""));
 			} else if(ob instanceof PlaceItem){
 				PlaceItem place = (PlaceItem) ob;
-				text = place.getDistance().replace("ft", "").replace(MILES, "");
+				dist = place.getDistance();
 			}
-			double dist = Double.valueOf(text);
 			if(distance<dist)	break;
-			
 			index++;
 		}
 		
@@ -257,7 +254,7 @@ public class PlaceController {
 	 * @param currentLoc
 	 * @return "<?>ft"
 	 */
-	public static String calculateDistance(Location currentLoc, Location next){
+	public static String calculateDistanceString(Location currentLoc, Location next){
 		if(currentLoc!=null){
 			double distance = currentLoc.distanceTo(next)*METERS_TO_FT;
 			distance = Math.round(distance);
@@ -278,11 +275,8 @@ public class PlaceController {
 	public static void reCalculateDistance(Location currentLoc, LinkedList<PlaceItem>... points){
 		if(currentLoc!=null){
 			for (LinkedList<PlaceItem> point: points){
-				int size = point.size();
-				for(int i =0 ; i< size; i++){
-					PlaceItem place = point.poll();
-					place.distance(calculateDistance(currentLoc, place.getLocation()));
-					point.addLast(place);
+				for(PlaceItem place: point){
+					place = place.distance(currentLoc.distanceTo(place.getLocation()));
 				}
 			}
 		}
@@ -299,9 +293,8 @@ public class PlaceController {
 			int size = points.size();
 			for(int i =0 ; i< size; i++){
 				PlaceItem place = points.poll();
-				String dist = calculateDistance(currentLoc, place.getLocation());
-				int index = findIndex(points, Integer.valueOf(dist));
-				place.distance(dist);
+				int index = findIndex(points, place.getDistance());
+				place.distance(currentLoc.distanceTo(place.getLocation()));
 				temp.add(index, place);
 			}
 			points = temp;

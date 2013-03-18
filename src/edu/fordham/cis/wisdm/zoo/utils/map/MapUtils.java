@@ -119,7 +119,7 @@ public class MapUtils {
 		title.setText(marker.getTitle());
 		
 		TextView info = (TextView) v.findViewById(R.id.distance);
-		info.setText(PlaceController.calculateDistance(SplashScreenActivity.myLocation, latLngToLocation(marker.getPosition())) + " ft");
+		info.setText(PlaceController.calculateDistanceString(SplashScreenActivity.myLocation, latLngToLocation(marker.getPosition())) + " ft");
 	
 		builder.setView(v);
 		final AlertDialog dialog = builder.create();

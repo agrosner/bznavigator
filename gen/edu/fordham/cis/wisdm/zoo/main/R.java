@@ -418,6 +418,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>normal</code></td><td>1</td><td></td></tr>
 <tr><td><code>satellite</code></td><td>2</td><td></td></tr>
 <tr><td><code>terrain</code></td><td>3</td><td></td></tr>
+<tr><td><code>hybrid</code></td><td>4</td><td></td></tr>
 </table>
          */
         public static final int mapType=0x7f010000;
@@ -1173,114 +1174,115 @@ containing a value of this type.
         public static final int wisdmsmall=0x7f020154;
     }
     public static final class id {
-        public static final int Email=0x7f060038;
-        public static final int LoginButton=0x7f06003b;
-        public static final int LoginContainer=0x7f060036;
-        public static final int Password=0x7f060039;
-        public static final int PlaceView=0x7f06002f;
-        public static final int RememberMe=0x7f06003a;
-        public static final int SearchList=0x7f060030;
-        public static final int SearchMenu=0x7f06002e;
-        public static final int Settings=0x7f06006a;
-        public static final int SignUp=0x7f060069;
-        public static final int Welcome=0x7f060037;
-        public static final int WisdmLogo=0x7f060068;
-        public static final int abs__action_bar=0x7f060025;
-        public static final int abs__action_bar_container=0x7f060024;
-        public static final int abs__action_bar_subtitle=0x7f060014;
-        public static final int abs__action_bar_title=0x7f060013;
-        public static final int abs__action_context_bar=0x7f060026;
-        public static final int abs__action_menu_divider=0x7f06000f;
-        public static final int abs__action_menu_presenter=0x7f060010;
-        public static final int abs__action_mode_bar=0x7f060029;
-        public static final int abs__action_mode_bar_stub=0x7f060028;
-        public static final int abs__action_mode_close_button=0x7f060017;
-        public static final int abs__activity_chooser_view_content=0x7f060018;
-        public static final int abs__checkbox=0x7f060021;
-        public static final int abs__content=0x7f060020;
-        public static final int abs__default_activity_button=0x7f06001b;
-        public static final int abs__expand_activities_button=0x7f060019;
-        public static final int abs__home=0x7f06000d;
-        public static final int abs__icon=0x7f06001d;
-        public static final int abs__image=0x7f06001a;
-        public static final int abs__imageButton=0x7f060015;
-        public static final int abs__list_item=0x7f06001c;
-        public static final int abs__progress_circular=0x7f060011;
-        public static final int abs__progress_horizontal=0x7f060012;
-        public static final int abs__radio=0x7f060023;
-        public static final int abs__shortcut=0x7f060022;
-        public static final int abs__split_action_bar=0x7f060027;
-        public static final int abs__textButton=0x7f060016;
-        public static final int abs__title=0x7f06001e;
-        public static final int abs__titleDivider=0x7f06001f;
-        public static final int abs__up=0x7f06000e;
-        public static final int action_search=0x7f06006b;
-        public static final int alertTitle=0x7f06004b;
-        public static final int arrow=0x7f060062;
-        public static final int check=0x7f060067;
-        public static final int completion=0x7f060045;
-        public static final int cont=0x7f060042;
-        public static final int content=0x7f06005e;
-        public static final int contentPanel=0x7f06004d;
-        public static final int customPanel=0x7f060050;
-        public static final int disableHome=0x7f06000c;
-        public static final int distance=0x7f060057;
-        public static final int distancetext=0x7f06005c;
-        public static final int divider=0x7f060065;
-        public static final int drawer=0x7f060031;
-        public static final int drawerFrame=0x7f060034;
-        public static final int email=0x7f06003c;
-        public static final int exhibitList=0x7f060059;
-        public static final int exhibitListContainer=0x7f060058;
-        public static final int exit=0x7f060055;
-        public static final int expandLayout=0x7f06005d;
-        public static final int homeAsUp=0x7f060009;
-        public static final int icon=0x7f060033;
-        public static final int image=0x7f06005b;
-        public static final int listMode=0x7f060005;
-        public static final int listfragment=0x7f06002b;
-        public static final int locate=0x7f06005f;
-        public static final int login=0x7f060035;
-        public static final int mainlayout=0x7f060043;
-        public static final int mainrel=0x7f06005a;
-        public static final int mapFragment=0x7f060063;
-        public static final int mapfragment=0x7f06002d;
-        public static final int mapframe=0x7f06002c;
-        public static final int message=0x7f06004f;
-        public static final int name=0x7f060061;
-        public static final int navigate=0x7f060056;
+        public static final int Email=0x7f060039;
+        public static final int LoginButton=0x7f06003c;
+        public static final int LoginContainer=0x7f060037;
+        public static final int Password=0x7f06003a;
+        public static final int PlaceView=0x7f060030;
+        public static final int RememberMe=0x7f06003b;
+        public static final int SearchList=0x7f060031;
+        public static final int SearchMenu=0x7f06002f;
+        public static final int Settings=0x7f06006b;
+        public static final int SignUp=0x7f06006a;
+        public static final int Welcome=0x7f060038;
+        public static final int WisdmLogo=0x7f060069;
+        public static final int abs__action_bar=0x7f060026;
+        public static final int abs__action_bar_container=0x7f060025;
+        public static final int abs__action_bar_subtitle=0x7f060015;
+        public static final int abs__action_bar_title=0x7f060014;
+        public static final int abs__action_context_bar=0x7f060027;
+        public static final int abs__action_menu_divider=0x7f060010;
+        public static final int abs__action_menu_presenter=0x7f060011;
+        public static final int abs__action_mode_bar=0x7f06002a;
+        public static final int abs__action_mode_bar_stub=0x7f060029;
+        public static final int abs__action_mode_close_button=0x7f060018;
+        public static final int abs__activity_chooser_view_content=0x7f060019;
+        public static final int abs__checkbox=0x7f060022;
+        public static final int abs__content=0x7f060021;
+        public static final int abs__default_activity_button=0x7f06001c;
+        public static final int abs__expand_activities_button=0x7f06001a;
+        public static final int abs__home=0x7f06000e;
+        public static final int abs__icon=0x7f06001e;
+        public static final int abs__image=0x7f06001b;
+        public static final int abs__imageButton=0x7f060016;
+        public static final int abs__list_item=0x7f06001d;
+        public static final int abs__progress_circular=0x7f060012;
+        public static final int abs__progress_horizontal=0x7f060013;
+        public static final int abs__radio=0x7f060024;
+        public static final int abs__shortcut=0x7f060023;
+        public static final int abs__split_action_bar=0x7f060028;
+        public static final int abs__textButton=0x7f060017;
+        public static final int abs__title=0x7f06001f;
+        public static final int abs__titleDivider=0x7f060020;
+        public static final int abs__up=0x7f06000f;
+        public static final int action_search=0x7f06006c;
+        public static final int alertTitle=0x7f06004c;
+        public static final int arrow=0x7f060063;
+        public static final int check=0x7f060068;
+        public static final int completion=0x7f060046;
+        public static final int cont=0x7f060043;
+        public static final int content=0x7f06005f;
+        public static final int contentPanel=0x7f06004e;
+        public static final int customPanel=0x7f060051;
+        public static final int disableHome=0x7f06000d;
+        public static final int distance=0x7f060058;
+        public static final int distancetext=0x7f06005d;
+        public static final int divider=0x7f060066;
+        public static final int drawer=0x7f060032;
+        public static final int drawerFrame=0x7f060035;
+        public static final int email=0x7f06003d;
+        public static final int exhibitList=0x7f06005a;
+        public static final int exhibitListContainer=0x7f060059;
+        public static final int exit=0x7f060056;
+        public static final int expandLayout=0x7f06005e;
+        public static final int homeAsUp=0x7f06000a;
+        public static final int hybrid=0x7f060004;
+        public static final int icon=0x7f060034;
+        public static final int image=0x7f06005c;
+        public static final int listMode=0x7f060006;
+        public static final int listfragment=0x7f06002c;
+        public static final int locate=0x7f060060;
+        public static final int login=0x7f060036;
+        public static final int mainlayout=0x7f060044;
+        public static final int mainrel=0x7f06005b;
+        public static final int mapFragment=0x7f060064;
+        public static final int mapfragment=0x7f06002e;
+        public static final int mapframe=0x7f06002d;
+        public static final int message=0x7f060050;
+        public static final int name=0x7f060062;
+        public static final int navigate=0x7f060057;
         public static final int none=0x7f060000;
         public static final int normal=0x7f060001;
-        public static final int overview=0x7f060064;
-        public static final int parentPanel=0x7f060047;
-        public static final int password=0x7f06003d;
-        public static final int password_confirm=0x7f06003e;
-        public static final int progress=0x7f060051;
-        public static final int progress_number=0x7f060053;
-        public static final int progress_percent=0x7f060052;
-        public static final int refresh=0x7f060066;
-        public static final int register=0x7f06003f;
-        public static final int relframe=0x7f060060;
+        public static final int overview=0x7f060065;
+        public static final int parentPanel=0x7f060048;
+        public static final int password=0x7f06003e;
+        public static final int password_confirm=0x7f06003f;
+        public static final int progress=0x7f060052;
+        public static final int progress_number=0x7f060054;
+        public static final int progress_percent=0x7f060053;
+        public static final int refresh=0x7f060067;
+        public static final int register=0x7f060040;
+        public static final int relframe=0x7f060061;
         public static final int satellite=0x7f060002;
-        public static final int scroll=0x7f060032;
-        public static final int scrollView=0x7f06004e;
-        public static final int showCustom=0x7f06000b;
-        public static final int showHome=0x7f060008;
-        public static final int showTitle=0x7f06000a;
-        public static final int skip=0x7f060046;
-        public static final int splashrel=0x7f06002a;
-        public static final int start=0x7f060044;
-        public static final int tabMode=0x7f060006;
+        public static final int scroll=0x7f060033;
+        public static final int scrollView=0x7f06004f;
+        public static final int showCustom=0x7f06000c;
+        public static final int showHome=0x7f060009;
+        public static final int showTitle=0x7f06000b;
+        public static final int skip=0x7f060047;
+        public static final int splashrel=0x7f06002b;
+        public static final int start=0x7f060045;
+        public static final int tabMode=0x7f060007;
         public static final int terrain=0x7f060003;
-        public static final int title=0x7f060041;
-        public static final int titleDivider=0x7f06004c;
-        public static final int titleDividerTop=0x7f060049;
-        public static final int title_container=0x7f060054;
-        public static final int title_template=0x7f06004a;
-        public static final int topPanel=0x7f060048;
-        public static final int useLogo=0x7f060007;
-        public static final int whole=0x7f060040;
-        public static final int wrap_content=0x7f060004;
+        public static final int title=0x7f060042;
+        public static final int titleDivider=0x7f06004d;
+        public static final int titleDividerTop=0x7f06004a;
+        public static final int title_container=0x7f060055;
+        public static final int title_template=0x7f06004b;
+        public static final int topPanel=0x7f060049;
+        public static final int useLogo=0x7f060008;
+        public static final int whole=0x7f060041;
+        public static final int wrap_content=0x7f060005;
     }
     public static final class integer {
         public static final int abs__max_action_buttons=0x7f0b0000;
@@ -1347,38 +1349,47 @@ containing a value of this type.
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
          */
-        public static final int abs__action_bar_home_description=0x7f07000d;
+        public static final int abs__action_bar_home_description=0x7f070013;
         /**  Content description for the action bar "up" affordance. [CHAR LIMIT=NONE] 
          */
-        public static final int abs__action_bar_up_description=0x7f07000e;
+        public static final int abs__action_bar_up_description=0x7f070014;
         /**  Content description for the action menu overflow button. [CHAR LIMIT=NONE] 
          */
-        public static final int abs__action_menu_overflow_description=0x7f07000f;
+        public static final int abs__action_menu_overflow_description=0x7f070015;
         /**  Label for the "Done" button on the far left of action mode toolbars. 
          */
-        public static final int abs__action_mode_done=0x7f070010;
+        public static final int abs__action_mode_done=0x7f070016;
         /**  Title default for a dialog showing possible activities in ActivityChooserView [CHAR LIMIT=25] 
          */
-        public static final int abs__activity_chooser_view_dialog_title_default=0x7f070012;
+        public static final int abs__activity_chooser_view_dialog_title_default=0x7f070018;
         /**  Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] 
          */
-        public static final int abs__activity_chooser_view_see_all=0x7f070011;
+        public static final int abs__activity_chooser_view_see_all=0x7f070017;
         /**  Description of the shwoing of a popup window with activities to choose from. [CHAR LIMIT=NONE] 
          */
-        public static final int abs__activitychooserview_choose_application=0x7f070014;
+        public static final int abs__activitychooserview_choose_application=0x7f07001a;
         /**  Title for a dialog showing possible activities for sharing in ShareActionProvider [CHAR LIMIT=25] 
          */
-        public static final int abs__share_action_provider_share_with=0x7f070013;
+        public static final int abs__share_action_provider_share_with=0x7f070019;
         /**  Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] 
          */
-        public static final int abs__shareactionprovider_share_with=0x7f070015;
+        public static final int abs__shareactionprovider_share_with=0x7f07001b;
         /**  Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] 
          */
-        public static final int abs__shareactionprovider_share_with_application=0x7f070016;
-        public static final int app_name=0x7f07000c;
+        public static final int abs__shareactionprovider_share_with_application=0x7f07001c;
+        public static final int app_name=0x7f070012;
+        /**   Title for notification shown when GooglePlayServices is unavailable [CHAR LIMIT=70] 
+         */
+        public static final int auth_client_availability_notification_title=0x7f07000e;
+        /**   Title for notification shown when GooglePlayServices is unavailable [CHAR LIMIT=42] 
+         */
+        public static final int auth_client_play_services_err_notification_msg=0x7f07000f;
+        /**   Requested by string saying which app requested the notification. [CHAR LIMIT=42] 
+         */
+        public static final int auth_client_requested_by_msg=0x7f070010;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
-        can enable it [CHAR LIMIT=30] 
+        can enable it [CHAR LIMIT=40] 
          */
         public static final int common_google_play_services_enable_button=0x7f070006;
         /**  Message in confirmation dialog informing user they need to enable
@@ -1389,7 +1400,7 @@ containing a value of this type.
         Google Play services in application settings [CHAR LIMIT=40] 
          */
         public static final int common_google_play_services_enable_title=0x7f070004;
-        /**  Button in confirmation dialog for installing Google Play services [CHAR LIMIT=30] 
+        /**  Button in confirmation dialog for installing Google Play services [CHAR LIMIT=40] 
          */
         public static final int common_google_play_services_install_button=0x7f070003;
         /**  (For phones) Message in confirmation dialog informing user that
@@ -1404,13 +1415,19 @@ containing a value of this type.
         Google Play services (from Play Store) [CHAR LIMIT=40] 
          */
         public static final int common_google_play_services_install_title=0x7f070000;
-        /**  Message in confirmation dialog informing user there is an unknow issue in Google Player
+        /**  Message in confirmation dialog informing user there is an unknown issue in Google Play
         services [CHAR LIMIT=NONE] 
          */
         public static final int common_google_play_services_unknown_issue=0x7f070009;
-        /**  Button in confirmation dialog for updating Google Play services [CHAR LIMIT=20] 
+        /**  Message in confirmation dialog informing user that Google Play services is not supported on their device [CHAR LIMIT=NONE] 
          */
-        public static final int common_google_play_services_update_button=0x7f07000a;
+        public static final int common_google_play_services_unsupported_text=0x7f07000b;
+        /**  Title of confirmation dialog informing user that Google Play services is not supported on their device [CHAR LIMIT=40] 
+         */
+        public static final int common_google_play_services_unsupported_title=0x7f07000a;
+        /**  Button in confirmation dialog for updating Google Play services [CHAR LIMIT=40] 
+         */
+        public static final int common_google_play_services_update_button=0x7f07000c;
         /**  Message in confirmation dialog informing user that they need to update
         Google Play services (from Play Store) [CHAR LIMIT=NONE] 
          */
@@ -1419,16 +1436,21 @@ containing a value of this type.
         Google Play services (from Play Store) [CHAR LIMIT=40] 
          */
         public static final int common_google_play_services_update_title=0x7f070007;
-        public static final int google_debug_key=0x7f070019;
-        public static final int google_debug_key2=0x7f07001a;
-        public static final int hello=0x7f07000b;
-        public static final int hello_world=0x7f07001b;
-        public static final int menu_item_search_action_hint=0x7f070017;
-        public static final int menu_item_search_action_menu_text=0x7f070018;
-        public static final int menu_settings=0x7f07001c;
-        public static final int title_activity_nuti_test=0x7f07001e;
-        public static final int title_activity_register=0x7f07001d;
-        public static final int title_activity_settings=0x7f07001f;
+        /**  Long form sign-in button text. This is the placeholder text, used if we can't
+        find the service-side assets. [CHAR LIMIT=25] 
+         */
+        public static final int common_signin_button_text_long=0x7f07000d;
+        public static final int google_debug_key=0x7f07001f;
+        public static final int google_debug_key2=0x7f070020;
+        public static final int google_debug_key3=0x7f070021;
+        public static final int hello=0x7f070011;
+        public static final int hello_world=0x7f070022;
+        public static final int menu_item_search_action_hint=0x7f07001d;
+        public static final int menu_item_search_action_menu_text=0x7f07001e;
+        public static final int menu_settings=0x7f070023;
+        public static final int title_activity_nuti_test=0x7f070025;
+        public static final int title_activity_register=0x7f070024;
+        public static final int title_activity_settings=0x7f070026;
     }
     public static final class style {
         public static final int AlertDialogHoloDark=0x7f0c0062;
@@ -1694,6 +1716,7 @@ containing a value of this type.
 <tr><td><code>normal</code></td><td>1</td><td></td></tr>
 <tr><td><code>satellite</code></td><td>2</td><td></td></tr>
 <tr><td><code>terrain</code></td><td>3</td><td></td></tr>
+<tr><td><code>hybrid</code></td><td>4</td><td></td></tr>
 </table>
           @attr name android:mapType
         */

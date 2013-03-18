@@ -32,14 +32,9 @@ public class MapViewFragment extends SherlockFragment implements OnClickListener
 	private GoogleMap mGoogleMap = null;
 
 	/**
-	 * Paths overlayed on the map
-	 */
-	private Path mPaths;
-	
-	/**
 	 * Building objects overlayed on the map
 	 */
-	private Exhibit mExhibits;
+	private Exhibits mExhibits;
 	
 	/**
 	 * Manages the text overlays displayed on the map
@@ -100,13 +95,13 @@ public class MapViewFragment extends SherlockFragment implements OnClickListener
 		Operations.setViewOnClickListeners(layout, this, R.id.satellite, R.id.normal, R.id.overview);
 		
 		try {
-
 			MapUtils.generatePolygon(getActivity(), mBuilder);
-			mPaths = new Path(mGoogleMap).readFiles(getActivity());
-			mExhibits = new Exhibit(mGoogleMap).readFiles(getActivity());
+			Paths.readFiles(getActivity(), mGoogleMap);
+			mExhibits = new Exhibits(mGoogleMap).readFiles(getActivity());
 			mTextMarkerManager = new TextMarkerManager(getActivity(), mGoogleMap);
 			mTextMarkerManager.readInData(getActivity(),"exhibits.txt", "special.txt");
 			mTextMarkerManager.addToMap();
+			mTextMarkerManager.refreshData(getMap().getMap().getCameraPosition().zoom);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -143,8 +138,11 @@ public class MapViewFragment extends SherlockFragment implements OnClickListener
 		return mTextMarkerManager.addFocus(place);
 	}
 	
+	/**
+	 * Clears all icons from text markers that are focused
+	 */
 	public void clearFocus(){
-		mTextMarkerManager.clearFocus();
+		mTextMarkerManager.clearFocus(mCurrentZoom);
 	}
 	
 

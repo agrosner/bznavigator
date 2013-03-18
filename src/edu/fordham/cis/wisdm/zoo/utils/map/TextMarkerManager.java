@@ -87,12 +87,13 @@ public class TextMarkerManager {
 	
 	/**
 	 * Clears all places from focus
+	 * @param zoom - current zoom level
 	 */
-	public void clearFocus(){
+	public void clearFocus(float zoom){
 		for(TextMarker text: mMarkers){
 			text.useImage(false);
 			text.setFocus(false);
-			text.refresh(mGoogleMap);
+			text.refreshWithZoom(mGoogleMap, zoom);
 		}
 	}
 	

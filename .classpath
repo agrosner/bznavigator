@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="edu/fordham/cis/wisdm/zoo/main/OSMTestActivity.java|edu/fordham/cis/wisdm/zoo/utils/BoundedMapView.java|edu/fordham/cis/wisdm/zoo/main/NewsActivity.java|edu/fordham/cis/wisdm/zoo/main/RestroomsFragment.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceWidget.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceWidgetManager.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceFragment2.java|edu/fordham/cis/wisdm/zoo/file/GFile.java|edu/fordham/cis/wisdm/zoo/utils/WrapSlidingDrawer.java" kind="src" path="src"/>
-	<classpathentry kind="src" path="at-utils"/>
 	<classpathentry kind="src" path="bzsrc"/>
+	<classpathentry kind="src" path="at-utils"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="C:/Users/Andrew/Dropbox/Programming/jars/ant.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Andrew/Dropbox/Programming/jars/bonecp-0.7.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Andrew/Dropbox/Programming/jars/commons-codec-1.7.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Andrew/Dropbox/Programming/jars/slf4j-api-1.6.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Andrew/Dropbox/Programming/jars/weka.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/ant.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/bonecp-0.7.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/weka.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

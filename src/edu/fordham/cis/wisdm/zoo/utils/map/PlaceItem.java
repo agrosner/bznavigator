@@ -24,7 +24,7 @@ public class PlaceItem {
 	
 	private Location mLocation = null;
 	
-	private String mDistance = "0";
+	private Float mDistance = 0f;
 	
 	private int mResId = 0;
 	
@@ -54,8 +54,8 @@ public class PlaceItem {
 		return this;
 	}
 	
-	public PlaceItem distance(String distance){
-		mDistance = distance;
+	public PlaceItem distance(float distanceFt){
+		mDistance = distanceFt;
 		return this;
 	}
 	
@@ -118,7 +118,7 @@ public class PlaceItem {
 		}
 	}
 	
-	public String getDistance(){
+	public float getDistance(){
 		return mDistance;
 	}
 	

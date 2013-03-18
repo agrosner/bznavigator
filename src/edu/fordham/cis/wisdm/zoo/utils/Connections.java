@@ -22,6 +22,7 @@ import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 
 import android.app.Service;
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 /**
@@ -207,7 +208,7 @@ public class Connections {
 	 * @param con
 	 * @return
 	 */
-	public static boolean prepare(Connections con){
+	public static synchronized boolean prepare(Connections con){
 		if(con==null){
 			return false;
 		}
@@ -278,6 +279,35 @@ public class Connections {
 			Log.e(TAG, "Could not write a visit request: " + e2.getMessage());
 		}
 		if(!success) disconnect();
+		return success;
+	}
+	
+	/**
+	 * Sends a search query to the server
+	 * @param query
+	 */
+	public static boolean sendSearchQuery(Connections con, String query, Location loc){
+		
+		//ensure connection
+		if(!prepare(con) ||	!visitAuth(con))	return false;
+		
+		boolean success = false;
+		try {
+			SocketParser.writeSearchReq(mOutputStream, mVisitID, query, (float) loc.getLatitude(), (float) loc.getLongitude());
+			byte signal = mInputStream.readByte();
+			if(signal == SocketParser.AUTH_CODE){
+				Log.d(TAG, "Search Query successfully sent");
+				success = true;
+				disconnect();
+			} else if(signal == SocketParser.AUTH_DENY){
+				Log.e(TAG, "Request denied!!");
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			success = false;
+		}
+		if(!success)	disconnect();
 		return success;
 	}
 	
