@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -30,7 +31,12 @@ import android.util.Log;
  * @author agrosner
  *
  */
-public class Connections {
+public class Connections implements Serializable{
+	/**
+	 * For use in serializable interface
+	 */
+	private static final long serialVersionUID = -3412358925048736178L;
+
 	/**
 	 * Log Tag
 	 */

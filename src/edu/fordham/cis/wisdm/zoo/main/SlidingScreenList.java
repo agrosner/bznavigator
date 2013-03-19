@@ -1,13 +1,17 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +23,14 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.MapsInitializer;
 
+import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList.PlaceType;
 import edu.fordham.cis.wisdm.zoo.utils.IconTextListAdapter;
+import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 
-public class SlidingScreenList extends SherlockListFragment {
+public class SlidingScreenList extends SherlockListFragment implements UserConstants{
 
 	private PlaceFragmentList food = null;
 	
@@ -46,10 +52,10 @@ public class SlidingScreenList extends SherlockListFragment {
 		View v = inflater.inflate(R.layout.arraylist, container, false);
 		
 		int[] drawables = {R.drawable.map,		R.drawable.find,
-						   R.drawable.shop,		
-						   R.drawable.special,  R.drawable.food,		
-						   R.drawable.exhibit,  R.drawable.amenities,
-						   R.drawable.admin};
+						   R.drawable.shop,		R.drawable.special,  
+						   R.drawable.food,		R.drawable.exhibit,  
+						   R.drawable.amenities, R.drawable.admin,
+						   R.drawable.logout};
 		
 		IconTextListAdapter icontextlist=  new IconTextListAdapter(this.getActivity(), R.array.splash_list2, drawables);
 		setListAdapter(icontextlist);
@@ -58,9 +64,44 @@ public class SlidingScreenList extends SherlockListFragment {
 
 	@Override
 	public void onListItemClick(ListView lv, View v, int position, long id) {
-		Fragment newContent = getSelectedFragment(getActivity(), position);
-		if (newContent != null)
-			switchFragment(newContent);
+		
+		if(position!=8){
+			Fragment newContent = getSelectedFragment(getActivity(), position);
+			if (newContent != null)
+				switchFragment(newContent);
+		} else{
+			 //ask user whether quit or not
+			 AlertDialog.Builder message = new AlertDialog.Builder(getActivity());
+			 message.setTitle("Logout?");
+			 final Activity act = getActivity();
+			 message.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+				 @Override
+				 public void onClick(DialogInterface dialog, int which) {
+					 getActivity().stopService(new Intent(getActivity().getApplicationContext(), LocationUpdateService.class));
+					 Preference.putBoolean(REMEMBER_ME_LOC, false);
+					 
+					 Intent upIntent = new Intent(act, Entry.class);
+					 if (NavUtils.shouldUpRecreateTask(act, upIntent)) {
+						 // This activity is not part of the application's task, so create a new task
+						 // with a synthesized back stack.
+						 TaskStackBuilder.from(act)
+	                        	.addNextIntent(upIntent)
+	                        	.startActivities();
+						 getActivity().finish();
+					 } else {
+						 // 	This activity is part of the application's task, so simply
+						 // navigate up to the hierarchical parent activity.
+						 NavUtils.navigateUpTo(act, upIntent);
+					 }
+				 }
+			 });
+			 message.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				 
+				 @Override	
+				 public void onClick(DialogInterface dialog, int which) {}
+			 });
+			 message.create().show();
+		}
 	}
 	
 	public void switchToMap(){
@@ -125,7 +166,6 @@ public class SlidingScreenList extends SherlockListFragment {
 			return PlaceFragmentList.initFrag(exhibit, PlaceType.EXHIBITS);
 		case 7:
 			return PlaceFragmentList.initFrag(admin, PlaceType.ADMIN);
-			
 		}
 		return null;
 	}

@@ -106,11 +106,14 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
 		Operations.setViewOnClickListeners(exhibit, this, R.id.refresh, R.id.exit);
 		
-		refresh();
-		
 		return exhibit;
 	}
 	
+	@Override
+	public void onResume(){
+		super.onResume();
+		refresh();
+	}
 	
 	/**
 	 * Refreshes a list based on the amount of params passed to it
@@ -127,10 +130,10 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 		SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
 		
 		if(points.isEmpty())	PlaceController.readInData(act, act, points, fName);
-		else 	PlaceController.reCalculateDistance(SplashScreenActivity.myLocation, points);
+		PlaceController.reCalculateDistance(act.mList.getMapFragment().getManager().getLastKnownLocation(), points);
 		
-		PlaceController.readInDataIntoList(getActivity(), exhibitList, points, this, true);
-		
+		PlaceController.reOrderByDistance(points);
+		PlaceController.readInDataIntoList(act.mList.getMapFragment().getManager().getLastKnownLocation(), getActivity(), exhibitList, points, this, true);
 			
 		//new GetDataTask(fName).execute();
 	}

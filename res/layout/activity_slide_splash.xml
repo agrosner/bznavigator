@@ -9,6 +9,12 @@
         >
        
     </FrameLayout>
+    <FrameLayout 
+        android:id="@+id/map_content"
+        style="@style/fill"
+        >
+        
+    </FrameLayout>
 	<ScrollView
         style="@style/wrap">
    		<LinearLayout 

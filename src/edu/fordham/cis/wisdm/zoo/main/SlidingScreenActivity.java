@@ -1,12 +1,16 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings.Secure;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
+import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.view.Menu;
@@ -34,6 +39,8 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
 import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 
+import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
+import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 
@@ -45,6 +52,8 @@ import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 public class SlidingScreenActivity extends SlidingFragmentActivity implements SearchPerformListener, TextWatcher, OnClickListener, OnMenuItemClickListener, OnMapClickListener {
 
 	private Fragment mContent = null;
+	
+	private PlaceFragmentList mCurrentPlaceFragment = null;
 	
 	public SlidingScreenList mList = null;
 	
@@ -64,11 +73,73 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	
 	private boolean isParked = false;
 	
+	private Connections mUser = null;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setTitle("Bronx Zoo");
 		setContentView(R.layout.activity_slide_splash);
+		
+		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		
+		//gives user an option to accept terms or leave the app
+		final HoloAlertDialogBuilder termsDialogBuilder = new HoloAlertDialogBuilder(this);
+		
+		//cancel button used for both dialogs
+		DialogInterface.OnClickListener cancel = new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		};
+				
+		termsDialogBuilder.setNegativeButton("I do not accept", cancel);
+		
+		//terms and conditions
+		termsDialogBuilder.setTitle("Terms and Conditions");
+		termsDialogBuilder.setMessage("Terms and conditions go here");
+		termsDialogBuilder.setPositiveButton("I Accept", new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				termsDialogBuilder.create().dismiss();
+			}
+							
+		});
+		
+		termsDialogBuilder.setCancelable(false).create().show();
+		
+		//	if network error message
+		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+			final HoloAlertDialogBuilder gpsInternetDialogBuilder = new HoloAlertDialogBuilder(this);
+				
+			gpsInternetDialogBuilder.setNegativeButton("Quit", cancel);
+			gpsInternetDialogBuilder.setTitle("Please Turn on GPS and Internet");
+			gpsInternetDialogBuilder.setMessage("Please navigate to settings and make sure GPS and Internet is turned on for the full experience.");
+			gpsInternetDialogBuilder.setPositiveButton("Settings", new DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);	
+					finish();
+			}
+				
+			});
+			gpsInternetDialogBuilder.setNeutralButton("Continue Anyways", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					gpsInternetDialogBuilder.create().dismiss();
+					init();
+						
+				}
+			});
+				
+			gpsInternetDialogBuilder.create().show();
+		} else{
+			init();
+		}
 		
 		mList = new SlidingScreenList();
 		
@@ -79,9 +150,6 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 		
-		if(savedInstanceState !=null){
-			mContent = getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
-		} 
 		getSupportFragmentManager().beginTransaction()
 		.replace(R.id.menu, mList).commit();
 	
@@ -89,7 +157,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			mContent = mList.getSelectedFragment(this, 0);
 			
 		}
-		getSupportFragmentManager().beginTransaction().replace(R.id.frame_content, mContent).commit();
+		getSupportFragmentManager().beginTransaction().replace(R.id.map_content, mContent).commit();
 		
 		SlidingMenu sm = getSlidingMenu();
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
@@ -98,6 +166,16 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		sm.setBehindScrollScale(0.25f);
 		sm.setFadeDegree(0.25f);
 
+	}
+	
+	/**
+	 * Begins the location update service and acquiring login credentials
+	 */
+	public void init(){
+		mUser = (Connections) getIntent().getExtras().getSerializable("user");
+		Intent i = new Intent(this, LocationUpdateService.class);
+		i.putExtra("user", mUser);
+		startService(i);
 	}
 	
 	@Override
@@ -132,16 +210,22 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		getSupportFragmentManager().putFragment(outState, "mContent", mContent);
-	}
-
+	/**
+	 * Switches between fragments or mapview showing/notshowing
+	 * @param fragment
+	 */
 	public void switchContent(final Fragment fragment) {
-		mContent = fragment;
-		getSupportFragmentManager().beginTransaction()
+		if(mContent instanceof MapViewFragment){
+			Operations.removeView(mContent.getView());
+		}
+		if(fragment instanceof MapViewFragment){
+			Operations.addView(fragment.getView());
+		} else{
+			getSupportFragmentManager().beginTransaction()
 			.replace(R.id.frame_content, fragment).commit();
+			mCurrentPlaceFragment = (PlaceFragmentList) fragment;
+		}
+		mContent = fragment;
 		getSlidingMenu().showContent();
 	}
 
@@ -154,7 +238,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	public void onBackPressed(){
 		if(!getSlidingMenu().isMenuShowing()){
 			getSlidingMenu().toggle();
-		} else	super.onBackPressed();
+		} 
 	}
 
 	@Override
@@ -261,4 +345,9 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	public MenuItem getParkingIcon(){
 		return parkItem;
 	}
+	
+	public PlaceFragmentList getCurrentPlaceFragment(){
+		return mCurrentPlaceFragment;
+	}
+	
 }

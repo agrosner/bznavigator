@@ -1024,7 +1024,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			for(int i =0; i < searchExhibits.size(); i++){
 				PlaceItem place = searchExhibits.get(i);
 				if(place.getName().toLowerCase().contains(s.toString().toLowerCase()))
-					searchList.addView(PlaceController.createExhibitItem(this, i+1, place, this, true));
+					searchList.addView(PlaceController.createExhibitItem(SplashScreenActivity.myLocation, this, i+1, place, this, true));
 				}
 		}
 	}
@@ -1098,7 +1098,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		}
 		
 		protected Void onPostExecute(){
-			PlaceController.readInDataIntoList(mActivity, searchList, searchExhibits, mOnClick, false);
+			PlaceController.readInDataIntoList(SplashScreenActivity.myLocation, mActivity, searchList, searchExhibits, mOnClick, false);
 			return null;
 			
 		}

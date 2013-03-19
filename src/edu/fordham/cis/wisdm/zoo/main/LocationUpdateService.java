@@ -172,19 +172,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		super.onStartCommand(i, flags, startid);
 		
 		startNotification();
-		String em = null;
-		String ps = null;
-		try{
-			em = i.getExtras().getString("email");
-			ps = i.getExtras().getString("password");
-		} catch(NullPointerException n){
-			
-		}
-		if(em!=null){
-			email = em;
-		}
-	
-		mConnection = new Connections(email, ps, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
+		mConnection = (Connections) i.getExtras().getSerializable("user");
 		
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		startLocation();
@@ -201,6 +189,9 @@ public class LocationUpdateService extends Service implements LocationListener{
 		return START_STICKY;
 	}
 	
+	/**
+	 * Starts showing notification indicating service is running
+	 */
 	private void startNotification(){
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
 		builder.setSmallIcon(R.drawable.appicon)
@@ -221,11 +212,13 @@ public class LocationUpdateService extends Service implements LocationListener{
 		mNotificationManager.notify(0, builder.build());
 	}
 	
+	/**
+	 * Removes the notification
+	 */
 	private void stopNotification(){
 		stopForeground(true);
 		mNotificationManager.cancel(0);
 	}
-	
 	
 	@Override
 	public void onDestroy(){

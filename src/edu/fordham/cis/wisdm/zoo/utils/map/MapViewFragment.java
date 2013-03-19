@@ -3,7 +3,6 @@ package edu.fordham.cis.wisdm.zoo.utils.map;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -16,14 +15,12 @@ import android.widget.Toast;
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.Operations;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,8 +29,8 @@ import com.google.android.gms.maps.model.Marker;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
-import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
+import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
 public class MapViewFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnInfoWindowClickListener{
@@ -202,6 +199,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 				@Override
 				public void run() {
 					mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 10));
+					PlaceFragmentList list = ((SlidingScreenActivity)getActivity()).getCurrentPlaceFragment();
+					if(list!=null){
+						list.refresh();
+					}
 				}
 				
 			});

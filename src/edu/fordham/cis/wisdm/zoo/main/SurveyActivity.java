@@ -98,7 +98,6 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	static final String FIELD_START = "+++++";
 	static final String FIELD_END = "-----";	
 	
-	private static String email = null;
 	private static Intent splash;
 	
     /** Called when the activity is first created. */
@@ -108,15 +107,11 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         setContentView(R.layout.activity_survey);
         //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         
-        email = this.getIntent().getExtras().getString("email");
-        splash = new Intent(this, SplashScreenActivity.class);
-        splash.putExtra("email", email);
+        mConnection = (Connections) getIntent().getExtras().getSerializable("user");
         
-        String p = getIntent().getExtras().getString("password");
-        splash.putExtra("password", p);
+        splash = new Intent(this, SlidingScreenActivity.class);
+        splash.putExtra("user", mConnection);
         splash.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        
-        mConnection = new Connections(email, p, Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
         
         scroll = (ScrollView)this.findViewById(R.id.scroll);
         
@@ -286,8 +281,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			setQuestion(surveyfields.get(qindex));
 			buttons[1].setVisibility(View.GONE);
 		} else if(v.equals(buttons[1])){
-			//startActivity(splash);
-			startActivity(new Intent(this, SlidingScreenActivity.class));
+			startActivity(splash);
 		}
 		
 		//submit entered data and display next survey field

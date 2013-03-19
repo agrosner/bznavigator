@@ -24,6 +24,7 @@
         <item>Exhibits</item>
         <item>Amenities</item>
         <item>Administration</item>
+        <item>Logout</item>
     </string-array>
     
 </resources>

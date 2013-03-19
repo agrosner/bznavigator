@@ -47,7 +47,7 @@ public final class R {
 		public static final int showHome = 0x7f060005;
 		public static final int abs__action_menu_presenter = 0x7f06000d;
 		public static final int fullscreen = 0x7f060013;
-		public static final int slidingmenumain = 0x7f060072;
+		public static final int slidingmenumain = 0x7f060073;
 		public static final int abs__textButton = 0x7f06001c;
 		public static final int abs__home = 0x7f06000a;
 		public static final int abs__titleDivider = 0x7f060025;

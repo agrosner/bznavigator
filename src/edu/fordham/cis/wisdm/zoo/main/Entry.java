@@ -278,8 +278,7 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
 					Toast.makeText(mContext, "Could not register visit for some reason", Toast.LENGTH_SHORT).show();
 				}else{
 					startActivity(new Intent(mContext, SurveyActivity.class)
-					.putExtra("email", mConnection.getmEmail())
-					.putExtra("password", mConnection.getmPassword()));
+					.putExtra("user", mConnection));
 				}
 			}
 			dia.dismiss();

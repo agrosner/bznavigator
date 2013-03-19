@@ -2,6 +2,7 @@ package edu.fordham.cis.wisdm.zoo.main.places;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -110,8 +111,8 @@ public class PlaceController {
 	 * @param wrap
 	 * @return
 	 */
-	public static RelativeLayout createExhibitItem(Activity act, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
-		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistanceString(SplashScreenActivity.myLocation, place.getLocation()), mListener, wrap);
+	public static RelativeLayout createExhibitItem(Location loc, Activity act, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
+		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistanceString(loc, place.getLocation()), mListener, wrap);
 	}
 
 	/**
@@ -123,14 +124,13 @@ public class PlaceController {
 	 * @param onClick
 	 * @param wrap
 	 */
-	public static void readInDataIntoList(Activity act, LinearLayout exhibitList, LinkedList<PlaceItem> points, OnClickListener onClick, boolean wrap){
+	public static void readInDataIntoList(Location loc, Activity act, LinearLayout exhibitList, LinkedList<PlaceItem> points, OnClickListener onClick, boolean wrap){
 		if(exhibitList==null)	return;
 		int idIndex = 0;
 			synchronized(points){
 				for(PlaceItem place: points){
 					idIndex++;
-					int index = findIndex(exhibitList, place.getDistance());
-					exhibitList.addView(createExhibitItem(act,idIndex, place, onClick, wrap), index);
+					exhibitList.addView(createExhibitItem(loc, act,idIndex, place, onClick, wrap));
 				}
 				exhibitList.postInvalidate();
 		}
@@ -211,8 +211,16 @@ public class PlaceController {
 				RelativeLayout view = (RelativeLayout) exhibitList.getChildAt(i);
 				TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
 				if(distanceText!=null){
-					String text = distanceText.getText().toString().replace("ft", "").replace(MILES, "");
-					double dist = Double.valueOf(text);
+					String text = distanceText.getText().toString();
+					double dist = 0;
+					if(text.contains("ft")){
+						text = text.replace("ft", "");
+						dist = Double.valueOf(text);
+					} else if(text.contains(MILES)){
+						text = text.replace(MILES, "");
+						dist = Double.valueOf(text)*5280;
+					}
+					
 					if(distance<dist)	break;
 				}	
 			}
@@ -282,23 +290,28 @@ public class PlaceController {
 		}
 	}
 	
+	public static LinkedList<PlaceItem> reCalculateDistance(Location currentLoc, LinkedList<PlaceItem> points){
+		LinkedList<PlaceItem> temp = new LinkedList<PlaceItem>();
+		for(PlaceItem place: points){
+			temp.add(place.distance(currentLoc.distanceTo(place.getLocation())));
+		}
+		return temp;
+	}
+	
 	/**
 	 * Reorders the list of elements by distance to the place
 	 * @param currentLoc
 	 * @param points
 	 */
-	public static void reOrderByDistance(Location currentLoc, LinkedList<PlaceItem> points){
-		if(currentLoc!=null){
-			LinkedList<PlaceItem> temp = new LinkedList<PlaceItem>();
-			int size = points.size();
-			for(int i =0 ; i< size; i++){
-				PlaceItem place = points.poll();
-				int index = findIndex(points, place.getDistance());
-				place.distance(currentLoc.distanceTo(place.getLocation()));
-				temp.add(index, place);
+	public static void reOrderByDistance(LinkedList<PlaceItem> points){
+		Collections.sort(points, new Comparator<PlaceItem>(){
+
+			@Override
+			public int compare(PlaceItem lhs, PlaceItem rhs) {
+				return Float.valueOf(lhs.getDistance()).compareTo(rhs.getDistance());
 			}
-			points = temp;
-		}
+				
+		});
 	}
 	
 	

@@ -138,7 +138,7 @@ public class PlaceFragment extends SherlockFragment implements OnClickListener{
 		if(points.isEmpty())	PlaceController.readInData(act, act.onInfoClickedListener, points, fName);
 		else 	PlaceController.reCalculateDistance(SplashScreenActivity.myLocation, points);
 		
-		PlaceController.readInDataIntoList(getActivity(), exhibitList, points, this, true);
+		PlaceController.readInDataIntoList(SplashScreenActivity.myLocation, getActivity(), exhibitList, points, this, true);
 		
 			
 		//new GetDataTask(fName).execute();

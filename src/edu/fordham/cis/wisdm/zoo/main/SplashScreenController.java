@@ -145,7 +145,7 @@ public class SplashScreenController {
 				mDrawerFrame.addView(mDrawerCheckBoxes[i]);
 			}
 			PlaceController.reCalculateDistance(SplashScreenActivity.myLocation, mActivity.misc);
-			PlaceController.readInDataIntoList(mActivity, mDrawerFrame, mActivity.misc, new OnClickListener(){
+			PlaceController.readInDataIntoList(SplashScreenActivity.myLocation, mActivity, mDrawerFrame, mActivity.misc, new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
