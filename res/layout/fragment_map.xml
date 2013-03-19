@@ -2,15 +2,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <fragment 
-		android:id="@+id/mapFragment"
-		xmlns:map="http://schemas.android.com/apk/res-auto"
-		android:name="com.google.android.gms.maps.SupportMapFragment"
-		style="@style/fill"     
-		map:cameraTargetLat="40.851391"  	   
-		map:cameraTargetLng="-73.877555" 
-		map:cameraZoom="16"
-       	/>
        	<RelativeLayout 
        		style="@style/fill"
        	    >

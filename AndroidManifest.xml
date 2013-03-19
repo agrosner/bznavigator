@@ -62,6 +62,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="android.preference.PreferenceActivity" />
         </activity>
+        <activity
+            android:name=".SlidingScreenActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTask" >
+        </activity>
+        
     </application>
 
 </manifest>

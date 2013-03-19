@@ -80,7 +80,6 @@ public class MapUtils {
 			builder.include(new LatLng(latitude, longitude));
 		}
 		
-		
 		file.close();
 		
 	}

@@ -16,26 +16,23 @@ import com.google.android.gms.maps.model.PolygonOptions;
 
 public class Exhibits {
 
-	private GoogleMap mMap;
-	
 	private static final String mFolder = "polygons";
 
-	private HashMap<Polygon, String> mPolygonMap = new HashMap<Polygon, String>();
+	private static LinkedList<PolygonOptions> mPolygonOptions = null;
 	
-	private LinkedList<Polygon> mPolygons = new LinkedList<Polygon>();
+	private static LinkedList<Polygon> mPolygons = new LinkedList<Polygon>();
 	
-	public Exhibits(GoogleMap map){
-		mMap = map;
-	}
-	
-	public Exhibits readFiles(Context con) throws IOException{
+	public static void readFiles(Context con) throws IOException{
+		if(mPolygonOptions!=null) return;
+		
+		mPolygonOptions = new LinkedList<PolygonOptions>();
+		
 		AssetManager assets = con.getAssets();
 		String[] list = assets.list(mFolder);
 		for(String fName: list){
 			if(fName.endsWith(".txt")){
 				Scanner scan = new Scanner(assets.open(mFolder+"/"+fName));
-				PolygonOptions options = new PolygonOptions().geodesic(true);
-				String name = "";
+				PolygonOptions options = new PolygonOptions().geodesic(true).strokeWidth(1);
 				int zIndex = 0;
 				int i =0;
 				while(scan.hasNext()){
@@ -44,7 +41,6 @@ public class Exhibits {
 					if(i!=0){
 						options.add(new LatLng(Double.valueOf(values[0]), Double.valueOf(values[1])));
 					} else{
-						name +=values[0];
 						zIndex = Integer.valueOf(values[1]);
 						i++;
 					}
@@ -56,12 +52,20 @@ public class Exhibits {
 				} else if(zIndex==0){
 					color = Color.parseColor("#FCF357");
 				}
-				Polygon poly = mMap.addPolygon(options.strokeWidth(1).zIndex(zIndex).fillColor(color));
-				mPolygons.add(poly);
-				mPolygonMap.put(poly, name);
+				mPolygonOptions.add(options.fillColor(color).zIndex(zIndex));
 			}
 		}
+	}
+	
+	public static void addToMap(GoogleMap map){
+		if(mPolygons == null){
+			mPolygons = new LinkedList<Polygon>();
+		} else{
+			mPolygons.clear();
+		}
 		
-		return this;
+		for(PolygonOptions option: mPolygonOptions){
+			mPolygons.add(map.addPolygon(option));
+		}
 	}
 }

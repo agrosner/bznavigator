@@ -21,8 +21,15 @@ import com.google.android.gms.maps.model.PolylineOptions;
 public class Paths {
 
 	private static final String mFolder = "paths";
+	
+	private static LinkedList<Polyline> mPolyLines = null;
 
-	public static void readFiles(Context con, GoogleMap map) throws IOException{
+	private static LinkedList<PolylineOptions> mOptions = null;
+	
+	public static void readFiles(Context con) throws IOException{
+		if(mOptions !=null)	return;
+	
+		mOptions = new LinkedList<PolylineOptions>();
 		AssetManager assets = con.getAssets();
 		String[] list = assets.list(mFolder);
 		for(String fName: list){
@@ -37,11 +44,20 @@ public class Paths {
 					}
 				}
 				scan.close();
-				map.addPolyline(mPolylineOptions.zIndex(2));
+				mOptions.add(mPolylineOptions);
 			}
 		}
+	}
 	
-		
+	public static void addToMap(GoogleMap map){
+		if(mPolyLines==null){
+			mPolyLines = new LinkedList<Polyline>();
+		} else{
+			mPolyLines.clear();
+		}
+		for(PolylineOptions option:  mOptions){
+			mPolyLines.add(map.addPolyline(option.zIndex(2)));
+		}
 	}
 	
 }

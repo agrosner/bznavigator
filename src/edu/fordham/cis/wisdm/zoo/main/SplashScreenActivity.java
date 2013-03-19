@@ -357,7 +357,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			dialog.show();
 		}
 		map = (MapViewFragment) this.getSupportFragmentManager().findFragmentById(R.id.mapfragment);
-		mGoogleMap = map.getMap().getMap();
+		mGoogleMap = map.getMap();
 		if(mGoogleMap!=null) start();
 	}
 		
@@ -638,7 +638,9 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 		searchList = (LinearLayout) findViewById(R.id.SearchList);
 		
 		//adds the searchbar to the actionbar
-		searchItem = new MenuItemSearchAction(this, menu, this, getResources().getDrawable(R.drawable.ic_action_search), this, searchList);
+		searchItem = new MenuItemSearchAction(this, menu, this, 
+				getResources().getDrawable(R.drawable.ic_action_search), 
+				this, searchList);
 		searchItem.setTextColor(getResources().getColor(R.color.forestgreen));
 		searchItem.getMenuItem().setOnMenuItemClickListener(this);
 		
@@ -683,7 +685,7 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 			if(!isTracking){
 				if (myLocation!=null){
 					item.setIcon(R.drawable.ic_action_location_blue);
-					MapUtils.animateTo(map.getGoogleMap(), myLocation);
+					MapUtils.animateTo(map.getMap(), myLocation);
 					isTracking = true;
 					MessageBuilder.showToast("Now Following Current Location, Tap Map to Cancel", this);
 				}	else MessageBuilder.showLongToast("Cannot find current location",  this);

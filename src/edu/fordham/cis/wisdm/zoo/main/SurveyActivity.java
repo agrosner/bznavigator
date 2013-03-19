@@ -286,7 +286,8 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			setQuestion(surveyfields.get(qindex));
 			buttons[1].setVisibility(View.GONE);
 		} else if(v.equals(buttons[1])){
-			startActivity(splash);
+			//startActivity(splash);
+			startActivity(new Intent(this, SlidingScreenActivity.class));
 		}
 		
 		//submit entered data and display next survey field

@@ -26,18 +26,22 @@ public class TextMarkerManager {
 	private int mTextColor = Color.BLACK;
 	
 	public TextMarkerManager(Context con, GoogleMap map){
+		reset(con, map);
+	}
+	
+	public void reset(Context con, GoogleMap map){
 		mContext = con;
 		mGoogleMap = map;
 	}
 	
-	public void readInData(Activity act, String...fNames) throws IOException{
+	public static void readInData(TextMarkerManager manager, Activity act, String...fNames) throws IOException{
 		for(String file: fNames){
-			readInData(act, file);
+			readInData(manager, act, file);
 		}
 	}
 	
-	private void readInData(Activity act, String fName) throws IOException{
-		Scanner mScanner = new Scanner(mContext.getAssets().open(fName));
+	public static void readInData(TextMarkerManager manager, Activity act, String fName) throws IOException{
+		Scanner mScanner = new Scanner(manager.mContext.getAssets().open(fName));
 		int idIndex = -1;
 		while(mScanner.hasNextLine()){
 			String line = mScanner.nextLine();
@@ -59,7 +63,7 @@ public class TextMarkerManager {
 					}
 					int drawableId = act.getResources().getIdentifier(lineArray[1], "drawable", act.getPackageName());
 
-					mMarkers.add(((TextMarker) 
+					manager.mMarkers.add(((TextMarker) 
 							new TextMarker()
 							.point(new LatLng(lat, lon))
 							.name(lineArray[0])).setImage(act.getResources(), drawableId));

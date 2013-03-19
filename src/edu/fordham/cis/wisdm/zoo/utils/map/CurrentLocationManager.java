@@ -3,6 +3,10 @@ package edu.fordham.cis.wisdm.zoo.utils.map;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import cis.fordham.edu.wisdm.messages.MessageBuilder;
+
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -34,6 +38,10 @@ public class CurrentLocationManager {
 	
 	private boolean mMyLocationEnabled = false;
 	
+	private boolean locationAvailable = false;
+	
+	public static String locationMessage = "";
+	
 	private LinkedList<Runnable> mFirstFix = new LinkedList<Runnable>();
 	
 	private LinkedList<Runnable> mLocationListeners = new LinkedList<Runnable>();
@@ -42,8 +50,16 @@ public class CurrentLocationManager {
 		mCtx = context;
 		mMap = map;
 		mManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		
-		
+		if (mManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+			locationMessage ="GPS provider enabled.";
+			locationAvailable = true;
+		} else if (mManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+			locationMessage = "Network provider enabled.";
+			locationAvailable = true;
+		} else	{
+			locationMessage = "No provider enabled. Please check settings and allow locational services.";
+			locationAvailable = false;
+		}
 		mListener = new LocationListener(){
 
 			@Override
@@ -99,6 +115,7 @@ public class CurrentLocationManager {
 	}
 	
 	public boolean start(){
+		if(!locationAvailable) return false;
 		if (!mMyLocationEnabled) {
             try {
             	mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mListener);

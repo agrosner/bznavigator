@@ -1,7 +1,9 @@
 package edu.fordham.cis.wisdm.zoo.utils.map;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -24,11 +27,10 @@ import com.google.android.gms.maps.model.Marker;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
+import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 
-public class MapViewFragment extends SherlockFragment implements OnClickListener, OnCameraChangeListener, OnInfoWindowClickListener{
+public class MapViewFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnInfoWindowClickListener{
 
-	private SupportMapFragment mMap = null;
-	
 	private GoogleMap mGoogleMap = null;
 
 	/**
@@ -48,26 +50,71 @@ public class MapViewFragment extends SherlockFragment implements OnClickListener
 	
 	private LatLngBounds.Builder mBuilder = new LatLngBounds.Builder();
 	
+	private View mLayout = null;
+	
+	private LayoutInflater mInflater = null;
+	
+	private CurrentLocationManager mManager = null;
+	
+	/**
+	 * Restrooms list
+	 */
+	LinkedList<PlaceItem> restrooms = new LinkedList<PlaceItem>();
+	
+	/**
+	 * Gates list
+	 */
+	LinkedList<PlaceItem> gates = new LinkedList<PlaceItem>();
+	
+	/**
+	 * Parking list
+	 */
+	LinkedList<PlaceItem> parking = new LinkedList<PlaceItem>();
+	
+	/**
+	 * Shops list
+	 */
+	LinkedList<PlaceItem> shop = new LinkedList<PlaceItem>();
+	/**
+	 * List of searchable places
+	 */
+	private LinkedList<PlaceItem> searchExhibits = new LinkedList<PlaceItem>();
+	
+	/**
+	 * Provides an action when the user's current location changes
+	 */
+	private Runnable meListener = new Runnable(){
+
+		@Override
+		public void run() {
+			PlaceController.reCalculateDistance(mManager.getLastKnownLocation(), 
+					searchExhibits, parking, gates, restrooms);
+		}
+		
+	};
+	
+	@Override
+	public void onResume(){
+		super.onResume();
+
+		mGoogleMap = super.getMap();
+		if(mGoogleMap!=null){
+			setUpMap(mInflater);
+		}
+	}
+	
 	@Override
 	 public View onCreateView(LayoutInflater inflater, ViewGroup container,
            Bundle savedInstanceState) {
-		super.onCreateView(inflater, container, savedInstanceState);
-		View layout = inflater.inflate(R.layout.fragment_map, container, false);
-		mMap = (SupportMapFragment) this.getFragmentManager().findFragmentById(R.id.mapFragment);
-		mGoogleMap = mMap.getMap();
-		if(mGoogleMap!=null){
-			setUpMap(layout, inflater);
-		}
+		ViewGroup v = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
+		mLayout = inflater.inflate(R.layout.fragment_map, container, false);
 		
-		return layout;
-	}
-
-	public SupportMapFragment getMap() {
-		return mMap;
-	}
-	
-	public GoogleMap getGoogleMap(){
-		return mMap.getMap();
+		Operations.setViewOnClickListeners(mLayout, this, R.id.satellite, R.id.normal, R.id.overview);
+		
+		mInflater = inflater;
+		
+		v.addView(mLayout);
+		return v;
 	}
 
 	@Override
@@ -84,7 +131,11 @@ public class MapViewFragment extends SherlockFragment implements OnClickListener
 		}
 	}
 	
-	private void setUpMap(View layout, LayoutInflater inflater){
+	/**
+	 * Sets up UI options
+	 * @param inflater
+	 */
+	private void setUpMap(LayoutInflater inflater){
 		mGoogleMap.setOnCameraChangeListener(this);
 		mGoogleMap.setMyLocationEnabled(true);
 		mGoogleMap.setInfoWindowAdapter(new PlaceItemWindowAdapter(inflater));
@@ -92,16 +143,35 @@ public class MapViewFragment extends SherlockFragment implements OnClickListener
    		mGoogleMap.getUiSettings().setCompassEnabled(false);
    		mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
 		
-		Operations.setViewOnClickListeners(layout, this, R.id.satellite, R.id.normal, R.id.overview);
-		
-		try {
-			MapUtils.generatePolygon(getActivity(), mBuilder);
-			Paths.readFiles(getActivity(), mGoogleMap);
-			mExhibits = new Exhibits(mGoogleMap).readFiles(getActivity());
-			mTextMarkerManager = new TextMarkerManager(getActivity(), mGoogleMap);
-			mTextMarkerManager.readInData(getActivity(),"exhibits.txt", "special.txt");
+   		try{
+   			MapUtils.generatePolygon(getActivity(), mBuilder);
+			Paths.readFiles(getActivity());
+			Paths.addToMap(mGoogleMap);
+			
+			Exhibits.readFiles(getActivity());
+			Exhibits.addToMap(mGoogleMap);
+			
+			if(mTextMarkerManager==null){
+				mTextMarkerManager = new TextMarkerManager(getActivity(), mGoogleMap);
+				TextMarkerManager.readInData(mTextMarkerManager, getActivity(),"exhibits.txt", "special.txt");
+			} else{
+				mTextMarkerManager.reset(getActivity(), mGoogleMap);
+			}
+			
 			mTextMarkerManager.addToMap();
-			mTextMarkerManager.refreshData(getMap().getMap().getCameraPosition().zoom);
+			mTextMarkerManager.refreshData(getMap().getCameraPosition().zoom);
+			
+			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
+			mManager.runOnFirstFix(meListener);
+			mManager.runOnFirstFix(new Runnable(){
+
+				@Override
+				public void run() {
+					mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 10));
+				}
+				
+			});
+			mManager.start();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
