@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +13,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -22,12 +26,15 @@ import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
+import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
+import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
 public class MapViewFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnInfoWindowClickListener{
 
@@ -55,6 +62,27 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	private LayoutInflater mInflater = null;
 	
 	private CurrentLocationManager mManager = null;
+	
+	/**
+	 * Whether user has indicated to have the map follow his location
+	 */
+	private boolean isTracking = false;
+	
+	/**
+	 * whether user has chosen to save his parking spot
+	 */
+	private boolean isParked = false;
+	
+	/**
+	 * Location that will be stored in preferences
+	 */
+	private LatLng mParkingLocation = null;
+	
+	/**
+	 * Item that will go on map when user saves parking spot
+	 */
+	PlaceItem mParkingPlace = null;
+
 	
 	/**
 	 * Restrooms list
@@ -92,6 +120,12 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		}
 		
 	};
+	
+	@Override
+	public void onPause(){
+		super.onPause();
+		mManager.stop();
+	}
 	
 	@Override
 	public void onResume(){
@@ -172,11 +206,28 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 				
 			});
 			mManager.start();
+			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			Toast.makeText(getActivity(), e1.getMessage(), Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	public void onMenuItemCreated(Menu menu){
+		isParked = Preference.getBoolean("parking", false);
+		
+		//switch so toggle works as expected
+		isParked = !isParked;
+		if(!isParked){
+			float lat = Preference.getFloat("parking-lat", 0);
+			float lon = Preference.getFloat("parking-lon", 0);
+			
+			Location loc = new Location("My Parking Location");
+			loc.setLatitude(lat);
+			loc.setLongitude(lon);
+			toggleParking(loc, menu.findItem(R.id.park));
+		} else toggleParking(menu.findItem(R.id.park));
 	}
 	
 	@Override
@@ -213,6 +264,93 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 */
 	public void clearFocus(){
 		mTextMarkerManager.clearFocus(mCurrentZoom);
+	}
+	
+	public CurrentLocationManager getManager(){
+		return mManager;
+	}
+	
+	/**
+	 * Toggles map tracking on screen
+	 * @param item
+	 */
+	public void toggleFollow(MenuItem item){
+		if(!isTracking){
+			if(mManager.getLastKnownLocation()!=null){
+				item.setIcon(R.drawable.ic_action_location_blue);
+				MapUtils.animateTo(mGoogleMap, mManager.getLastKnownLocation());
+				isTracking = true;
+				MessageBuilder.showToast("Now Following Current Location, Tap Map to Cancel", getActivity());
+			}	else MessageBuilder.showLongToast("Cannot find current location",  getActivity());
+		
+			
+		} else{
+			item.setIcon(R.drawable.ic_action_location);
+			isTracking = false;
+			MessageBuilder.showToast("Following Off", getActivity());
+		}
+		mManager.follow(isTracking);
+	}
+	
+	public boolean isTracking(){
+		return isTracking;
+	}
+	
+	/**
+	 * Toggles parking icon on screen
+	 * @param item
+	 */
+	public void toggleParking(Location loc, MenuItem item){
+		if(!isParked){
+			addParking(loc, item);
+		} else{
+			removeParking(item);
+		}
+	}
+	
+	public void addParking(MenuItem item){
+		addParking(mManager.getLastKnownLocation(), item);
+	}
+	
+	public void addParking(Location loc, MenuItem item){
+		item.setIcon(R.drawable.ic_action_key_blue);
+		Preference.putFloat("parking-lat", (float) loc.getLatitude());
+		Preference.putFloat("parking-lon", (float) loc.getLongitude());
+		Preference.putBoolean("parking", true);
+		isParked = true;
+		
+		if(mParkingPlace!=null){
+			mParkingPlace.remove();
+		}
+		createParkingItems(loc);
+		
+		mParkingPlace.addDraggableMarker(mGoogleMap);
+	}
+	
+	public void removeParking(MenuItem item){
+		item.setIcon(R.drawable.ic_action_key);
+		isParked = false;
+		Preference.putBoolean("parking", false);
+		Preference.putFloat("parking-lat", 0);
+		Preference.putFloat("parking-lon", 0);
+		if(mParkingPlace!=null)
+			mParkingPlace.remove();
+	}
+	
+	public void toggleParking(MenuItem item){
+		toggleParking(mManager.getLastKnownLocation(), item);
+	}
+	
+	/**
+	 * Initializes the parking location geopoint and placeitem
+	 */
+	private void createParkingItems(Location location){
+		mParkingLocation = new LatLng(location.getLatitude(), location.getLongitude());
+		mParkingPlace = new PlaceItem().point(mParkingLocation).iconId(R.drawable.car).name("My Parking Spot");
+	}
+	
+	public boolean isParked(){
+		return isParked;
 	}
 	
 

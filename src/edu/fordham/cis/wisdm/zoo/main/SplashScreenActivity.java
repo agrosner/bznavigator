@@ -748,10 +748,10 @@ public class SplashScreenActivity extends SherlockFragmentActivity implements On
 	
 	private void activateParkingSpot(){
 		park.setIcon(R.drawable.ic_action_key_blue);
+		MessageBuilder.showLongToast("Parking Location Now Saved. Press and hold icon to drag to desired location", this);
 		Preference.putFloat("parking-lat", (float) myLocation.getLatitude());
 		Preference.putFloat("parking-lon", (float) myLocation.getLongitude());
 		Preference.putBoolean("parking", true);
-		MessageBuilder.showLongToast("Parking Location Now Saved. Press and hold icon to drag to desired location", this);
 		isParked = true;
 		
 		if(mParkingPlace!=null){

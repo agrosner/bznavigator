@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -127,5 +128,9 @@ public class SlidingScreenList extends SherlockListFragment {
 			
 		}
 		return null;
+	}
+	
+	public MapViewFragment getMapFragment(){
+		return map;
 	}
 }

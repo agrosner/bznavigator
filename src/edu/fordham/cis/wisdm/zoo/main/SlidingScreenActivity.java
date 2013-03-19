@@ -10,10 +10,14 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import cis.fordham.edu.wisdm.messages.MessageBuilder;
 
 import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.view.Menu;
@@ -21,13 +25,16 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.LatLng;
 import com.slidingmenu.lib.SlidingMenu;
 import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 
+import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 
 /**
@@ -35,7 +42,7 @@ import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
  * @author Andrew Grosner
  *
  */
-public class SlidingScreenActivity extends SlidingFragmentActivity implements SearchPerformListener, TextWatcher, OnClickListener, OnMenuItemClickListener {
+public class SlidingScreenActivity extends SlidingFragmentActivity implements SearchPerformListener, TextWatcher, OnClickListener, OnMenuItemClickListener, OnMapClickListener {
 
 	private Fragment mContent = null;
 	
@@ -54,8 +61,6 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	private MenuItem followItem;
 	
 	private MenuItem parkItem;
-	
-	private boolean isTracking = false;
 	
 	private boolean isParked = false;
 	
@@ -107,8 +112,13 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	
 		getSupportMenuInflater().inflate(R.menu.activity_sliding_screen, menu);
 		
-		followItem = menu.findItem(R.id.follow);
-		parkItem = menu.findItem(R.id.park);
+		followItem = menu.findItem(R.id.follow).setOnMenuItemClickListener(this);
+		parkItem = menu.findItem(R.id.park).setOnMenuItemClickListener(this);
+		
+		menu.findItem(R.id.about).setOnMenuItemClickListener(this);
+		menu.findItem(R.id.settings).setOnMenuItemClickListener(this);
+		
+		mList.getMapFragment().onMenuItemCreated(menu);
 		
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -139,6 +149,13 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	public void onClick(View v) {
 		
 	}
+	
+	@Override
+	public void onBackPressed(){
+		if(!getSlidingMenu().isMenuShowing()){
+			getSlidingMenu().toggle();
+		} else	super.onBackPressed();
+	}
 
 	@Override
 	public boolean onMenuItemClick(MenuItem item) {
@@ -161,8 +178,48 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			return true;
 		case R.id.follow:
 			mList.switchToMap();
-			if(!isTracking){
+			mList.getMapFragment().getMap().setOnMapClickListener(this);
+			mList.getMapFragment().toggleFollow(item);
+			return true;
+		case R.id.park:
+			mList.switchToMap();
+			if(mList.getMapFragment().isParked()){
+				//bring up menu
+				final HoloAlertDialogBuilder confirm = new HoloAlertDialogBuilder(this);
+				confirm.setTitle("Parking Location Options");
+				confirm.setMessage("Saves a spot on the map for reference to where you may have parked today.");
+				confirm.setPositiveButton("Delete Location", new DialogInterface.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mList.getMapFragment().removeParking(parkItem);
+					}
+					
+				});
+				confirm.setNeutralButton("Reset", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mList.getMapFragment().addParking(parkItem);
+					}
+				});
 				
+				confirm.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						confirm.create().dismiss();
+					}
+				});
+				
+				confirm.create().show();
+				
+				
+			} else{
+				if(mList.getMapFragment().getManager().getLastKnownLocation()!=null){
+					mList.getMapFragment().addParking(parkItem);
+				} else{
+					MessageBuilder.showToast("Saving Parking Location Not Available When GPS is Not Found", this);
+				}
 			}
 			return true;
 		}
@@ -193,5 +250,15 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	public void performSearch(String query) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onMapClick(LatLng point) {
+		if(mList.getMapFragment().isTracking())
+			mList.getMapFragment().toggleFollow(followItem);
 	}	
+	
+	public MenuItem getParkingIcon(){
+		return parkItem;
+	}
 }
