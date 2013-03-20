@@ -7,8 +7,6 @@ import java.util.Scanner;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 
-import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;

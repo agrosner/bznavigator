@@ -1,6 +1,5 @@
 Place Name,drawable_file_name,latitude,longitude,
 Aquatic Bird House,exhibit,40.85385537579192,-73.87946560489237,
-Somba Village,exhibit,40.84769007772061,-73.87857816467965,
 Northern Ponds,exhibit,40.85032211497356,-73.87744630550742,
 Mouse House,exhibit,40.84884717924178,-73.87968630629983,
 Bears,exhibit,40.84889511785726,-73.87784542223737,

@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -37,11 +39,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
 	private GoogleMap mGoogleMap = null;
 
-	/**
-	 * Building objects overlayed on the map
-	 */
-	private Exhibits mExhibits;
-	
 	/**
 	 * Manages the text overlays displayed on the map
 	 */
@@ -78,9 +75,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	/**
 	 * Item that will go on map when user saves parking spot
 	 */
-	PlaceItem mParkingPlace = null;
+	private PlaceItem mParkingPlace = null;
 
-	
 	/**
 	 * Restrooms list
 	 */
@@ -117,6 +113,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		}
 		
 	};
+	
+	private LinkedList<Marker> mLastMarkers = new LinkedList<Marker>();
 	
 	@Override
 	public void onPause(){
@@ -159,6 +157,22 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			mTextMarkerManager.changeTextLabelColor(Color.BLACK,mCurrentZoom);
 		} else if(id == R.id.overview){
 			mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(getMapBounds(), 10));
+		} else{
+			PlaceItem place = searchExhibits.get(id-1);
+			SlidingScreenActivity act = ((SlidingScreenActivity) getActivity());
+			act.performSearch(place);
+			
+			//clean up old previous markers
+			for(Marker m: mLastMarkers){
+				m.remove();
+			}
+			
+			MapUtils.moveRelativeToCurrentLocation(mManager.getLastKnownLocation(),place.getPoint(), mGoogleMap);
+			mTextMarkerManager.clearFocus(mCurrentZoom);
+			
+			//if not within the text marker manager, we add icon to map
+			if(!mTextMarkerManager.addFocus(place))
+				mLastMarkers.add(place.addMarker(mGoogleMap));
 		}
 	}
 	
@@ -174,7 +188,32 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
    		mGoogleMap.getUiSettings().setCompassEnabled(false);
    		mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
 		
-   		try{
+   		if(mManager==null){
+   			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
+   			mManager.runOnFirstFix(meListener);
+   		}
+   		else	mManager.setFields(getActivity(), mGoogleMap);
+   		
+   		((SlidingScreenActivity)getActivity()).notifyLocationSet();
+   		
+   		final MapViewFragment frag = this;
+   		mManager.runOnFirstFix(new Runnable(){
+   			
+			@Override
+			public void run() {
+				mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 10));
+				PlaceFragmentList list = ((SlidingScreenActivity)getActivity()).getCurrentPlaceFragment();
+				if(list!=null){
+					list.refresh();
+				}
+				new LoadDataTask(((SlidingScreenActivity)getActivity()), frag).execute();
+			}
+				
+		});
+		mManager.start();
+		
+		try{
+		   		
    			MapUtils.generatePolygon(getActivity(), mBuilder);
 			Paths.readFiles(getActivity());
 			Paths.addToMap(mGoogleMap);
@@ -191,22 +230,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			
 			mTextMarkerManager.addToMap();
 			mTextMarkerManager.refreshData(getMap().getCameraPosition().zoom);
-			
-			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
-			mManager.runOnFirstFix(meListener);
-			mManager.runOnFirstFix(new Runnable(){
-
-				@Override
-				public void run() {
-					mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 10));
-					PlaceFragmentList list = ((SlidingScreenActivity)getActivity()).getCurrentPlaceFragment();
-					if(list!=null){
-						list.refresh();
-					}
-				}
-				
-			});
-			mManager.start();
 			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -243,7 +266,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
 	@Override
 	public void onInfoWindowClick(Marker marker) {
-		MapUtils.showExhibitInfoDialog(
+		MapUtils.showExhibitInfoDialog(mManager.getLastKnownLocation(),
 				getActivity().getLayoutInflater(), 
 				getActivity(), marker);
 	}
@@ -313,7 +336,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		addParking(mManager.getLastKnownLocation(), item);
 	}
 	
-	public void addParking(Location loc, MenuItem item){
+	public void addParking(final Location loc, MenuItem item){
 		item.setIcon(R.drawable.ic_action_key_blue);
 		Preference.putFloat("parking-lat", (float) loc.getLatitude());
 		Preference.putFloat("parking-lon", (float) loc.getLongitude());
@@ -325,7 +348,29 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		}
 		createParkingItems(loc);
 		
-		mParkingPlace.addDraggableMarker(mGoogleMap);
+		mParkingPlace.addDraggableMarker(mGoogleMap, new OnMarkerDragListener(){
+
+			@Override
+			public void onMarkerDrag(Marker marker) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onMarkerDragEnd(Marker marker) {
+				if(marker.getTitle().equals("My Parking Spot")){
+					Preference.putFloat("parking-lat", (float) loc.getLatitude());
+					Preference.putFloat("parking-lon", (float) loc.getLongitude());
+				}
+			}
+
+			@Override
+			public void onMarkerDragStart(Marker marker) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 	}
 	
 	public void removeParking(MenuItem item){
@@ -354,5 +399,38 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		return isParked;
 	}
 	
+	public LinkedList<PlaceItem> getSearchExhibits(){
+		return searchExhibits;
+	}
+	
+	/**
+	 * Loads data in the background, updating the UI along the way
+	 * @author Andrew Grosner
+	 *
+	 */
+	private class LoadDataTask extends AsyncTask<Void, Void, Void>{
+
+		private SlidingScreenActivity mActivity = null;
+		private OnClickListener mOnClick = null;
+		
+		public LoadDataTask(SlidingScreenActivity act, OnClickListener onClick){
+			this.mActivity = act;
+			this.mOnClick = onClick;
+		}
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			//reads exhibits into the searchbar list of places
+			PlaceController.readInData(mManager.getLastKnownLocation(), mActivity, mOnClick, searchExhibits, "exhibits.txt", "food.txt", "shops.txt",
+					"gates.txt", "parking.txt", "admin.txt", "special.txt", "restrooms.txt", "misc.txt");
+			return null;
+		}
+		
+		protected Void onPostExecute(){
+			PlaceController.readInDataIntoList(mManager.getLastKnownLocation(), mActivity, mActivity.searchList, searchExhibits, mOnClick, false);
+			return null;
+			
+		}
+	}
 
 }

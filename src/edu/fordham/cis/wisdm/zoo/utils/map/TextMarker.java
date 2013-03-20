@@ -1,6 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.utils.map;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -84,7 +85,7 @@ public class TextMarker extends PlaceItem{
 	}
 	
 	@Override
-	public Marker addMarker(GoogleMap map, boolean draggable){
+	public Marker addMarker(GoogleMap map, boolean draggable, OnMarkerDragListener listener){
 		generateBitmap();
 		mMarker = map.addMarker(new MarkerOptions()
 			.icon(BitmapDescriptorFactory.fromBitmap(mBitmap))
@@ -136,11 +137,11 @@ public class TextMarker extends PlaceItem{
 	public void refreshWithZoom(GoogleMap map, float zoom){
 		mMarker.remove();
 		if((mZoomMin!=0 && mZoomMin>=ZOOM_MIN) || zoom>=ZOOM_MIN || hasFocus){
-			addMarker(map, false);
+			addMarker(map, false, null);
 		}
 	}
 	public void refresh(GoogleMap map){
 		mMarker.remove();
-		addMarker(map, false);
+		addMarker(map, false, null);
 	}
 }

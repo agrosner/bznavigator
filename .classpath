@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="edu/fordham/cis/wisdm/zoo/main/OSMTestActivity.java|edu/fordham/cis/wisdm/zoo/utils/BoundedMapView.java|edu/fordham/cis/wisdm/zoo/main/NewsActivity.java|edu/fordham/cis/wisdm/zoo/main/RestroomsFragment.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceWidget.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceWidgetManager.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceFragment2.java|edu/fordham/cis/wisdm/zoo/file/GFile.java|edu/fordham/cis/wisdm/zoo/utils/WrapSlidingDrawer.java" kind="src" path="src"/>
+	<classpathentry excluding="edu/fordham/cis/wisdm/zoo/main/OSMTestActivity.java|edu/fordham/cis/wisdm/zoo/utils/BoundedMapView.java|edu/fordham/cis/wisdm/zoo/main/NewsActivity.java|edu/fordham/cis/wisdm/zoo/main/RestroomsFragment.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceWidget.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceWidgetManager.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceFragment2.java|edu/fordham/cis/wisdm/zoo/file/GFile.java|edu/fordham/cis/wisdm/zoo/utils/WrapSlidingDrawer.java|edu/fordham/cis/wisdm/zoo/main/SplashScreenActivity.java|edu/fordham/cis/wisdm/zoo/main/SplashScreenController.java|edu/fordham/cis/wisdm/zoo/main/places/PlaceFragment.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="bzsrc"/>
 	<classpathentry kind="src" path="at-utils"/>
 	<classpathentry kind="src" path="gen"/>

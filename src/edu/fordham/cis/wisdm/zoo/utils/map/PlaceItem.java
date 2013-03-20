@@ -9,8 +9,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
-
 /**
  * It will hold information regarding a place to display on the map as well as distance and resource information.
  * @author Andrew Grosner
@@ -64,35 +62,14 @@ public class PlaceItem {
 		return this;
 	}
 	
-	protected Marker addMarker(GoogleMap map, boolean draggable){
+	protected Marker addMarker(GoogleMap map, boolean draggable, OnMarkerDragListener listener){
 		if(mPoint!=null){
 			MarkerOptions options = 
 					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(mResId))
 					.title(mName).position(mPoint);
 			if(draggable){
 				options.draggable(draggable);
-				map.setOnMarkerDragListener(new OnMarkerDragListener(){
-
-					@Override
-					public void onMarkerDrag(Marker marker) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void onMarkerDragEnd(Marker marker) {
-						if(marker.getTitle().equals("My Parking Spot")){
-							SplashScreenActivity.saveParkingSpot(marker.getPosition());
-						}
-					}
-
-					@Override
-					public void onMarkerDragStart(Marker marker) {
-						// TODO Auto-generated method stub
-						
-					}
-					
-				});
+				map.setOnMarkerDragListener(listener);
 			}
 			mMarker = map.addMarker(options);
 			return mMarker;
@@ -102,12 +79,12 @@ public class PlaceItem {
 	}
 	
 	public Marker addMarker(GoogleMap map){
-		return addMarker(map, false);
+		return addMarker(map, false, null);
 	}
 	
 	
-	public Marker addDraggableMarker(GoogleMap map){
-		return addMarker(map, true);
+	public Marker addDraggableMarker(GoogleMap map, OnMarkerDragListener listener){
+		return addMarker(map, true, listener);
 	}
 	
 	public void remove(){

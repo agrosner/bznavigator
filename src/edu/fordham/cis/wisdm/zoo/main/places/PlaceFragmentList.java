@@ -20,7 +20,6 @@ import android.widget.Toast;
 import cis.fordham.edu.wisdm.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
-import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
 import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
 public class PlaceFragmentList extends SherlockFragment implements OnClickListener{
@@ -129,7 +128,7 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 		String fName = type.toString() + ".txt";
 		SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
 		
-		if(points.isEmpty())	PlaceController.readInData(act, act, points, fName);
+		if(points.isEmpty())	PlaceController.readInData(act.mList.getMapFragment().getManager().getLastKnownLocation(),act, act, points, fName);
 		PlaceController.reCalculateDistance(act.mList.getMapFragment().getManager().getLastKnownLocation(), points);
 		
 		PlaceController.reOrderByDistance(points);

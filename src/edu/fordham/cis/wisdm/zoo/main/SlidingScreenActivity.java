@@ -1,25 +1,20 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
-import android.app.Dialog;
+import java.util.LinkedList;
+
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.Settings.Secure;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MotionEvent;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
 import cis.fordham.edu.wisdm.utils.Operations;
@@ -30,8 +25,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.slidingmenu.lib.SlidingMenu;
 import com.slidingmenu.lib.app.SlidingFragmentActivity;
@@ -39,10 +34,12 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
 import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 
+import edu.fordham.cis.wisdm.zoo.main.places.AmenitiesFragment;
+import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
-import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
 /**
  * Class displays the main menu that will switch between different fragments
@@ -51,16 +48,20 @@ import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
  */
 public class SlidingScreenActivity extends SlidingFragmentActivity implements SearchPerformListener, TextWatcher, OnClickListener, OnMenuItemClickListener, OnMapClickListener {
 
+	protected static final String TAG = "SlidingScreenActivity";
+
 	private Fragment mContent = null;
 	
 	private PlaceFragmentList mCurrentPlaceFragment = null;
+	
+	private AmenitiesFragment mAmenities;
 	
 	public SlidingScreenList mList = null;
 	
 	/**
 	 * the popup list of exhibits that shows up when a user searches for an exhibit
 	 */
-	private LinearLayout searchList;
+	public LinearLayout searchList;
 	
 	/**
 	 * the searchbar widget
@@ -71,8 +72,6 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	
 	private MenuItem parkItem;
 	
-	private boolean isParked = false;
-	
 	private Connections mUser = null;
 	
 	@Override
@@ -80,6 +79,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		super.onCreate(savedInstanceState);
 		setTitle("Bronx Zoo");
 		setContentView(R.layout.activity_slide_splash);
+		getSlidingMenu().setMode(SlidingMenu.LEFT_RIGHT);
 		
 		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
 		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -146,7 +146,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		if(findViewById(R.id.menu) == null){
 			setBehindContentView(R.layout.activity_slide_menu);
 			getSlidingMenu().setSlidingEnabled(true);
-			getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+			getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 		
@@ -157,7 +157,10 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			mContent = mList.getSelectedFragment(this, 0);
 			
 		}
+		
 		getSupportFragmentManager().beginTransaction().replace(R.id.map_content, mContent).commit();
+		
+		
 		
 		SlidingMenu sm = getSlidingMenu();
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
@@ -165,6 +168,12 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		sm.setShadowDrawable(R.drawable.shadow);
 		sm.setBehindScrollScale(0.25f);
 		sm.setFadeDegree(0.25f);
+		
+		sm.setSecondaryMenu(R.layout.fragment_amenities);
+		
+		mAmenities = new AmenitiesFragment();
+		getSupportFragmentManager().beginTransaction()
+			.replace(R.id.fragment_amenities_content, mAmenities).commit();
 
 	}
 	
@@ -227,6 +236,10 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		}
 		mContent = fragment;
 		getSlidingMenu().showContent();
+	}
+	
+	public void notifyLocationSet(){
+		mAmenities.setCheckboxes(true);
 	}
 
 	@Override
@@ -311,6 +324,17 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		return false;
 	}
 	
+	/**
+	 * Switches to map, collapses search bar, hides the searchlist, and sends the query to the server
+	 * @param place
+	 */
+	public void performSearch(PlaceItem place){
+		mList.switchToMap();
+		searchItem.getMenuItem().collapseActionView();
+		Operations.removeView(searchList);
+		sendSearchQuery(place.getName());
+	}
+	
 	@Override
 	public void afterTextChanged(Editable s) {
 		// TODO Auto-generated method stub
@@ -320,21 +344,66 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count,
 			int after) {
-		// TODO Auto-generated method stub
-		
+		searchList.removeAllViews();
 	}
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
-		// TODO Auto-generated method stub
-		
+		if(s.length()>0){
+			searchList.removeAllViews();
+			for(int i =0; i < mList.getMapFragment().getSearchExhibits().size(); i++){
+				PlaceItem place = mList.getMapFragment().getSearchExhibits().get(i);
+				if(place.getName().toLowerCase().contains(s.toString().toLowerCase()))
+					searchList.addView(PlaceController.createExhibitItem(mList.getMapFragment().getManager().getLastKnownLocation(),
+								this, i+1, place, mList.getMapFragment(), true));
+				}
+		}
 	}
 
 	@Override
 	public void performSearch(String query) {
-		// TODO Auto-generated method stub
+		String querie = query.toLowerCase();
+		boolean found = false;
+		PlaceItem placeFound = null;
 		
+		for(PlaceItem place: mList.getMapFragment().getSearchExhibits()){
+			String name = place.getName().toLowerCase();
+			if(name.contains(querie)){
+				found = true;
+				placeFound = place;
+				break;
+			}
+		}
+		
+		if(found){
+			if(placeFound!=null){
+				LinkedList<PlaceItem> place = new LinkedList<PlaceItem>();
+				place.add(placeFound);
+				mList.switchToMap();
+				mList.getMapFragment().getMap().animateCamera(CameraUpdateFactory.newLatLng(placeFound.getPoint()));
+				sendSearchQuery(querie);
+			}
+		} else{
+			MessageBuilder.showToast("Not found", this);
+		}
 	}
+	
+	/**
+	 * 
+	 * @param querie
+	 */
+	public void sendSearchQuery(final String querie){
+		new Thread(){
+			@Override
+			public void run(){
+			if(!Connections.sendSearchQuery(
+				mUser,querie, mList.getMapFragment().getManager().getLastKnownLocation()))
+				Log.e(TAG, "Failed sending query: " + querie);
+				else Log.d(TAG, "Query sent: " + querie); 
+			}
+		}.start();
+	}
+	
 
 	@Override
 	public void onMapClick(LatLng point) {

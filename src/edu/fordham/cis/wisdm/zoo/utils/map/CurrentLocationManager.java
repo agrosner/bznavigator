@@ -106,6 +106,11 @@ public class CurrentLocationManager {
 		};
 	}
 	
+	public void setFields(Context con, GoogleMap map){
+		mCtx = con;
+		mMap = map;
+	}
+	
 	public void schedule(Runnable run){
 		mLocationListeners.add(run);
 	}

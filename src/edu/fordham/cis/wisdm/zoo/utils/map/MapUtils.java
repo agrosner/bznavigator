@@ -3,18 +3,14 @@ package edu.fordham.cis.wisdm.zoo.utils.map;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.zip.Inflater;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,9 +20,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
-import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
-import edu.fordham.cis.wisdm.zoo.utils.Polygon;
 
 public class MapUtils {
 
@@ -46,13 +40,13 @@ public class MapUtils {
 	 * @param map
 	 * @param places
 	 */
-	public static void moveToBounds(GoogleMap map, LinkedList<PlaceItem> places){
+	public static void moveToBounds(Location myLocation, GoogleMap map, LinkedList<PlaceItem> places){
 		LatLngBounds.Builder builder = new LatLngBounds.Builder();
 		for(PlaceItem place: places){
 			builder.include(place.getPoint());
 		}
-		if(SplashScreenActivity.myLocation!=null)
-			builder.include(locationToLatLng(SplashScreenActivity.myLocation));
+		if(myLocation!=null)
+			builder.include(locationToLatLng(myLocation));
 		try{
 			map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 10));
 		} catch(IllegalStateException i){
@@ -96,8 +90,8 @@ public class MapUtils {
 	}
 	
 	
-	public static void moveRelativeToCurrentLocation(LatLng point, GoogleMap map){
-		map.animateCamera(CameraUpdateFactory.newLatLngBounds(getBounds(point, locationToLatLng(SplashScreenActivity.myLocation)), 30));
+	public static void moveRelativeToCurrentLocation(Location myLocation, LatLng point, GoogleMap map){
+		map.animateCamera(CameraUpdateFactory.newLatLngBounds(getBounds(point, locationToLatLng(myLocation)), 50));
 	}
 	
 	
@@ -109,7 +103,7 @@ public class MapUtils {
 		return builder.build();
 	}
 	
-	public static void showExhibitInfoDialog(LayoutInflater inflater, Context con, Marker marker){
+	public static void showExhibitInfoDialog(Location myLocation, LayoutInflater inflater, Context con, Marker marker){
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(con);
 		View v = inflater.inflate(R.layout.dialog_exhibit, null);
@@ -118,7 +112,7 @@ public class MapUtils {
 		title.setText(marker.getTitle());
 		
 		TextView info = (TextView) v.findViewById(R.id.distance);
-		info.setText(PlaceController.calculateDistanceString(SplashScreenActivity.myLocation, latLngToLocation(marker.getPosition())) + " ft");
+		info.setText(PlaceController.calculateDistanceString(myLocation, latLngToLocation(marker.getPosition())));
 	
 		builder.setView(v);
 		final AlertDialog dialog = builder.create();

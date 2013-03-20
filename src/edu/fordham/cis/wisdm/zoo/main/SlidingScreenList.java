@@ -64,12 +64,13 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 
 	@Override
 	public void onListItemClick(ListView lv, View v, int position, long id) {
-		
-		if(position!=8){
-			Fragment newContent = getSelectedFragment(getActivity(), position);
-			if (newContent != null)
-				switchFragment(newContent);
-		} else{
+		if(position==6){
+			switchToMap();
+			if(getActivity() instanceof SlidingScreenActivity){
+				SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
+				act.getSlidingMenu().showSecondaryMenu(true);
+			}
+		} else if(position==8){
 			 //ask user whether quit or not
 			 AlertDialog.Builder message = new AlertDialog.Builder(getActivity());
 			 message.setTitle("Logout?");
@@ -101,6 +102,10 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 				 public void onClick(DialogInterface dialog, int which) {}
 			 });
 			 message.create().show();
+		} else{
+				Fragment newContent = getSelectedFragment(getActivity(), position);
+				if (newContent != null)
+					switchFragment(newContent);
 		}
 	}
 	

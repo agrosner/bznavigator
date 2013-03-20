@@ -198,11 +198,11 @@ public class LocationUpdateService extends Service implements LocationListener{
 				.setContentTitle("BZNavigator is running")
 				.setContentText("Click to open to recording screen.")
 				.setOngoing(true);
-		Intent click = new Intent(this, SplashScreenActivity.class);
+		Intent click = new Intent(this, SlidingScreenActivity.class);
 		click.setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		// Adds the back stack for the Intent (but not the Intent itself)
-		stackBuilder.addParentStack(SplashScreenActivity.class);
+		stackBuilder.addParentStack(SlidingScreenActivity.class);
 		// Adds the Intent that starts the Activity to the top of the stack
 		stackBuilder.addNextIntent(click);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, click, 0);

@@ -23,8 +23,6 @@ import android.widget.TextView;
 import cis.fordham.edu.wisdm.utils.Operations;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
-import edu.fordham.cis.wisdm.zoo.main.SplashScreenActivity;
-import edu.fordham.cis.wisdm.zoo.main.SplashScreenController;
 import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
 /**
@@ -62,8 +60,8 @@ public class PlaceController {
 		Operations.setViewText(exhibitItem, title, R.id.title);
 		
 		//if request to not fill, will request smaller size
-		if(wrap && SplashScreenActivity.isLargeScreen)
-			exhibitItem.setLayoutParams(new LayoutParams(SplashScreenController.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
+		//if(wrap && SplashScreenActivity.isLargeScreen)
+			//exhibitItem.setLayoutParams(new LayoutParams(SplashScreenController.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
 		
 		
 		if(!drawablePath.equals("0")){
@@ -144,7 +142,7 @@ public class PlaceController {
 	 * @param fName
 	 * @param points
 	 */
-	private static void readInData(Activity act, String fName, List<PlaceItem> points, OnClickListener onInfoClick){
+	private static void readInData(Location myLocation, Activity act, String fName, List<PlaceItem> points, OnClickListener onInfoClick){
 		try {
 			Scanner mScanner = new Scanner(act.getAssets().open(fName));
 			int idIndex = -1;
@@ -161,8 +159,8 @@ public class PlaceController {
 						loc.setLatitude(lat);
 						loc.setLongitude(lon);
 						
-						if(SplashScreenActivity.myLocation==null)	distance = 0; 
-						else	distance = loc.distanceTo(SplashScreenActivity.myLocation);
+						if(myLocation==null)	distance = 0; 
+						else	distance = loc.distanceTo(myLocation);
 						
 						if(lineArray[0].toLowerCase().contains("restroom")){
 							lineArray[0] = "Restroom";
@@ -191,9 +189,9 @@ public class PlaceController {
 	 * @param points
 	 * @param fNames
 	 */
-	public static void readInData(Activity act, OnClickListener onInfoClick, LinkedList<PlaceItem> points, String... fNames){
+	public static void readInData(Location myLocation, Activity act, OnClickListener onInfoClick, LinkedList<PlaceItem> points, String... fNames){
 		for(String fName: fNames){
-			readInData(act, fName, points, onInfoClick);
+			readInData(myLocation, act, fName, points, onInfoClick);
 		}
 	}
 	
