@@ -23,6 +23,8 @@ public class TextMarkerManager {
 	
 	private int mTextColor = Color.BLACK;
 	
+	private boolean hasFocus = false;
+	
 	public TextMarkerManager(Context con, GoogleMap map){
 		reset(con, map);
 	}
@@ -84,6 +86,7 @@ public class TextMarkerManager {
 				text.refresh(mGoogleMap);
 			}
 		}
+		hasFocus = true;
 		return true;
 	}
 	
@@ -97,6 +100,11 @@ public class TextMarkerManager {
 			text.setFocus(false);
 			text.refreshWithZoom(mGoogleMap, zoom);
 		}
+		hasFocus = false;
+	}
+	
+	public boolean hasFocus(){
+		return hasFocus;
 	}
 	
 	public boolean contains(PlaceItem place){

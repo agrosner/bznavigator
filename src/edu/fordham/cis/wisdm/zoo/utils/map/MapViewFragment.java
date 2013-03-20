@@ -2,6 +2,7 @@ package edu.fordham.cis.wisdm.zoo.utils.map;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 
 import android.graphics.Color;
 import android.location.Location;
@@ -138,7 +139,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		ViewGroup v = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
 		mLayout = inflater.inflate(R.layout.fragment_map, container, false);
 		
-		Operations.setViewOnClickListeners(mLayout, this, R.id.satellite, R.id.normal, R.id.overview);
+		Operations.setViewOnClickListeners(mLayout, this, R.id.satellite, R.id.normal, R.id.overview, R.id.clear);
+		Operations.removeView(mLayout.findViewById(R.id.clear));
 		
 		mInflater = inflater;
 		
@@ -157,22 +159,18 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			mTextMarkerManager.changeTextLabelColor(Color.BLACK,mCurrentZoom);
 		} else if(id == R.id.overview){
 			mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(getMapBounds(), 10));
+		} else if(id == R.id.clear){
+			clearMap();
 		} else{
-			PlaceItem place = searchExhibits.get(id-1);
 			SlidingScreenActivity act = ((SlidingScreenActivity) getActivity());
+			PlaceItem place = act.selected.get(id-1);
+			
 			act.performSearch(place);
 			
-			//clean up old previous markers
-			for(Marker m: mLastMarkers){
-				m.remove();
-			}
+			clearMap();
 			
-			MapUtils.moveRelativeToCurrentLocation(mManager.getLastKnownLocation(),place.getPoint(), mGoogleMap);
-			mTextMarkerManager.clearFocus(mCurrentZoom);
 			
-			//if not within the text marker manager, we add icon to map
-			if(!mTextMarkerManager.addFocus(place))
-				mLastMarkers.add(place.addMarker(mGoogleMap));
+			addPlace(place);
 		}
 	}
 	
@@ -235,6 +233,46 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			Toast.makeText(getActivity(), e1.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	/**
+	 * Clears all showing (focused) icons, does not remove amenities icons
+	 */
+	public void clearMap(){
+		//clean up old previous markers
+		for(Marker m: mLastMarkers){
+			m.remove();
+		}
+		mLastMarkers.clear();
+		mTextMarkerManager.clearFocus(mCurrentZoom);
+		Operations.removeView(getView().findViewById(R.id.clear));
+	}
+	
+	/**
+	 * Adds a place and shows place in relation to location
+	 * @param place
+	 */
+	public void addPlace(PlaceItem place){
+		Operations.addView(getView().findViewById(R.id.clear));
+		MapUtils.moveRelativeToCurrentLocation(mManager.getLastKnownLocation(),place.getPoint(), mGoogleMap);
+		
+		//if not within the text marker manager, we add icon to map
+		if(!mTextMarkerManager.addFocus(place))
+			mLastMarkers.add(place.addMarker(mGoogleMap));
+	}
+	
+	/**
+	 * Adds a list of placeitems to the map
+	 * @param places
+	 */
+	public void addPlaceList(LinkedList<PlaceItem> places){
+		Operations.addView(getView().findViewById(R.id.clear));
+		MapUtils.moveToBounds(mManager.getLastKnownLocation(), mGoogleMap, places);
+		for(PlaceItem place: places){
+			//if not within the text marker manager, we add icon to map
+			if(!mTextMarkerManager.addFocus(place))
+				mLastMarkers.add(place.addMarker(mGoogleMap));
 		}
 	}
 	

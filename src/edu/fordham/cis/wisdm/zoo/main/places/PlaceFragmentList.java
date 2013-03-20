@@ -1,5 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.main.places;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -20,6 +22,8 @@ import android.widget.Toast;
 import cis.fordham.edu.wisdm.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
+import edu.fordham.cis.wisdm.zoo.main.SlidingScreenList;
+import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
 public class PlaceFragmentList extends SherlockFragment implements OnClickListener{
@@ -81,6 +85,14 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 	public PlaceFragmentList(PlaceType type, LinkedList<PlaceItem> places){
 		this.type = type;
 		points = places;
+	}
+	
+	public void setPoints(LinkedList<PlaceItem> places){
+		points = places;
+	}
+	
+	public boolean isEmpty(){
+		return points.isEmpty();
 	}
 	
 	/**
@@ -150,27 +162,39 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 			Toast.makeText(getActivity(), "Refreshed", Toast.LENGTH_SHORT).show();
 		} else if(id == R.id.exit){
 			act.onBackPressed();
-		} else if(id > 0){
-			PlaceItem place = points.get(id-1);
-			LinkedList<PlaceItem> places = new LinkedList<PlaceItem>();
-			places.add(place);
-			act.mList.switchToMap();
-			//act.showMap(mTransaction, getView(), places);
-		} else if(id == 0){
-			if(type !=  PlaceType.NEARBY){
-				//act.showMap(mTransaction, getView(), points);
-				act.mList.switchToMap();
-			}
-			else{
-				LinkedList<PlaceItem> reducePoints = new LinkedList<PlaceItem>();
-				while(reducePoints.size()!=10){
-					reducePoints.add(points.get(reducePoints.size()));
+		} else {
+			SlidingScreenList list = act.mList;
+			MapViewFragment map = act.mList.getMapFragment();
+			list.switchToMap();
+			map.clearMap();
+			
+			if(id > 0){
+				map.addPlace(points.get(id-1));
+			} else if(id == 0){
+				LinkedList<PlaceItem> placeList = null;
+				if(type !=  PlaceType.NEARBY){
+					placeList = points;
+				} else{
+					Collections.sort(points, new Comparator<PlaceItem>(){
+
+						@Override
+						public int compare(PlaceItem lhs, PlaceItem rhs) {
+							return Float.valueOf(lhs.getDistance()).compareTo(rhs.getDistance());
+						}
+						
+					});
+					LinkedList<PlaceItem> reducePoints = new LinkedList<PlaceItem>();
+					while(reducePoints.size()!=10){
+						reducePoints.add(points.get(reducePoints.size()));
+					}
+					placeList = reducePoints;
 				}
-				//act.showMap(mTransaction, getView(), reducePoints);
-				act.mList.switchToMap();
-			}
-		} else if(id == -1){
-			getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.bronxzoostore.com")));
-		} 
+				map.addPlaceList(placeList);
+				
+			} else if(id == -1){
+				getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.bronxzoostore.com")));
+			} 
+		}
 	}
 }
+

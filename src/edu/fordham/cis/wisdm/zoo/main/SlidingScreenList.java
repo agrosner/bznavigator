@@ -160,7 +160,9 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 			}
 			return map;
 		case 1: 
-			return PlaceFragmentList.initFrag(nearby, PlaceType.NEARBY);
+			nearby = PlaceFragmentList.initFrag(nearby, PlaceType.NEARBY);
+			if(nearby.isEmpty())	nearby.setPoints(map.getSearchExhibits());
+			return nearby;
 		case 2:
 			return PlaceFragmentList.initFrag(shops, PlaceType.SHOPS);
 		case 3:

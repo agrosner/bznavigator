@@ -1,5 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 import android.content.Context;
@@ -62,6 +64,8 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	 * the popup list of exhibits that shows up when a user searches for an exhibit
 	 */
 	public LinearLayout searchList;
+	
+	public LinkedList<PlaceItem> selected = new LinkedList<PlaceItem>();
 	
 	/**
 	 * the searchbar widget
@@ -345,18 +349,37 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	public void beforeTextChanged(CharSequence s, int start, int count,
 			int after) {
 		searchList.removeAllViews();
+		selected.clear();
 	}
 
 	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count) {
+	public void onTextChanged(final CharSequence s, int start, int before, int count) {
 		if(s.length()>0){
 			searchList.removeAllViews();
 			for(int i =0; i < mList.getMapFragment().getSearchExhibits().size(); i++){
 				PlaceItem place = mList.getMapFragment().getSearchExhibits().get(i);
-				if(place.getName().toLowerCase().contains(s.toString().toLowerCase()))
-					searchList.addView(PlaceController.createExhibitItem(mList.getMapFragment().getManager().getLastKnownLocation(),
-								this, i+1, place, mList.getMapFragment(), true));
+				if(place.getName().toLowerCase().startsWith(s.toString().toLowerCase()))
+					selected.add(place);
 				}
+			
+			Collections.sort(selected, new Comparator<PlaceItem>(){
+
+				@Override
+				public int compare(PlaceItem lhs, PlaceItem rhs) {
+					Boolean lstart = lhs.getName().toLowerCase().startsWith(s.toString().toLowerCase());
+					Boolean rstart = rhs.getName().toLowerCase().startsWith(s.toString().toLowerCase());
+					
+					return lstart.compareTo(rstart);
+				
+				}
+				
+			});
+			
+			int size = selected.size();
+			for(int i = 0; i < size; i++){
+				searchList.addView(PlaceController.createExhibitItem(mList.getMapFragment().getManager().getLastKnownLocation(),
+						this, i+1, selected.get(i), mList.getMapFragment(), true));
+			}
 		}
 	}
 
@@ -368,7 +391,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		
 		for(PlaceItem place: mList.getMapFragment().getSearchExhibits()){
 			String name = place.getName().toLowerCase();
-			if(name.contains(querie)){
+			if(name.equals(querie)){
 				found = true;
 				placeFound = place;
 				break;
@@ -377,10 +400,9 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		
 		if(found){
 			if(placeFound!=null){
-				LinkedList<PlaceItem> place = new LinkedList<PlaceItem>();
-				place.add(placeFound);
-				mList.switchToMap();
-				mList.getMapFragment().getMap().animateCamera(CameraUpdateFactory.newLatLng(placeFound.getPoint()));
+				performSearch(placeFound);
+				mList.getMapFragment().clearMap();
+				mList.getMapFragment().addPlace(placeFound);
 				sendSearchQuery(querie);
 			}
 		} else{

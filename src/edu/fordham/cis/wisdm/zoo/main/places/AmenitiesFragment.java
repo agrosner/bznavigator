@@ -33,6 +33,10 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	
 	private LinkedList<PlaceItem> food = new LinkedList<PlaceItem>();
 	
+	private LinkedList<PlaceItem> misc = new LinkedList<PlaceItem>();
+	
+	
+	
 	@Override
 	 public View onCreateView(LayoutInflater inflater, ViewGroup container,
           Bundle savedInstanceState) {
@@ -48,12 +52,14 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 		RelativeLayout shopsBox = createIconCheckBox("Shops", R.drawable.shop, 2);
 		RelativeLayout parkingBox = createIconCheckBox("Parking", R.drawable.car, 3);
 		RelativeLayout foodBox = createIconCheckBox("Food", R.drawable.food, 4);
+		RelativeLayout miscBox = createIconCheckBox("Misc.", R.drawable.info, 5);
 		
 		layout.addView(gatesBox);
 		layout.addView(restroomsBox);
 		layout.addView(shopsBox);
 		layout.addView(parkingBox);
 		layout.addView(foodBox);
+		layout.addView(miscBox);
 		
 		return layout;
 	}
@@ -78,7 +84,7 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	}
 	
 	public void setCheckboxes(boolean check){
-		for(int i =0; i < 5; i++){
+		for(int i =0; i < 6; i++){
 			CheckBox ch = (CheckBox) (getView().findViewById(i));
 			ch.setChecked(check);
 		}
@@ -110,6 +116,9 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 		case 4:
 			fName+="food.txt";
 			pts = food;
+		case 5:
+			fName+="misc.txt";
+			pts = misc;
 		}
 		if(isChecked) readInAmenity(pts, fName);
 		else		  MapUtils.removeList(pts);

@@ -264,7 +264,7 @@ public class PlaceController {
 		if(currentLoc!=null){
 			double distance = currentLoc.distanceTo(next)*METERS_TO_FT;
 			distance = Math.round(distance);
-			if(distance>=5280){
+			if(distance>=500){
 				distance/=5280;
 				return String.format("%.2f" + MILES, distance);
 			} else	return String.valueOf(distance).replace(".0", "") + " ft";
@@ -281,9 +281,7 @@ public class PlaceController {
 	public static void reCalculateDistance(Location currentLoc, LinkedList<PlaceItem>... points){
 		if(currentLoc!=null){
 			for (LinkedList<PlaceItem> point: points){
-				for(PlaceItem place: point){
-					place = place.distance(currentLoc.distanceTo(place.getLocation()));
-				}
+				point = reCalculateDistance(currentLoc, point);
 			}
 		}
 	}
