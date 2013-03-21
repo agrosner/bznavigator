@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/fill_width"
+    style="@style/wrap"
     android:orientation="horizontal">
     
     <ImageView 
@@ -12,7 +12,7 @@
         />
 	<TextView 
 	    android:id="@+id/name"
-	    style="@style/fill_width"
+	    style="@style/wrap"
 	    android:padding="10dip"
 	    android:text="Name"
 	    android:textSize="20dip"

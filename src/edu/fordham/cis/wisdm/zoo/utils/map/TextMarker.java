@@ -135,9 +135,14 @@ public class TextMarker extends PlaceItem{
 	 * @param scale
 	 */
 	public void refreshWithZoom(GoogleMap map, float zoom){
+		boolean info = mMarker.isInfoWindowShown();
+			
 		mMarker.remove();
 		if((mZoomMin!=0 && mZoomMin>=ZOOM_MIN) || zoom>=ZOOM_MIN || hasFocus){
 			addMarker(map, false, null);
+			if(info){
+				mMarker.showInfoWindow();
+			}
 		}
 	}
 	public void refresh(GoogleMap map){

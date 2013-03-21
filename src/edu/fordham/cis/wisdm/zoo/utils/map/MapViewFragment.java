@@ -256,10 +256,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	public void addPlace(PlaceItem place){
 		Operations.addView(getView().findViewById(R.id.clear));
 		MapUtils.moveRelativeToCurrentLocation(mManager.getLastKnownLocation(),place.getPoint(), mGoogleMap);
-		
 		//if not within the text marker manager, we add icon to map
 		if(!mTextMarkerManager.addFocus(place))
 			mLastMarkers.add(place.addMarker(mGoogleMap));
+		place.mMarker.showInfoWindow();
 	}
 	
 	/**

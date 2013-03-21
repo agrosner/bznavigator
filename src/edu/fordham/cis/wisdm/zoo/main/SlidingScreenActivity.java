@@ -16,6 +16,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
 import cis.fordham.edu.wisdm.messages.MessageBuilder;
@@ -83,7 +85,6 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		super.onCreate(savedInstanceState);
 		setTitle("Bronx Zoo");
 		setContentView(R.layout.activity_slide_splash);
-		getSlidingMenu().setMode(SlidingMenu.LEFT_RIGHT);
 		
 		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
 		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -146,12 +147,27 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		}
 		
 		mList = new SlidingScreenList();
+		SlidingMenu sm = getSlidingMenu();
+		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+		sm.setShadowWidthRes(R.dimen.shadow_width);
+		sm.setShadowDrawable(R.drawable.shadow);
+		sm.setBehindScrollScale(0.25f);
+		sm.setFadeDegree(0.25f);
+		sm.setSlidingEnabled(true);
+		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+		setSlidingActionBarEnabled(false);
 		
+		//if the left pane view is null, the screen size is small
 		if(findViewById(R.id.menu) == null){
+			sm.setMode(SlidingMenu.LEFT_RIGHT);
 			setBehindContentView(R.layout.activity_slide_menu);
-			getSlidingMenu().setSlidingEnabled(true);
-			getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			sm.setSecondaryMenu(R.layout.fragment_amenities);
+		} else{
+			
+			//large screen, only amenities is hidden by the menu so we choose only right sided option
+			sm.setMode(SlidingMenu.RIGHT);
+			setBehindContentView(R.layout.fragment_amenities);
 		}
 		
 		getSupportFragmentManager().beginTransaction()
@@ -159,21 +175,9 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	
 		if(mContent ==null)	{
 			mContent = mList.getSelectedFragment(this, 0);
-			
 		}
 		
 		getSupportFragmentManager().beginTransaction().replace(R.id.map_content, mContent).commit();
-		
-		
-		
-		SlidingMenu sm = getSlidingMenu();
-		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-		sm.setShadowWidthRes(R.dimen.shadow_width);
-		sm.setShadowDrawable(R.drawable.shadow);
-		sm.setBehindScrollScale(0.25f);
-		sm.setFadeDegree(0.25f);
-		
-		sm.setSecondaryMenu(R.layout.fragment_amenities);
 		
 		mAmenities = new AmenitiesFragment();
 		getSupportFragmentManager().beginTransaction()

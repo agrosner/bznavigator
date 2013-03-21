@@ -84,6 +84,7 @@ public class TextMarkerManager {
 				text.useImage(true);
 				text.setFocus(true);
 				text.refresh(mGoogleMap);
+				place.mMarker = text.mMarker;
 			}
 		}
 		hasFocus = true;

@@ -116,9 +116,11 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 		case 4:
 			fName+="food.txt";
 			pts = food;
+			break;
 		case 5:
 			fName+="misc.txt";
 			pts = misc;
+			break;
 		}
 		if(isChecked) readInAmenity(pts, fName);
 		else		  MapUtils.removeList(pts);
