@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -156,19 +157,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		sm.setSlidingEnabled(true);
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
 		setSlidingActionBarEnabled(false);
-		
-		//if the left pane view is null, the screen size is small
-		if(findViewById(R.id.menu) == null){
-			sm.setMode(SlidingMenu.LEFT_RIGHT);
-			setBehindContentView(R.layout.activity_slide_menu);
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			sm.setSecondaryMenu(R.layout.fragment_amenities);
-		} else{
-			
-			//large screen, only amenities is hidden by the menu so we choose only right sided option
-			sm.setMode(SlidingMenu.RIGHT);
-			setBehindContentView(R.layout.fragment_amenities);
-		}
+		setMode(sm);
 		
 		getSupportFragmentManager().beginTransaction()
 		.replace(R.id.menu, mList).commit();
@@ -183,6 +172,30 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		getSupportFragmentManager().beginTransaction()
 			.replace(R.id.fragment_amenities_content, mAmenities).commit();
 
+	}
+	
+	private void setMode(SlidingMenu menu){
+
+		//if the left pane view is null, the screen size is small
+		if(findViewById(R.id.menu) == null){
+			menu.setMode(SlidingMenu.LEFT_RIGHT);
+			setBehindContentView(R.layout.activity_slide_menu);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			menu.setSecondaryMenu(R.layout.fragment_amenities);
+		} else{
+			
+			//large screen, only amenities is hidden by the menu so we choose only right sided option
+			menu.setMode(SlidingMenu.RIGHT);
+			setBehindContentView(R.layout.fragment_amenities);
+		}
+		
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration config){
+		super.onConfigurationChanged(config);
+		
+		setMode(getSlidingMenu());
 	}
 	
 	/**
@@ -246,8 +259,12 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		getSlidingMenu().showContent();
 	}
 	
+	/**
+	 *	Once the currentlocationmanager is instantiated, we perform an action here
+	 */
 	public void notifyLocationSet(){
 		mAmenities.setCheckboxes(true);
+		mAmenities.addDistanceRecalculator(mList.getMapFragment().getManager());
 	}
 
 	@Override

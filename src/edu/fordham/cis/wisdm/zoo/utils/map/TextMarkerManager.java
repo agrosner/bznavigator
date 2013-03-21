@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,33 +14,74 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 
+/**
+ * This class manages and provides functionality to display text labels
+ * that are clickable and changeable on the new GoogleMaps Api V2. 
+ * @author Andrew Grosner
+ *
+ */
 public class TextMarkerManager {
 
+	/**
+	 * Holds the textmarker data
+	 */
 	private ArrayList<TextMarker> mMarkers = new ArrayList<TextMarker>();
 	
+	/**
+	 * Application context object
+	 */
 	private Context mContext;
 	
+	/**
+	 * The googlemap
+	 */
 	private GoogleMap mGoogleMap;
 	
 	private int mTextColor = Color.BLACK;
 	
+	/**
+	 * Whether any icons are focused on the map
+	 */
 	private boolean hasFocus = false;
 	
 	public TextMarkerManager(Context con, GoogleMap map){
 		reset(con, map);
 	}
 	
+	/**
+	 * Changes the context and map (in case of new map created)
+	 * @param con
+	 * @param map
+	 */
 	public void reset(Context con, GoogleMap map){
 		mContext = con;
 		mGoogleMap = map;
+		for(TextMarker m: mMarkers){
+			m.remove();
+		}
+		mMarkers.clear();
 	}
 	
+	/**
+	 * Reads in multiple files into the textmarkermanager
+	 * @param manager
+	 * @param act
+	 * @param fNames
+	 * @throws IOException
+	 */
 	public static void readInData(TextMarkerManager manager, Activity act, String...fNames) throws IOException{
 		for(String file: fNames){
 			readInData(manager, act, file);
 		}
 	}
 	
+	/**
+	 * Reads in data into A textmarkermanager to display text labels on the map
+	 * @param manager
+	 * @param act
+	 * @param fName
+	 * @throws IOException
+	 */
 	public static void readInData(TextMarkerManager manager, Activity act, String fName) throws IOException{
 		Scanner mScanner = new Scanner(manager.mContext.getAssets().open(fName));
 		int idIndex = -1;
@@ -74,7 +116,7 @@ public class TextMarkerManager {
 	}
 	
 	/**
-	 * add specific location to have focus
+	 * add specific location to have focus (icon appears next to text and text is displayed at all zoom levels)
 	 * @param place
 	 */
 	public boolean addFocus(PlaceItem place){
@@ -104,10 +146,19 @@ public class TextMarkerManager {
 		hasFocus = false;
 	}
 	
+	/**
+	 * Whether there are markers with focus or not
+	 * @return
+	 */
 	public boolean hasFocus(){
 		return hasFocus;
 	}
 	
+	/**
+	 * Whether the specified place is within the text markers
+	 * @param place
+	 * @return
+	 */
 	public boolean contains(PlaceItem place){
 		for(TextMarker text: mMarkers){
 			if(text.equals(place))
@@ -116,19 +167,32 @@ public class TextMarkerManager {
 		return false;
 	}
 	
+	/**
+	 * Adds all text markers to the map
+	 */
 	public void addToMap(){
 		for(TextMarker text: mMarkers){
 			text.addMarker(mGoogleMap);
 		}
 	}
 	
-	
+	/**
+	 * Refreshes all of the markers based on the zoom, 
+	 * if the specified zoom is below the zoom min, 
+	 * then the markers will disappear
+	 * @param zoom
+	 */
 	public void refreshData(float zoom){
 		for(TextMarker text: mMarkers){
 			text.refreshWithZoom(mGoogleMap, zoom);
 		}
 	}
 	
+	/**
+	 * Changes the color of the labels
+	 * @param color
+	 * @param zoom
+	 */
 	public void changeTextLabelColor(int color, float zoom){
 		if(color!=mTextColor){
 			mTextColor = color;

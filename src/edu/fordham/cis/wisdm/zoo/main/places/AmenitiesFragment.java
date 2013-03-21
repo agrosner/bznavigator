@@ -18,9 +18,15 @@ import com.actionbarsherlock.app.SherlockFragment;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
+import edu.fordham.cis.wisdm.zoo.utils.map.CurrentLocationManager;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
 import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
+/**
+ * This view fragment stores place information that is displayed on the map
+ * @author andrewgrosner
+ *
+ */
 public class AmenitiesFragment extends SherlockFragment implements OnCheckedChangeListener {
 
 	private LinkedList<PlaceItem> gates = new LinkedList<PlaceItem>();
@@ -35,6 +41,16 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	
 	private LinkedList<PlaceItem> misc = new LinkedList<PlaceItem>();
 	
+	private Runnable distanceRecalc = new Runnable(){
+
+		@Override
+		public void run() {
+			PlaceController.reCalculateDistance(
+					((SlidingScreenActivity)getActivity()).mList
+							.getMapFragment().getManager().getLastKnownLocation(), 
+							gates, restrooms, shops, parking, food, misc);
+		}
+	};
 	
 	
 	@Override
@@ -83,13 +99,24 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 		return iconCheckbox;
 	}
 	
+	/**
+	 * Sets all of the checkboxes 
+	 * @param check
+	 */
 	public void setCheckboxes(boolean check){
 		for(int i =0; i < 6; i++){
 			CheckBox ch = (CheckBox) (getView().findViewById(i));
 			ch.setChecked(check);
 		}
 	}
-
+	
+	/**
+	 * Adds the runnable to the current location manager so that distances get updated
+	 * @param manager
+	 */
+	public void addDistanceRecalculator(CurrentLocationManager manager){
+		manager.schedule(distanceRecalc);
+	}
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

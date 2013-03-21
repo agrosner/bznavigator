@@ -77,26 +77,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * Item that will go on map when user saves parking spot
 	 */
 	private PlaceItem mParkingPlace = null;
-
-	/**
-	 * Restrooms list
-	 */
-	LinkedList<PlaceItem> restrooms = new LinkedList<PlaceItem>();
 	
-	/**
-	 * Gates list
-	 */
-	LinkedList<PlaceItem> gates = new LinkedList<PlaceItem>();
-	
-	/**
-	 * Parking list
-	 */
-	LinkedList<PlaceItem> parking = new LinkedList<PlaceItem>();
-	
-	/**
-	 * Shops list
-	 */
-	LinkedList<PlaceItem> shop = new LinkedList<PlaceItem>();
 	/**
 	 * List of searchable places
 	 */
@@ -109,8 +90,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
 		@Override
 		public void run() {
-			PlaceController.reCalculateDistance(mManager.getLastKnownLocation(), 
-					searchExhibits, parking, gates, restrooms);
+			PlaceController.reCalculateDistance(
+					mManager.getLastKnownLocation(), searchExhibits);
 		}
 		
 	};
@@ -188,7 +169,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		
    		if(mManager==null){
    			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
-   			mManager.runOnFirstFix(meListener);
+   			mManager.schedule(meListener);
    		}
    		else	mManager.setFields(getActivity(), mGoogleMap);
    		
@@ -221,11 +202,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			
 			if(mTextMarkerManager==null){
 				mTextMarkerManager = new TextMarkerManager(getActivity(), mGoogleMap);
-				TextMarkerManager.readInData(mTextMarkerManager, getActivity(),"exhibits.txt", "special.txt");
 			} else{
 				mTextMarkerManager.reset(getActivity(), mGoogleMap);
 			}
-			
+			TextMarkerManager.readInData(mTextMarkerManager, getActivity(),"exhibits.txt", "special.txt");
 			mTextMarkerManager.addToMap();
 			mTextMarkerManager.refreshData(getMap().getCameraPosition().zoom);
 			
