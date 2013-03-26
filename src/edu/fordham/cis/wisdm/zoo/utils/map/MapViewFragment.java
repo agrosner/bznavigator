@@ -20,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
+import com.google.android.gms.maps.LocationSource.OnLocationChangedListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -59,6 +60,9 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	
 	private LayoutInflater mInflater = null;
 	
+	/**
+	 * Provides locational information that the app can pull from while in the foreground
+	 */
 	private CurrentLocationManager mManager = null;
 	
 	/**
@@ -89,12 +93,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	/**
 	 * Provides an action when the user's current location changes
 	 */
-	private Runnable meListener = new Runnable(){
+	private OnLocationChangedListener meListener = new OnLocationChangedListener(){
 
 		@Override
-		public void run() {
-			PlaceController.reCalculateDistance(
-					mManager.getLastKnownLocation(), searchExhibits);
+		public void onLocationChanged(Location location) {
+			PlaceController.reCalculateDistance(location, searchExhibits);
 		}
 		
 	};
@@ -104,7 +107,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	@Override
 	public void onPause(){
 		super.onPause();
-		mManager.stop();
+		
+		mManager.deactivate();
 	}
 	
 	@Override
@@ -172,7 +176,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		
    		if(mManager==null){
    			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
-   			mManager.schedule(meListener);
    		}
    		else	mManager.setFields(getActivity(), mGoogleMap);
    		
@@ -192,7 +195,9 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			}
 				
 		});
-		mManager.start();
+   		
+   		mGoogleMap.setLocationSource(mManager);
+   		mManager.activate(meListener);
 		
 		try{
 		   		
@@ -447,6 +452,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			return null;
 		}
 		
+		@SuppressWarnings("unused")
 		protected Void onPostExecute(){
 			PlaceController.readInDataIntoList(mManager.getLastKnownLocation(), mActivity, mActivity.searchList, searchExhibits, mOnClick, false);
 			return null;

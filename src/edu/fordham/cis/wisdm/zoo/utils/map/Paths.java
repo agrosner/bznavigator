@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 /**
- * Class holds the path information to display on the map.
+ * Class that reads in and displays path information
  * @author Andrew Grosner
  *
  */

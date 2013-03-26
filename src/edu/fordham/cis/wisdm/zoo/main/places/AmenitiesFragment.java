@@ -2,6 +2,7 @@ package edu.fordham.cis.wisdm.zoo.main.places;
 
 import java.util.LinkedList;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.google.android.gms.maps.LocationSource.OnLocationChangedListener;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
@@ -41,14 +43,11 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	
 	private LinkedList<PlaceItem> misc = new LinkedList<PlaceItem>();
 	
-	private Runnable distanceRecalc = new Runnable(){
+	private OnLocationChangedListener distanceRecalc = new OnLocationChangedListener(){
 
 		@Override
-		public void run() {
-			PlaceController.reCalculateDistance(
-					((SlidingScreenActivity)getActivity()).mList
-							.getMapFragment().getManager().getLastKnownLocation(), 
-							gates, restrooms, shops, parking, food, misc);
+		public void onLocationChanged(Location location) {
+			PlaceController.reCalculateDistance(location, gates, restrooms, shops, parking, food, misc);
 		}
 	};
 	
@@ -115,7 +114,7 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	 * @param manager
 	 */
 	public void addDistanceRecalculator(CurrentLocationManager manager){
-		manager.schedule(distanceRecalc);
+		manager.activate(distanceRecalc);
 	}
 
 	@Override

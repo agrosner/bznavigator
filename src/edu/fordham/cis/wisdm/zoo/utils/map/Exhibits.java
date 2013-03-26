@@ -14,6 +14,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
+/**
+ * Class that reads in and displays exhibit polygons on the map
+ * @author andrewgrosner
+ *
+ */
 public class Exhibits {
 
 	private static final String mFolder = "polygons";

@@ -54,6 +54,10 @@ public class MapUtils {
 		}
 	}
 	
+	/**
+	 * Removes a list of placeitems from the map
+	 * @param places
+	 */
 	public static void removeList(LinkedList<PlaceItem> places){
 		for(PlaceItem place: places){
 			place.remove();
@@ -64,6 +68,13 @@ public class MapUtils {
 		map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(loc.getLatitude(), loc.getLongitude())));
 	}
 	
+	/**
+	 * Reads in polygon information from mapraw and 
+	 * puts it within the builder for when we want to display overview of the map
+	 * @param con
+	 * @param builder
+	 * @throws IOException
+	 */
 	public static void generatePolygon(Context con, LatLngBounds.Builder builder) throws IOException{
 		Scanner file = new Scanner(con.getResources().getAssets().open("mapraw.txt"));
 		while(file.hasNext()){
@@ -103,6 +114,14 @@ public class MapUtils {
 		return builder.build();
 	}
 	
+	/**
+	 * Shows exhibit information in the form of a custom dialog. This dialog should
+	 * poll the server for exhibit information in the near future
+	 * @param myLocation
+	 * @param inflater
+	 * @param con
+	 * @param marker
+	 */
 	public static void showExhibitInfoDialog(Location myLocation, LayoutInflater inflater, Context con, Marker marker){
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(con);
@@ -140,10 +159,22 @@ public class MapUtils {
 		
 	}
 	
+	/**
+	 * Convert pixel size of text into density-independent pixels
+	 * @param con
+	 * @param size
+	 * @return
+	 */
 	public static float getDip(Context con, float size){
 		return con.getResources().getDisplayMetrics().density*size;
 	}
 	
+	/**
+	 * Determines whether two locations are exactly the same (such that the latitude and longitude are exact matches)
+	 * @param loc1
+	 * @param loc2
+	 * @return
+	 */
 	public static boolean locationsEqual(Location loc1, Location loc2){
 		return (loc1.getLatitude()==loc2.getLatitude()) && (loc1.getLongitude()==loc2.getLongitude());
 	}

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -20,7 +21,7 @@ import android.widget.Toast;
  * @author andrewgrosner
  *
  */
-public class CurrentLocationManager {
+public class CurrentLocationManager implements LocationSource{
 
 	private LocationListener mListener;
 	
@@ -48,7 +49,7 @@ public class CurrentLocationManager {
 	
 	private LinkedList<Runnable> mFirstFix = new LinkedList<Runnable>();
 	
-	private LinkedList<Runnable> mLocationListeners = new LinkedList<Runnable>();
+	private LinkedList<OnLocationChangedListener> mLocationListeners = new LinkedList<OnLocationChangedListener>();
 	
 	public CurrentLocationManager(Context context, GoogleMap map){
 		mCtx = context;
@@ -88,8 +89,8 @@ public class CurrentLocationManager {
 									.target(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()))
 									.build()));
 					}	
-					for(Runnable run: mLocationListeners){
-						run.run();
+					for(OnLocationChangedListener run: mLocationListeners){
+						run.onLocationChanged(location);
 					}
 				}
 			
@@ -116,34 +117,8 @@ public class CurrentLocationManager {
 		mMap = map;
 	}
 	
-	public void schedule(Runnable run){
-		mLocationListeners.add(run);
-	}
-	
 	public void runOnFirstFix(Runnable run){
 		mFirstFix.add(run);
-	}
-	
-	public boolean start(){
-		if(!locationAvailable) return false;
-		if (!mMyLocationEnabled) {
-            try {
-            	if(gpsAvail)
-            		mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mListener);
-            	else if(networkAvail)
-            		mManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mListener);
-            } catch(Exception e) {
-            	stop();
-                Toast.makeText(this.mCtx, "Location is not turned on", Toast.LENGTH_LONG).show();
-                return mMyLocationEnabled = false;
-            }
-        }
-        return mMyLocationEnabled = true;
-	}
-	
-	public void stop(){
-		mManager.removeUpdates(mListener);
-		mMyLocationEnabled = false;
 	}
 	
 	public void follow(boolean follow){
@@ -152,6 +127,30 @@ public class CurrentLocationManager {
 	
 	public Location getLastKnownLocation(){
 		return mLocation;
+	}
+
+	@Override
+	public void activate(OnLocationChangedListener listener) {
+		if(!locationAvailable)	return;
+		if(!mLocationListeners.contains(listener))
+			mLocationListeners.add(listener);
+		if (!mMyLocationEnabled) {
+            try {
+            	mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mListener);
+            	mManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mListener);
+            } catch(Exception e) {
+            	deactivate();
+                Toast.makeText(this.mCtx, "Location is not turned on", Toast.LENGTH_LONG).show();
+                mMyLocationEnabled = false;
+            }
+        }
+        mMyLocationEnabled = true;
+	}
+
+	@Override
+	public void deactivate() {
+		mManager.removeUpdates(mListener);
+		mMyLocationEnabled = false;
 	}
 	
 	
