@@ -1,6 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.Timer;
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 import edu.fordham.cis.wisdm.zoo.utils.Polygon;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -133,6 +135,20 @@ public class LocationUpdateService extends Service implements LocationListener{
 			e.printStackTrace();
 		}
 		
+		//we want to catch crashes within the service,
+		//so we perform some cleanup before service is destroyed
+		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+		UncaughtExceptionHandler appHandler = new UncaughtExceptionHandler() {
+
+		       @Override
+		       public void uncaughtException(Thread thread, Throwable ex) {
+		    	   mNotificationManager.cancelAll();
+		    	   wLock.release();
+		    	   defaultHandler.uncaughtException(thread, ex);
+		       }
+		};
+		Thread.setDefaultUncaughtExceptionHandler(appHandler);
+		
 	}
 	
 	/**
@@ -174,6 +190,18 @@ public class LocationUpdateService extends Service implements LocationListener{
 		startNotification();
 		mConnection = (Connections) i.getExtras().getSerializable("user");
 		
+		//attempt to save connection in an event of restart
+		if(mConnection!=null){
+			Preference.putString("service-email", mConnection.getmEmail());
+			Preference.putString("service-pass", mConnection.getmPassword());
+		} else{
+			//try to recover, otherwise will take device id
+			mConnection = new Connections(Preference.getString("service-email", ""), Preference.getString("service-pass", ""),
+						Secure.getString(getContentResolver(), Secure.ANDROID_ID));
+		}
+		
+		email = mConnection.getmEmail();
+		
 		lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		startLocation();
 		
@@ -196,9 +224,10 @@ public class LocationUpdateService extends Service implements LocationListener{
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
 		builder.setSmallIcon(R.drawable.appicon)
 				.setContentTitle("BZNavigator is running")
-				.setContentText("Click to open to recording screen.")
+				.setContentText("Click to view map .")
 				.setOngoing(true);
 		Intent click = new Intent(this, SlidingScreenActivity.class);
+		click.putExtra("user", mConnection);
 		click.setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		// Adds the back stack for the Intent (but not the Intent itself)

@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -17,20 +16,13 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
-
-import cis.fordham.edu.wisdm.messages.MessageBuilder;
-import cis.fordham.edu.wisdm.utils.Operations;
+import android.widget.Toast;
 
 import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.slidingmenu.lib.SlidingMenu;
@@ -43,6 +35,8 @@ import edu.fordham.cis.wisdm.zoo.main.places.AmenitiesFragment;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
+import edu.fordham.cis.wisdm.zoo.utils.ServiceOps;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
@@ -82,16 +76,10 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	private Connections mUser = null;
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setTitle("Bronx Zoo");
 		setContentView(R.layout.activity_slide_splash);
-		
-		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		
-		//gives user an option to accept terms or leave the app
-		final HoloAlertDialogBuilder termsDialogBuilder = new HoloAlertDialogBuilder(this);
 		
 		//cancel button used for both dialogs
 		DialogInterface.OnClickListener cancel = new DialogInterface.OnClickListener() {
@@ -101,21 +89,30 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 				finish();
 			}
 		};
-				
-		termsDialogBuilder.setNegativeButton("I do not accept", cancel);
-		
-		//terms and conditions
-		termsDialogBuilder.setTitle("Terms and Conditions");
-		termsDialogBuilder.setMessage("Terms and conditions go here");
-		termsDialogBuilder.setPositiveButton("I Accept", new DialogInterface.OnClickListener(){
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				termsDialogBuilder.create().dismiss();
-			}
-							
-		});
-		
-		termsDialogBuilder.setCancelable(false).create().show();
+			
+		if(savedInstanceState==null){
+			
+			//gives user an option to accept terms or leave the app
+			final HoloAlertDialogBuilder termsDialogBuilder = new HoloAlertDialogBuilder(this);
+			
+			termsDialogBuilder.setNegativeButton("I do not accept", cancel);
+			
+			//terms and conditions
+			termsDialogBuilder.setTitle("Terms and Conditions");
+			termsDialogBuilder.setMessage("Terms and conditions go here");
+			termsDialogBuilder.setPositiveButton("I Accept", new DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					termsDialogBuilder.create().dismiss();
+				}
+								
+			});
+			
+			termsDialogBuilder.setCancelable(false).create().show();
+			
+		}
+		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+		ConnectivityManager connect = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		
 		//	if network error message
 		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
@@ -137,18 +134,43 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					gpsInternetDialogBuilder.create().dismiss();
-					init();
+					init(savedInstanceState);
 						
 				}
 			});
 				
 			gpsInternetDialogBuilder.create().show();
 		} else{
-			init();
+			init(savedInstanceState);
 		}
 		
-		mList = new SlidingScreenList();
 		SlidingMenu sm = getSlidingMenu();
+		setMode(sm);
+		
+		
+		if(savedInstanceState!=null){
+			mContent = getSupportFragmentManager().getFragment(savedInstanceState, "content");
+			mAmenities = (AmenitiesFragment) getSupportFragmentManager().getFragment(savedInstanceState, "amenities");
+			mList = (SlidingScreenList) getSupportFragmentManager().getFragment(savedInstanceState, "list");
+			Toast.makeText(this, "Activity recreated.", Toast.LENGTH_SHORT).show();
+		} 
+		
+		if(mList==null)			mList = new SlidingScreenList();
+		if(mContent ==null)		mContent = mList.getSelectedFragment(this, 0);
+		if(mAmenities==null)	mAmenities = new AmenitiesFragment();
+		
+		getSupportFragmentManager().beginTransaction()
+			.replace(R.id.menu, mList).commit();
+
+		getSupportFragmentManager().beginTransaction()
+			.replace(R.id.map_content, mContent).commit();
+		
+		getSupportFragmentManager().beginTransaction()
+			.replace(R.id.fragment_amenities_content, mAmenities).commit();
+		
+	}
+	
+	private void setMode(SlidingMenu sm){
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		sm.setShadowWidthRes(R.dimen.shadow_width);
 		sm.setShadowDrawable(R.drawable.shadow);
@@ -157,55 +179,49 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		sm.setSlidingEnabled(true);
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
 		setSlidingActionBarEnabled(false);
-		setMode(sm);
 		
-		getSupportFragmentManager().beginTransaction()
-		.replace(R.id.menu, mList).commit();
-	
-		if(mContent ==null)	{
-			mContent = mList.getSelectedFragment(this, 0);
-		}
-		
-		getSupportFragmentManager().beginTransaction().replace(R.id.map_content, mContent).commit();
-		
-		mAmenities = new AmenitiesFragment();
-		getSupportFragmentManager().beginTransaction()
-			.replace(R.id.fragment_amenities_content, mAmenities).commit();
-
-	}
-	
-	private void setMode(SlidingMenu menu){
-
 		//if the left pane view is null, the screen size is small
 		if(findViewById(R.id.menu) == null){
-			menu.setMode(SlidingMenu.LEFT_RIGHT);
+			sm.setMode(SlidingMenu.LEFT_RIGHT);
 			setBehindContentView(R.layout.activity_slide_menu);
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			menu.setSecondaryMenu(R.layout.fragment_amenities);
+			sm.setSecondaryMenu(R.layout.fragment_amenities);
 		} else{
 			
 			//large screen, only amenities is hidden by the menu so we choose only right sided option
-			menu.setMode(SlidingMenu.RIGHT);
+			sm.setMode(SlidingMenu.RIGHT);
 			setBehindContentView(R.layout.fragment_amenities);
 		}
 		
 	}
 	
+	/**
+	 * Called when activity destroyed, saves fragments and data
+	 */
 	@Override
-	public void onConfigurationChanged(Configuration config){
-		super.onConfigurationChanged(config);
+	public void onSaveInstanceState(Bundle outState){
+		super.onSaveInstanceState(outState);
 		
-		setMode(getSlidingMenu());
+		getSupportFragmentManager().putFragment(outState, "content", mContent);
+		getSupportFragmentManager().putFragment(outState, "amenities", mAmenities);
+		getSupportFragmentManager().putFragment(outState, "list", mList);
+		
+		outState.putSerializable("user", mUser);
 	}
+	
 	
 	/**
 	 * Begins the location update service and acquiring login credentials
 	 */
-	public void init(){
-		mUser = (Connections) getIntent().getExtras().getSerializable("user");
-		Intent i = new Intent(this, LocationUpdateService.class);
-		i.putExtra("user", mUser);
-		startService(i);
+	public void init(Bundle instance){
+		if(instance==null)
+			mUser = (Connections) getIntent().getExtras().getSerializable("user");
+		else	mUser = (Connections) instance.getSerializable("user");
+		if(!ServiceOps.isRunning(LocationUpdateService.class, getApplicationContext())){
+			Intent i = new Intent(this, LocationUpdateService.class);
+			i.putExtra("user", mUser);
+			startService(i);
+		}
 	}
 	
 	@Override
@@ -340,7 +356,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 				if(mList.getMapFragment().getManager().getLastKnownLocation()!=null){
 					mList.getMapFragment().addParking(parkItem);
 				} else{
-					MessageBuilder.showToast("Saving Parking Location Not Available When GPS is Not Found", this);
+					Toast.makeText(this, "Saving Parking Location Not Available When GPS is Not Found", Toast.LENGTH_SHORT).show();
 				}
 			}
 			return true;
@@ -427,7 +443,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 				sendSearchQuery(querie);
 			}
 		} else{
-			MessageBuilder.showToast("Not found", this);
+			Toast.makeText(this, "Not found", Toast.LENGTH_SHORT).show();
 		}
 	}
 	

@@ -1,13 +1,10 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
-import cis.fordham.edu.wisdm.utils.Operations;
-
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -21,6 +18,11 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Allows for a user to register information with the server
+ * @author Andrew Grosner
+ *
+ */
 public class RegisterActivity extends SherlockActivity implements OnClickListener {
 
 	private Connections mConnection = null;

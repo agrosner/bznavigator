@@ -6,11 +6,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import cis.fordham.edu.wisdm.utils.Operations;
-
 import com.actionbarsherlock.app.SherlockActivity;
 
 import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 
@@ -50,7 +49,6 @@ import android.widget.Toast;
  * @version 1.0
  */
 public class SurveyActivity extends SherlockActivity implements OnClickListener, OnSeekBarChangeListener, OnTouchListener, UserConstants {
-	
 	
 	private Connections mConnection;
 	

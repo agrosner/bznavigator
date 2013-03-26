@@ -1,17 +1,11 @@
 package edu.fordham.cis.wisdm.zoo.utils.map;
 
-import java.io.IOException;
 import java.util.LinkedList;
 
-import cis.fordham.edu.wisdm.messages.MessageBuilder;
-
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 
 import android.content.Context;
 import android.location.Location;
@@ -20,6 +14,12 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
+/**
+ * Manages location when showing the app in the foreground on the map. 
+ * Allows for tracking of current location on map, add listeners for location change, 
+ * @author andrewgrosner
+ *
+ */
 public class CurrentLocationManager {
 
 	private LocationListener mListener;
@@ -40,6 +40,10 @@ public class CurrentLocationManager {
 	
 	private boolean locationAvailable = false;
 	
+	private boolean gpsAvail = false;
+	
+	private boolean networkAvail = false;
+	
 	public static String locationMessage = "";
 	
 	private LinkedList<Runnable> mFirstFix = new LinkedList<Runnable>();
@@ -53,9 +57,11 @@ public class CurrentLocationManager {
 		if (mManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 			locationMessage ="GPS provider enabled.";
 			locationAvailable = true;
+			gpsAvail = true;
 		} else if (mManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
 			locationMessage = "Network provider enabled.";
 			locationAvailable = true;
+			networkAvail = true;
 		} else	{
 			locationMessage = "No provider enabled. Please check settings and allow locational services.";
 			locationAvailable = false;
@@ -79,7 +85,6 @@ public class CurrentLocationManager {
 									new CameraPosition.Builder()
 									.bearing(location.getBearing())
 									.tilt(45)
-									.zoom(16)
 									.target(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()))
 									.build()));
 					}	
@@ -123,8 +128,10 @@ public class CurrentLocationManager {
 		if(!locationAvailable) return false;
 		if (!mMyLocationEnabled) {
             try {
-            	mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mListener);
-            	mManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mListener);
+            	if(gpsAvail)
+            		mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mListener);
+            	else if(networkAvail)
+            		mManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mListener);
             } catch(Exception e) {
             	stop();
                 Toast.makeText(this.mCtx, "Location is not turned on", Toast.LENGTH_LONG).show();

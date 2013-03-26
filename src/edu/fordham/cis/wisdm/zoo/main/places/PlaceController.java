@@ -11,23 +11,21 @@ import com.google.android.gms.maps.model.LatLng;
 
 import android.app.Activity;
 import android.location.Location;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import cis.fordham.edu.wisdm.utils.Operations;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
 /**
  * Class provides operations on creating and manipulating place data
- * @author agrosner
+ * @author Andrew Grosner
  *
  */
 public class PlaceController {
@@ -195,65 +193,6 @@ public class PlaceController {
 		}
 	}
 	
-	/**
-	 * Finds where to insert the exhibit using insertion sort algorithm
-	 * @param exhibitList
-	 * @param distance
-	 * @return
-	 */
-	private static int findIndex(LinearLayout exhibitList, float distance){
-		int index = 0;
-		for(int i =0; i < exhibitList.getChildCount(); i++){
-			View child = exhibitList.getChildAt(i);
-			if(child instanceof RelativeLayout){
-				RelativeLayout view = (RelativeLayout) exhibitList.getChildAt(i);
-				TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
-				if(distanceText!=null){
-					String text = distanceText.getText().toString();
-					double dist = 0;
-					if(text.contains("ft")){
-						text = text.replace("ft", "");
-						dist = Double.valueOf(text);
-					} else if(text.contains(MILES)){
-						text = text.replace(MILES, "");
-						dist = Double.valueOf(text)*5280;
-					}
-					
-					if(distance<dist)	break;
-				}	
-			}
-			index++;
-			
-		}
-		
-		return index;
-	}
-	
-	/**
-	 * Finds where to insert the exhibit using insertion sort algorithm
-	 * @param exhibitList
-	 * @param distance
-	 * @return
-	 */
-	static int findIndex(LinkedList<? extends Object> exhibitList, double distance){
-		int index = 0;
-		for(int i =0; i < exhibitList.size(); i++){
-			Object ob = exhibitList.get(i);
-			float dist = 0;
-			if(ob instanceof RelativeLayout){
-				RelativeLayout view = (RelativeLayout) ob;
-				TextView distanceText = (TextView) view.findViewById(R.id.distancetext);
-				dist = Float.valueOf(distanceText.getText().toString().replace("ft", "").replace(MILES, ""));
-			} else if(ob instanceof PlaceItem){
-				PlaceItem place = (PlaceItem) ob;
-				dist = place.getDistance();
-			}
-			if(distance<dist)	break;
-			index++;
-		}
-		
-		return index;
-	}
 	
 	/**
 	 *Calculates distance between a geopoint and two coordinate strings and returns human-readable string

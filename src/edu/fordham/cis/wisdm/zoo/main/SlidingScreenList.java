@@ -135,7 +135,7 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 				} catch (GooglePlayServicesNotAvailableException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+					Toast.makeText(act, e.getMessage(), Toast.LENGTH_LONG).show();
 					Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
 							GooglePlayServicesUtil.isGooglePlayServicesAvailable(
 									getActivity()), getActivity(), 0, 

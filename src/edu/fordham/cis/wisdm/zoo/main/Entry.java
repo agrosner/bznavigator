@@ -5,9 +5,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 
-import cis.fordham.edu.wisdm.messages.MessageBuilder;
-import cis.fordham.edu.wisdm.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import android.app.AlertDialog;
@@ -179,7 +178,7 @@ public class Entry extends SherlockActivity implements OnClickListener, UserCons
      */
     private void login(String email, String password, boolean remember){
     	if(email.equals("") && isMember){
-    		MessageBuilder.showToast("Email cannot be blank", this);
+    		Toast.makeText(this, "Email cannot be blank", Toast.LENGTH_SHORT).show();
     	} else if(isMember && !Patterns.EMAIL_ADDRESS.matcher(email).matches()){
 			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure a valid email is entered correctly").setPositiveButton("OK", null).show();
 		} else if(password.length() < PASS_LENGTH && isMember){

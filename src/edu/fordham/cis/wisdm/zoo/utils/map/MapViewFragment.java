@@ -2,7 +2,6 @@ package edu.fordham.cis.wisdm.zoo.utils.map;
 
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
 
 import android.graphics.Color;
 import android.location.Location;
@@ -13,9 +12,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import cis.fordham.edu.wisdm.messages.MessageBuilder;
-import cis.fordham.edu.wisdm.utils.Operations;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -34,8 +30,15 @@ import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
+/**
+ * Class adds further functionality on top of google's SupportMapFragment such as more button options, 
+ * add location information to the map, and more. Displays all of the zoo information needed
+ * @author Andrew Grosner
+ *
+ */
 public class MapViewFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnInfoWindowClickListener{
 
 	private GoogleMap mGoogleMap = null;
@@ -322,14 +325,14 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 				item.setIcon(R.drawable.ic_action_location_blue);
 				MapUtils.animateTo(mGoogleMap, mManager.getLastKnownLocation());
 				isTracking = true;
-				MessageBuilder.showToast("Now Following Current Location, Tap Map to Cancel", getActivity());
-			}	else MessageBuilder.showLongToast("Cannot find current location",  getActivity());
+				Toast.makeText(getActivity(), "Now Following Current Location, Tap Map to Cancel", Toast.LENGTH_SHORT).show();
+			}	else Toast.makeText(getActivity(), "Cannot find current location",  Toast.LENGTH_LONG).show();
 		
 			
 		} else{
 			item.setIcon(R.drawable.ic_action_location);
 			isTracking = false;
-			MessageBuilder.showToast("Following Off", getActivity());
+			Toast.makeText(getActivity(), "Following Off", Toast.LENGTH_SHORT).show();
 		}
 		mManager.follow(isTracking);
 	}

@@ -1,19 +1,17 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
-import cis.fordham.edu.wisdm.messages.MessageBuilder;
-
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.support.v4.app.NavUtils;
+import android.widget.Toast;
 
 public class PrefActivity extends SherlockPreferenceActivity implements OnPreferenceClickListener{
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.layout.activity_prefs);
@@ -38,10 +36,10 @@ public class PrefActivity extends SherlockPreferenceActivity implements OnPrefer
 		if(pref.getKey().equals("delete")){
 			String fName = "gps";
 			if(!deleteFile(fName + "1.txt"))
-				MessageBuilder.showToast("File not deleted", this);
-			else	MessageBuilder.showToast("Files deleted", this);
+				Toast.makeText(this, "File not deleted", Toast.LENGTH_SHORT).show();
+			else	Toast.makeText(this, "Files deleted", Toast.LENGTH_SHORT).show();
 			if(!deleteFile(fName + "2.txt"))
-				MessageBuilder.showToast("Files not deleted", this);
+				Toast.makeText(this, "Files not deleted", Toast.LENGTH_SHORT).show();
 			return true;
 		}
 		

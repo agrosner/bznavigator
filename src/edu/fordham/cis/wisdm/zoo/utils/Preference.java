@@ -29,7 +29,7 @@ public class Preference {
 		try{
 			return sprefs.getString(loc, defalt);
 		} catch(NullPointerException n){
-			return null;
+			return defalt;
 		}
 	}
 	
@@ -41,7 +41,7 @@ public class Preference {
 		try{
 			return sprefs.getBoolean(loc, defVal);
 		} catch (NullPointerException n){
-			return false;
+			return defVal;
 		}
 	}
 	
@@ -50,7 +50,11 @@ public class Preference {
 	}
 	
 	public static long getLong(String loc, long val){
-		return sprefs.getLong(loc, val);
+		try{
+			return sprefs.getLong(loc, val);
+		} catch(NullPointerException n){
+			return val;
+		}
 	}
 	
 	public static void putLong(String loc, long val){

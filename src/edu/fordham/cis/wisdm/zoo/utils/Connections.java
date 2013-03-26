@@ -252,7 +252,9 @@ public class Connections implements Serializable{
 		}
 		
 		try {
-			mVisitID = SocketParser.readVisitReq(mInputStream);
+			if(mInputStream.readByte()==SocketParser.VISIT_CODE)
+				mVisitID = SocketParser.readVisitReq(mInputStream);
+			else return false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -532,6 +534,8 @@ public class Connections implements Serializable{
 	}
 	
 	public String getmEmail() {
+		if(mEmail.equals("none"))
+			return mDevId + "@wisdmproject.com";
 		return mEmail;
 	}
 
