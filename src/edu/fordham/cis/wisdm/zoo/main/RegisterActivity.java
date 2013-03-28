@@ -42,8 +42,8 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
         
         Operations.findEditTextViewsByIds(this, fields, R.id.email, R.id.password, R.id.password_confirm);
         
-        if(Entry.mConnection!=null){
-        	mConnection = Entry.mConnection;
+        if(LoginActivity.mConnection!=null){
+        	mConnection = LoginActivity.mConnection;
         	Operations.setViewTexts(fields, mConnection.getmEmail(),mConnection.getmPassword());
         }
         
@@ -82,7 +82,7 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 			new AlertDialog.Builder(this).setTitle("Error").setMessage("Ensure a valid email is entered correctly").setPositiveButton("OK", null).show();
 		} else if(email.length() ==0 || password.length() == 0){
 			Toast.makeText(this, "One or more fields are empty", Toast.LENGTH_SHORT).show();
-		} else if(password.length() < Entry.PASS_LENGTH){
+		} else if(password.length() < LoginActivity.PASS_LENGTH){
 			Toast.makeText(this, "Password length must be at least 8 characters", Toast.LENGTH_SHORT).show();
 		} else{ 
 			mConnection = new Connections(email, password, ID);

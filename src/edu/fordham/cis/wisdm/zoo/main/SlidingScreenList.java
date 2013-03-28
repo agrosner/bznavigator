@@ -81,7 +81,7 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 					 getActivity().stopService(new Intent(getActivity().getApplicationContext(), LocationUpdateService.class));
 					 Preference.putBoolean(REMEMBER_ME_LOC, false);
 					 
-					 Intent upIntent = new Intent(act, Entry.class);
+					 Intent upIntent = new Intent(act, LoginActivity.class);
 					 if (NavUtils.shouldUpRecreateTask(act, upIntent)) {
 						 // This activity is not part of the application's task, so create a new task
 						 // with a synthesized back stack.

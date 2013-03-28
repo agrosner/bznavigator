@@ -34,7 +34,7 @@ import android.widget.Toast;
  * @author Andrew
  *
  */
-public class Entry extends SherlockActivity implements OnClickListener, UserConstants{
+public class LoginActivity extends SherlockActivity implements OnClickListener, UserConstants{
 	
 	/**
 	 * Form fields

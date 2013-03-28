@@ -10,9 +10,9 @@ import java.util.TimerTask;
 import com.google.android.gms.maps.model.LatLng;
 
 import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
-import edu.fordham.cis.wisdm.zoo.utils.Polygon;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
+import edu.fordham.cis.wisdm.zoo.utils.map.Polygon;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;

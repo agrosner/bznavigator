@@ -1,4 +1,4 @@
-package edu.fordham.cis.wisdm.zoo.utils;
+package edu.fordham.cis.wisdm.zoo.utils.map;
 
 import com.google.android.gms.maps.model.LatLng;
 

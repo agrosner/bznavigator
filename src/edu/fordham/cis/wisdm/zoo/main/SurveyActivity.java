@@ -408,7 +408,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 				public void onClick(DialogInterface dialog, int which) {
 					Preference.putBoolean(REMEMBER_ME_LOC, false);
 					 
-					 Intent upIntent = new Intent(act, Entry.class);
+					 Intent upIntent = new Intent(act, LoginActivity.class);
 					 if (NavUtils.shouldUpRecreateTask(act, upIntent)) {
 						 // This activity is not part of the application's task, so create a new task
 						 // with a synthesized back stack.
