@@ -113,7 +113,7 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
-		exhibit = (RelativeLayout) inflater.inflate(R.layout.placefragment, null, false);
+		exhibit = (RelativeLayout) inflater.inflate(R.layout.fragment_place, null, false);
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
 		Operations.setViewOnClickListeners(exhibit, this, R.id.refresh, R.id.exit);
 		
@@ -133,7 +133,7 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 	@SuppressWarnings("unchecked")
 	public void refresh(){
 		exhibitList.removeAllViews();
-		exhibitList.addView(PlaceController.createExhibitItem(getActivity(), 0, "ic_action_location", "View All On Map", "", this, true));
+		exhibitList.addView(PlaceController.createExhibitItem(getActivity(), 0, "ic_action_location", "View All On Map", "", this));
 	
 		((TextView) exhibit.findViewById(R.id.title)).setText(type.toTitleString());
 		
@@ -144,7 +144,7 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 		PlaceController.reCalculateDistance(act.mList.getMapFragment().getLastKnownLocation(), points);
 		
 		PlaceController.reOrderByDistance(points);
-		PlaceController.readInDataIntoList(act.mList.getMapFragment().getLastKnownLocation(), getActivity(), exhibitList, points, this, true);
+		PlaceController.readInDataIntoList(act.mList.getMapFragment().getLastKnownLocation(), getActivity(), exhibitList, points, this);
 			
 		//new GetDataTask(fName).execute();
 	}

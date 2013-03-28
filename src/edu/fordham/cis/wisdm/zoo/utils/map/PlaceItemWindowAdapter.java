@@ -2,22 +2,19 @@ package edu.fordham.cis.wisdm.zoo.utils.map;
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.model.Marker;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
 
-public class PlaceItemWindowAdapter implements InfoWindowAdapter, OnInfoWindowClickListener{
+public class PlaceItemWindowAdapter implements InfoWindowAdapter{
 
 	private final View mWindow;
 	
 	public PlaceItemWindowAdapter(LayoutInflater inflater){
-		mWindow = inflater.inflate(R.layout.exhibitoverlay, null);
+		mWindow = inflater.inflate(R.layout.overlay_exhibit, null);
 	}
 	
 	@Override
@@ -28,16 +25,8 @@ public class PlaceItemWindowAdapter implements InfoWindowAdapter, OnInfoWindowCl
 
 	@Override
 	public View getInfoWindow(Marker marker) {
-		TextView text = (TextView)(mWindow.findViewById(R.id.name));
-		text.setText(marker.getTitle());
-		
+		Operations.setViewText(mWindow, marker.getTitle(), R.id.name);
 		return mWindow;
-	}
-
-	@Override
-	public void onInfoWindowClick(Marker marker) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

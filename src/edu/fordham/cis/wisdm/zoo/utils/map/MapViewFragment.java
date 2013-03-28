@@ -468,14 +468,15 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			//reads exhibits into the searchbar list of places
-			PlaceController.readInData(mManager.getLastKnownLocation(), mActivity, mOnClick, searchExhibits, "exhibits.txt", "food.txt", "shops.txt",
-					"gates.txt", "parking.txt", "admin.txt", "special.txt", "restrooms.txt", "misc.txt");
+			PlaceController.readInData(mManager.getLastKnownLocation(),
+					mActivity, mOnClick, searchExhibits, 
+					getActivity().getResources().getStringArray(R.array.search_list));
 			return null;
 		}
 		
 		@SuppressWarnings("unused")
 		protected Void onPostExecute(){
-			PlaceController.readInDataIntoList(mManager.getLastKnownLocation(), mActivity, mActivity.searchList, searchExhibits, mOnClick, false);
+			PlaceController.readInDataIntoList(mManager.getLastKnownLocation(), mActivity, mActivity.searchList, searchExhibits, mOnClick);
 			return null;
 			
 		}

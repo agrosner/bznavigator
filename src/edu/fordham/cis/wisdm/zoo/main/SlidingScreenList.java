@@ -49,7 +49,7 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
 		super.onCreateView(inflater, container, instance);
-		View v = inflater.inflate(R.layout.arraylist, container, false);
+		View v = inflater.inflate(R.layout.fragment_slide_list, container, false);
 		
 		int[] drawables = {R.drawable.map,		R.drawable.find,
 						   R.drawable.shop,		R.drawable.special,  

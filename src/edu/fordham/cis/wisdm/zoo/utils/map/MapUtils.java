@@ -10,8 +10,6 @@ import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +19,7 @@ import com.google.android.gms.maps.model.Marker;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
 
 public class MapUtils {
 
@@ -127,12 +126,12 @@ public class MapUtils {
 		AlertDialog.Builder builder = new AlertDialog.Builder(con);
 		View v = inflater.inflate(R.layout.dialog_exhibit, null);
 		
-		TextView title = (TextView) v.findViewById(R.id.title);
-		title.setText(marker.getTitle());
-		
-		TextView info = (TextView) v.findViewById(R.id.distance);
-		info.setText(PlaceController.calculateDistanceString(myLocation, latLngToLocation(marker.getPosition())));
-	
+		Operations.setViewText(v, marker.getTitle(), R.id.title);
+		Operations.setViewText(v, 
+				PlaceController.calculateDistanceString(myLocation, 
+						latLngToLocation(marker.getPosition())), 
+				R.id.distance);
+
 		builder.setView(v);
 		final AlertDialog dialog = builder.create();
 		
@@ -144,16 +143,12 @@ public class MapUtils {
 				if(id == R.id.exit){
 					dialog.cancel();
 				} else if(id == R.id.navigate){
-					
+					//TODO: add following feature that points in direction of desired location
 				}
 			}
 			
 		};
-		ImageButton cancel = (ImageButton) v.findViewById(R.id.exit);
-		cancel.setOnClickListener(onclick);
-		
-		ImageButton navigate = (ImageButton) v.findViewById(R.id.navigate);
-		navigate.setOnClickListener(onclick);
+		Operations.setViewOnClickListeners(v, onclick, R.id.exit, R.id.navigate);
 		
 		dialog.show();
 		

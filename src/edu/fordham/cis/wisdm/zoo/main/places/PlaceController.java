@@ -50,45 +50,19 @@ public class PlaceController {
 	 */
 	@SuppressWarnings("deprecation")
 	public static RelativeLayout createExhibitItem(Activity act, int id, String drawablePath, 
-			String title, String distance, OnClickListener mListener, boolean wrap){
+			String title, String distance, OnClickListener mListener){
 		View v = act.getLayoutInflater().inflate(R.layout.exhibititem, null, false);
 		RelativeLayout exhibitItem = (RelativeLayout) v.findViewById(R.id.mainrel);
-		final RelativeLayout expandBar = (RelativeLayout) v.findViewById(R.id.expandLayout);
-		Operations.removeView(expandBar);
 		Operations.setViewText(exhibitItem, title, R.id.title);
-		
-		//if request to not fill, will request smaller size
-		//if(wrap && SplashScreenActivity.isLargeScreen)
-			//exhibitItem.setLayoutParams(new LayoutParams(SplashScreenController.SCREEN_WIDTH/4, LayoutParams.WRAP_CONTENT));
-		
-		
+			
 		if(!drawablePath.equals("0")){
 			ImageView image = (ImageView) exhibitItem.findViewById(R.id.image);
 			int drawableId = act.getResources().getIdentifier(drawablePath, "drawable", act.getPackageName());
 			image.setBackgroundDrawable(act.getResources().getDrawable(drawableId));
 		}
 		
-		//if not displaying as search bar option
-		if(!wrap && !title.equals("View All On Map") &&!title.equals("Visit Store Website")){
-			
-			Button locate = (Button) expandBar.findViewById(R.id.locate);
-			locate.setOnClickListener(mListener);
-			locate.setId(id);
-
-			exhibitItem.setOnClickListener(new OnClickListener(){
-				boolean isShown = true;
-				
-				@Override
-				public void onClick(View v) {
-					Operations.addRemoveView(expandBar, isShown);
-					isShown = !isShown;
-				}
-				
-			});
-		} else{
-			exhibitItem.setId(id);
-			exhibitItem.setOnClickListener(mListener);
-		}
+		exhibitItem.setId(id);
+		exhibitItem.setOnClickListener(mListener);
 		
 		if(!distance.equals("")){
 			Operations.setViewText(exhibitItem, distance, R.id.distancetext);
@@ -107,8 +81,8 @@ public class PlaceController {
 	 * @param wrap
 	 * @return
 	 */
-	public static RelativeLayout createExhibitItem(Location loc, Activity act, int id, PlaceItem place, OnClickListener mListener, boolean wrap){
-		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistanceString(loc, place.getLocation()), mListener, wrap);
+	public static RelativeLayout createExhibitItem(Location loc, Activity act, int id, PlaceItem place, OnClickListener mListener){
+		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistanceString(loc, place.getLocation()), mListener);
 	}
 
 	/**
@@ -120,13 +94,13 @@ public class PlaceController {
 	 * @param onClick
 	 * @param wrap
 	 */
-	public static void readInDataIntoList(Location loc, Activity act, LinearLayout exhibitList, LinkedList<PlaceItem> points, OnClickListener onClick, boolean wrap){
+	public static void readInDataIntoList(Location loc, Activity act, LinearLayout exhibitList, LinkedList<PlaceItem> points, OnClickListener onClick){
 		if(exhibitList==null)	return;
 		int idIndex = 0;
 			synchronized(points){
 				for(PlaceItem place: points){
 					idIndex++;
-					exhibitList.addView(createExhibitItem(loc, act,idIndex, place, onClick, wrap));
+					exhibitList.addView(createExhibitItem(loc, act,idIndex, place, onClick));
 				}
 				exhibitList.postInvalidate();
 		}
@@ -225,6 +199,12 @@ public class PlaceController {
 		}
 	}
 	
+	/**
+	 * Recalculates a linkedlist of placeitems
+	 * @param currentLoc
+	 * @param points
+	 * @return
+	 */
 	public static LinkedList<PlaceItem> reCalculateDistance(Location currentLoc, LinkedList<PlaceItem> points){
 		LinkedList<PlaceItem> temp = new LinkedList<PlaceItem>();
 		for(PlaceItem place: points){

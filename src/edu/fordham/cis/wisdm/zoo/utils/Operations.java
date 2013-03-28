@@ -171,9 +171,9 @@ public class Operations {
 	 * @param onclick
 	 * @param ids
 	 */
-	public static void setViewOnClickListeners(View view, View.OnClickListener onclick, int...ids){
+	public static void setViewOnClickListeners(View parent, View.OnClickListener onclick, int...ids){
 		for(int id: ids){
-			view.findViewById(id).setOnClickListener(onclick);
+			parent.findViewById(id).setOnClickListener(onclick);
 		}
 	}
 	

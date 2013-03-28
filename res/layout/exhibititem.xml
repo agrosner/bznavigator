@@ -27,27 +27,4 @@
 	    android:layout_alignParentTop="true"
 	    />
     
-    <RelativeLayout 
-        android:id="@+id/expandLayout"
-        style="@style/fill_width"
-        android:layout_below="@id/title"
-        android:layout_marginTop="10dip"
-        >
-        <Button
-        	android:layout_alignParentLeft="true"
-        	android:id="@+id/content"
-            android:text="Information"
-            android:drawableLeft="@drawable/ic_action_info"
-        	style="@style/wrap"
-        />
-        <Button 
-            android:layout_alignParentRight="true"
-            android:id="@+id/locate"
-        	android:text="Locate"
-        	android:drawableLeft="@drawable/ic_action_location"
-            style="@style/wrap"
-            />
-        
-    </RelativeLayout>
-    
 </RelativeLayout>

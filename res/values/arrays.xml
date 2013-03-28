@@ -3,18 +3,6 @@
     <string-array name="action_bar">
         <item>Settings</item>
     </string-array>
-    
-    <string-array name="splash_list">
-        <item>View Map</item>
-        <item>Find Nearby</item>
-        <item>News</item>
-        <item>Shops</item>
-        <item>Special Exhibits</item>
-        <item>Food</item>
-        <item>Exhibits</item>
-        <item>Amenities</item>
-        <item>Administration</item>
-    </string-array>
     <string-array name="splash_list2">
         <item>View Map</item>
         <item>Find Nearby</item>
@@ -25,6 +13,17 @@
         <item>Amenities</item>
         <item>Administration</item>
         <item>Logout</item>
+    </string-array>
+    <string-array name="search_list">
+        <item>exhibits.txt</item>
+        <item>food.txt</item>
+        <item>shops.txt</item>
+        <item>gates.txt</item>
+        <item>parking.txt</item>
+        <item>admin.txt</item>
+        <item>special.txt</item>
+        <item>restrooms.txt</item>
+        <item>misc.txt</item>
     </string-array>
     
 </resources>
