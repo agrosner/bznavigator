@@ -140,11 +140,11 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 		String fName = type.toString() + ".txt";
 		SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
 		
-		if(points.isEmpty())	PlaceController.readInData(act.mList.getMapFragment().getManager().getLastKnownLocation(),act, act, points, fName);
-		PlaceController.reCalculateDistance(act.mList.getMapFragment().getManager().getLastKnownLocation(), points);
+		if(points.isEmpty())	PlaceController.readInData(act.mList.getMapFragment().getLastKnownLocation(),act, act, points, fName);
+		PlaceController.reCalculateDistance(act.mList.getMapFragment().getLastKnownLocation(), points);
 		
 		PlaceController.reOrderByDistance(points);
-		PlaceController.readInDataIntoList(act.mList.getMapFragment().getManager().getLastKnownLocation(), getActivity(), exhibitList, points, this, true);
+		PlaceController.readInDataIntoList(act.mList.getMapFragment().getLastKnownLocation(), getActivity(), exhibitList, points, this, true);
 			
 		//new GetDataTask(fName).execute();
 	}

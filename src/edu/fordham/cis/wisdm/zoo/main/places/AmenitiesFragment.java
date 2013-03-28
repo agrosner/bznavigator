@@ -26,7 +26,7 @@ import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
 
 /**
  * This view fragment stores place information that is displayed on the map
- * @author andrewgrosner
+ * @author Andrew Grosner
  *
  */
 public class AmenitiesFragment extends SherlockFragment implements OnCheckedChangeListener {
@@ -43,6 +43,9 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	
 	private LinkedList<PlaceItem> misc = new LinkedList<PlaceItem>();
 	
+	/**
+	 * Recalculates distances when location changes
+	 */
 	private OnLocationChangedListener distanceRecalc = new OnLocationChangedListener(){
 
 		@Override
@@ -62,19 +65,12 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 		title.setTextSize(25);
 		layout.addView(title);
 		
-		RelativeLayout gatesBox = createIconCheckBox("Gates", R.drawable.fordham, 0);
-		RelativeLayout restroomsBox = createIconCheckBox("Restrooms", R.drawable.bathroom, 1);
-		RelativeLayout shopsBox = createIconCheckBox("Shops", R.drawable.shop, 2);
-		RelativeLayout parkingBox = createIconCheckBox("Parking", R.drawable.car, 3);
-		RelativeLayout foodBox = createIconCheckBox("Food", R.drawable.food, 4);
-		RelativeLayout miscBox = createIconCheckBox("Misc.", R.drawable.info, 5);
-		
-		layout.addView(gatesBox);
-		layout.addView(restroomsBox);
-		layout.addView(shopsBox);
-		layout.addView(parkingBox);
-		layout.addView(foodBox);
-		layout.addView(miscBox);
+		layout.addView(createIconCheckBox("Gates", R.drawable.fordham, 0));
+		layout.addView(createIconCheckBox("Restrooms", R.drawable.bathroom, 1));
+		layout.addView(createIconCheckBox("Shops", R.drawable.shop, 2));
+		layout.addView(createIconCheckBox("Parking", R.drawable.car, 3));
+		layout.addView(createIconCheckBox("Food", R.drawable.food, 4));
+		layout.addView(createIconCheckBox("Misc.", R.drawable.info, 5));
 		
 		return layout;
 	}
@@ -99,7 +95,7 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	}
 	
 	/**
-	 * Sets all of the checkboxes 
+	 * Sets all of the checkboxes, when the location manager has found a location
 	 * @param check
 	 */
 	public void setCheckboxes(boolean check){
@@ -152,10 +148,17 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 		else		  MapUtils.removeList(pts);
 	}
 	
+	/**
+	 * Reads in an amenity and displays on the map
+	 * @param pts
+	 * @param fName
+	 */
 	private void readInAmenity(LinkedList<PlaceItem> pts, String fName){
 		SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
-		if(pts.size()==0)	PlaceController.readInData(act.mList.getMapFragment().getManager().getLastKnownLocation(),
+		if(pts.isEmpty())	PlaceController.readInData(act.mList.getMapFragment().getLastKnownLocation(),
 							act, act, pts, fName);
+		else				PlaceController.reCalculateDistance(act.mList.getMapFragment()
+							.getLastKnownLocation(), pts);
 		
 		MapUtils.addToMap(act.mList.getMapFragment().getMap(), pts);
 	}

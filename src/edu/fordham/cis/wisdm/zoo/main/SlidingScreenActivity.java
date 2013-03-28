@@ -353,7 +353,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 				
 				
 			} else{
-				if(mList.getMapFragment().getManager().getLastKnownLocation()!=null){
+				if(mList.getMapFragment().getLastKnownLocation()!=null){
 					mList.getMapFragment().addParking(parkItem);
 				} else{
 					Toast.makeText(this, "Saving Parking Location Not Available When GPS is Not Found", Toast.LENGTH_SHORT).show();
@@ -414,7 +414,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			
 			int size = selected.size();
 			for(int i = 0; i < size; i++){
-				searchList.addView(PlaceController.createExhibitItem(mList.getMapFragment().getManager().getLastKnownLocation(),
+				searchList.addView(PlaceController.createExhibitItem(mList.getMapFragment().getLastKnownLocation(),
 						this, i+1, selected.get(i), mList.getMapFragment(), true));
 			}
 		}
@@ -456,7 +456,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			@Override
 			public void run(){
 			if(!Connections.sendSearchQuery(
-				mUser,querie, mList.getMapFragment().getManager().getLastKnownLocation()))
+				mUser,querie, mList.getMapFragment().getLastKnownLocation()))
 				Log.e(TAG, "Failed sending query: " + querie);
 				else Log.d(TAG, "Query sent: " + querie); 
 			}

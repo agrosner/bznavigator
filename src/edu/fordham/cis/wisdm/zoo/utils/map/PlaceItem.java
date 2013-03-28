@@ -24,7 +24,7 @@ public class PlaceItem {
 	
 	private Float mDistance = 0f;
 	
-	private int mResId = 0;
+	private int mIconId = 0;
 	
 	private int mId = -1;
 	
@@ -32,11 +32,21 @@ public class PlaceItem {
 	
 	private String mName = "";
 	
+	/**
+	 * Sets icon thats used on the map
+	 * @param resId
+	 * @return
+	 */
 	public PlaceItem iconId(int resId){
-		mResId = resId;
+		mIconId = resId;
 		return this;
 	}
 	
+	/**
+	 * Unique ID number when clicked
+	 * @param id
+	 * @return
+	 */
 	public PlaceItem id(int id){
 		mId = id;
 		return this;
@@ -65,7 +75,7 @@ public class PlaceItem {
 	protected Marker addMarker(GoogleMap map, boolean draggable, OnMarkerDragListener listener){
 		if(mPoint!=null){
 			MarkerOptions options = 
-					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(mResId))
+					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(mIconId))
 					.title(mName).position(mPoint);
 			if(draggable){
 				options.draggable(draggable);
@@ -78,15 +88,28 @@ public class PlaceItem {
 		} else return null;
 	}
 	
+	/**
+	 * Adds non-draggable marker to the map
+	 * @param map
+	 * @return
+	 */
 	public Marker addMarker(GoogleMap map){
 		return addMarker(map, false, null);
 	}
 	
-	
+	/**
+	 * Adds a marker with dragging to move enabled
+	 * @param map
+	 * @param listener
+	 * @return
+	 */
 	public Marker addDraggableMarker(GoogleMap map, OnMarkerDragListener listener){
 		return addMarker(map, true, listener);
 	}
 	
+	/**
+	 * Removes marker from the map
+	 */
 	public void remove(){
 		try{
 			mMarker.remove();
@@ -116,10 +139,13 @@ public class PlaceItem {
 	}
 	
 	/**
-	 * Returns location associated with this place
+	 * Returns location associated with this place.
+	 * Creates a new Location if the current one is null
 	 * @return
 	 */
 	public Location getLocation(){
+		if(mPoint==null)	
+			throw new IllegalStateException("This PlaceItem's LatLng cannot be null.");
 		if(mLocation==null){
 			mLocation = new Location(mName);
 			mLocation.setLatitude(mPoint.latitude);
@@ -130,6 +156,11 @@ public class PlaceItem {
 		}
 	}
 	
+	/**
+	 * If two items are equal location and name
+	 * @param place
+	 * @return
+	 */
 	public boolean equals(PlaceItem place){
 		return (mPoint.equals(place.mPoint)) && mName.equals(place.getName());
 	}

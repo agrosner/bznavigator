@@ -42,6 +42,9 @@ import edu.fordham.cis.wisdm.zoo.utils.Preference;
  */
 public class MapViewFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnInfoWindowClickListener{
 
+	/**
+	 * The handle to the map object that allows for manipulation of the map
+	 */
 	private GoogleMap mGoogleMap = null;
 
 	/**
@@ -54,9 +57,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 */
 	private float mCurrentZoom = 0;
 	
-	private LatLngBounds.Builder mBuilder = new LatLngBounds.Builder();
+	/**
+	 * Map bounds of the zoo
+	 */
+	private LatLngBounds.Builder mMapBounds = new LatLngBounds.Builder();
 	
-	private View mLayout = null;
 	
 	private LayoutInflater mInflater = null;
 	
@@ -102,6 +107,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		
 	};
 	
+	/**
+	 * The markers (excluding textmarkers, the textmarkermanager manages those) focused caused by either clicking on an item in the PlaceFragment, 
+	 * searching for the item, and (soon) clicking on it on the map.
+	 */
 	private LinkedList<Marker> mLastMarkers = new LinkedList<Marker>();
 	
 	@Override
@@ -125,14 +134,14 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 public View onCreateView(LayoutInflater inflater, ViewGroup container,
            Bundle savedInstanceState) {
 		ViewGroup v = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
-		mLayout = inflater.inflate(R.layout.fragment_map, container, false);
+		View layout = inflater.inflate(R.layout.fragment_map, container, false);
 		
-		Operations.setViewOnClickListeners(mLayout, this, R.id.satellite, R.id.normal, R.id.overview, R.id.clear);
-		Operations.removeView(mLayout.findViewById(R.id.clear));
+		Operations.setViewOnClickListeners(layout, this, R.id.satellite, R.id.normal, R.id.overview, R.id.clear);
+		Operations.removeView(layout.findViewById(R.id.clear));
 		
 		mInflater = inflater;
 		
-		v.addView(mLayout);
+		v.addView(layout);
 		return v;
 	}
 
@@ -152,12 +161,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		} else{
 			SlidingScreenActivity act = ((SlidingScreenActivity) getActivity());
 			PlaceItem place = act.selected.get(id-1);
-			
 			act.performSearch(place);
-			
 			clearMap();
-			
-			
 			addPlace(place);
 		}
 	}
@@ -186,7 +191,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
    			
 			@Override
 			public void run() {
-				mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 10));
+				mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBounds.build(), 10));
 				PlaceFragmentList list = ((SlidingScreenActivity)getActivity()).getCurrentPlaceFragment();
 				if(list!=null){
 					list.refresh();
@@ -200,20 +205,17 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
    		mManager.activate(meListener);
 		
 		try{
-		   		
-   			MapUtils.generatePolygon(getActivity(), mBuilder);
-			Paths.readFiles(getActivity());
-			Paths.addToMap(mGoogleMap);
-			
-			Exhibits.readFiles(getActivity());
-			Exhibits.addToMap(mGoogleMap);
+   			MapUtils.generatePolygon(getActivity(), mMapBounds);
+   			
+   			OverlayManager.readFiles(getActivity());
+			OverlayManager.addToMap(mGoogleMap);
 			
 			if(mTextMarkerManager==null){
 				mTextMarkerManager = new TextMarkerManager(getActivity(), mGoogleMap);
 			} else{
 				mTextMarkerManager.reset(getActivity(), mGoogleMap);
 			}
-			TextMarkerManager.readInData(mTextMarkerManager, getActivity(),"exhibits.txt", "special.txt");
+			mTextMarkerManager.readInData(getActivity(),"exhibits.txt", "special.txt");
 			mTextMarkerManager.addToMap();
 			mTextMarkerManager.refreshData(getMap().getCameraPosition().zoom);
 			
@@ -264,6 +266,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		}
 	}
 	
+	/**
+	 * Called when menuitems were created in the parent activity
+	 * @param menu
+	 */
 	public void onMenuItemCreated(Menu menu){
 		isParked = Preference.getBoolean("parking", false);
 		
@@ -297,8 +303,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 				getActivity(), marker);
 	}
 	
+	/**
+	 * Returns the map boundary
+	 */
 	public LatLngBounds getMapBounds(){
-		return mBuilder.build();
+		return mMapBounds.build();
 	}
 	
 	/**
@@ -316,8 +325,20 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		mTextMarkerManager.clearFocus(mCurrentZoom);
 	}
 	
+	/**
+	 * Returns the current location manager
+	 * @return
+	 */
 	public CurrentLocationManager getManager(){
 		return mManager;
+	}
+	
+	/**
+	 * Returns the last known location
+	 * @return
+	 */
+	public Location getLastKnownLocation(){
+		return mManager.getLastKnownLocation();
 	}
 	
 	/**

@@ -136,8 +136,8 @@ public class CurrentLocationManager implements LocationSource{
 			mLocationListeners.add(listener);
 		if (!mMyLocationEnabled) {
             try {
-            	mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mListener);
-            	mManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mListener);
+            	mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 2, mListener);
+            	mManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 2, mListener);
             } catch(Exception e) {
             	deactivate();
                 Toast.makeText(this.mCtx, "Location is not turned on", Toast.LENGTH_LONG).show();

@@ -6,11 +6,9 @@ import java.util.Scanner;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 
@@ -37,6 +35,9 @@ public class TextMarkerManager {
 	 */
 	private GoogleMap mGoogleMap;
 	
+	/**
+	 * The text color of the items labels
+	 */
 	private int mTextColor = Color.BLACK;
 	
 	/**
@@ -44,6 +45,11 @@ public class TextMarkerManager {
 	 */
 	private boolean hasFocus = false;
 	
+	/**
+	 * Constructs a new instance
+	 * @param con
+	 * @param map
+	 */
 	public TextMarkerManager(Context con, GoogleMap map){
 		reset(con, map);
 	}
@@ -59,7 +65,8 @@ public class TextMarkerManager {
 		for(TextMarker m: mMarkers){
 			m.remove();
 		}
-		mMarkers.clear();
+		if(!mMarkers.isEmpty())
+			mMarkers.clear();
 	}
 	
 	/**
@@ -69,9 +76,9 @@ public class TextMarkerManager {
 	 * @param fNames
 	 * @throws IOException
 	 */
-	public static void readInData(TextMarkerManager manager, Activity act, String...fNames) throws IOException{
+	public void readInData(Activity act, String...fNames) throws IOException{
 		for(String file: fNames){
-			readInData(manager, act, file);
+			readInData(act, file);
 		}
 	}
 	
@@ -82,8 +89,8 @@ public class TextMarkerManager {
 	 * @param fName
 	 * @throws IOException
 	 */
-	public static void readInData(TextMarkerManager manager, Activity act, String fName) throws IOException{
-		Scanner mScanner = new Scanner(manager.mContext.getAssets().open(fName));
+	public void readInData(Activity act, String fName) throws IOException{
+		Scanner mScanner = new Scanner(mContext.getAssets().open(fName));
 		int idIndex = -1;
 		while(mScanner.hasNextLine()){
 			String line = mScanner.nextLine();
@@ -105,7 +112,7 @@ public class TextMarkerManager {
 					}
 					int drawableId = act.getResources().getIdentifier(lineArray[1], "drawable", act.getPackageName());
 
-					manager.mMarkers.add(((TextMarker) 
+					mMarkers.add(((TextMarker) 
 							new TextMarker()
 							.point(new LatLng(lat, lon))
 							.name(lineArray[0])).setImage(act.getResources(), drawableId));
@@ -142,6 +149,7 @@ public class TextMarkerManager {
 			text.useImage(false);
 			text.setFocus(false);
 			text.refreshWithZoom(mGoogleMap, zoom);
+			if(text.mMarker!=null) text.mMarker.hideInfoWindow();
 		}
 		hasFocus = false;
 	}
@@ -202,6 +210,5 @@ public class TextMarkerManager {
 			}
 		}
 	}
-	
 	
 }
