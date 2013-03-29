@@ -280,7 +280,6 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	 */
 	public void notifyLocationSet(){
 		mAmenities.setCheckboxes(true);
-		mAmenities.addDistanceRecalculator(mList.getMapFragment().getManager());
 	}
 
 	@Override
@@ -396,7 +395,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			for(int i =0; i < mList.getMapFragment().getSearchExhibits().size(); i++){
 				PlaceItem place = mList.getMapFragment().getSearchExhibits().get(i);
 				if(place.getName().toLowerCase().startsWith(s.toString().toLowerCase()))
-					selected.add(place);
+					selected.add(place.distance(mList.getMapFragment().getLastKnownLocation().distanceTo(place.getLocation())));
 				}
 			
 			Collections.sort(selected, new Comparator<PlaceItem>(){

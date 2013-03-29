@@ -43,17 +43,6 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	
 	private LinkedList<PlaceItem> misc = new LinkedList<PlaceItem>();
 	
-	/**
-	 * Recalculates distances when location changes
-	 */
-	private OnLocationChangedListener distanceRecalc = new OnLocationChangedListener(){
-
-		@Override
-		public void onLocationChanged(Location location) {
-			PlaceController.reCalculateDistance(location, gates, restrooms, shops, parking, food, misc);
-		}
-	};
-	
 	
 	@Override
 	 public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -103,14 +92,6 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 			CheckBox ch = (CheckBox) (getView().findViewById(i));
 			ch.setChecked(check);
 		}
-	}
-	
-	/**
-	 * Adds the runnable to the current location manager so that distances get updated
-	 * @param manager
-	 */
-	public void addDistanceRecalculator(CurrentLocationManager manager){
-		manager.activate(distanceRecalc);
 	}
 
 	@Override

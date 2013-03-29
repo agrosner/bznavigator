@@ -101,6 +101,10 @@ public class MapUtils {
 	
 	
 	public static void moveRelativeToCurrentLocation(Location myLocation, LatLng point, GoogleMap map){
+		if(myLocation==null){
+			map.animateCamera(CameraUpdateFactory.newLatLng(point));
+			return;
+		}
 		map.animateCamera(CameraUpdateFactory.newLatLngBounds(getBounds(point, locationToLatLng(myLocation)), 20));
 	}
 	

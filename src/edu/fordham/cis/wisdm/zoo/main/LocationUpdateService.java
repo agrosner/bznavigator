@@ -188,7 +188,11 @@ public class LocationUpdateService extends Service implements LocationListener{
 		super.onStartCommand(i, flags, startid);
 		
 		startNotification();
-		mConnection = (Connections) i.getExtras().getSerializable("user");
+		try{ 
+			mConnection = (Connections) i.getExtras().getSerializable("user");
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		
 		//attempt to save connection in an event of restart
 		if(mConnection!=null){

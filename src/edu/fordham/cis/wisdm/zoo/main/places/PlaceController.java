@@ -208,7 +208,9 @@ public class PlaceController {
 	public static LinkedList<PlaceItem> reCalculateDistance(Location currentLoc, LinkedList<PlaceItem> points){
 		LinkedList<PlaceItem> temp = new LinkedList<PlaceItem>();
 		for(PlaceItem place: points){
-			temp.add(place.distance(currentLoc.distanceTo(place.getLocation())));
+			float distance = 0;
+			if(currentLoc!=null) distance = currentLoc.distanceTo(place.getLocation());
+			temp.add(place.distance(distance));
 		}
 		return temp;
 	}

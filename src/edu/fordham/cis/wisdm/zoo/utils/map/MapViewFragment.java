@@ -96,18 +96,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	private LinkedList<PlaceItem> searchExhibits = new LinkedList<PlaceItem>();
 	
 	/**
-	 * Provides an action when the user's current location changes
-	 */
-	private OnLocationChangedListener meListener = new OnLocationChangedListener(){
-
-		@Override
-		public void onLocationChanged(Location location) {
-			PlaceController.reCalculateDistance(location, searchExhibits);
-		}
-		
-	};
-	
-	/**
 	 * The markers (excluding textmarkers, the textmarkermanager manages those) focused caused by either clicking on an item in the PlaceFragment, 
 	 * searching for the item, and (soon) clicking on it on the map.
 	 */
@@ -202,7 +190,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		});
    		
    		mGoogleMap.setLocationSource(mManager);
-   		mManager.activate(meListener);
 		
 		try{
    			MapUtils.generatePolygon(getActivity(), mMapBounds);
