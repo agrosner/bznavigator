@@ -127,8 +127,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         
         title = (TextView)this.findViewById(R.id.title);
         
-        int id[] = {R.id.start, R.id.skip, R.id.cont};
-        Operations.findButtonViewsByIds(this, buttons, id);
+        buttons = Operations.findButtonViewsByIds(this, R.id.start, R.id.skip, R.id.cont);
         Operations.setOnClickListeners(this, buttons);
                 
         other = new RadioButton(this);

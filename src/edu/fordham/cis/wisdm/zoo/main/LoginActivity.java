@@ -39,7 +39,7 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
 	/**
 	 * Form fields
 	 */
-	private EditText[] fields = new EditText[2];
+	private EditText[] fields;
 	
 	/**
 	 * "Remember Me" checkbox widget
@@ -140,10 +140,10 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
     	setContentView(R.layout.login_extended);
     	
     	//set up buttons
-    	Operations.setViewOnClickListeners(this, this, R.id.SignUp, R.id.LoginButton);
+    	Operations.setOnClickListeners(this, this, R.id.SignUp, R.id.LoginButton);
     	
     	//set up text fields
-    	Operations.findEditTextViewsByIds(this, fields, R.id.Email, R.id.Password);
+    	fields = Operations.findEditTextViewsByIds(this,R.id.Email, R.id.Password);
     	rememberMe = (CheckBox) findViewById(R.id.RememberMe);
     	
     	ActionBar mAction = this.getSupportActionBar();
@@ -204,6 +204,7 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
     			fields[0].getText().toString(), 
     			fields[1].getText().toString(), 
     			Secure.getString(this.getContentResolver(), Secure.ANDROID_ID));
+    	signup.putExtra("user", mConnection);
     	startActivityForResult(signup, 0);
     }
     
@@ -211,9 +212,11 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
     public void onActivityResult(int requestCode,int resultCode, Intent data){
     	super.onActivityResult(requestCode, resultCode, data);
     	
-    	Bundle ex = data.getExtras();
-    	if(ex.containsKey("reg") && resultCode == RESULT_OK){
-    		Operations.setViewTexts(fields, ex.getStringArray("reg"));
+    	if(resultCode!=0){
+    		Bundle ex = data.getExtras();
+	    	if(ex.containsKey("reg") && resultCode == RESULT_OK){
+	    		Operations.setViewTexts(fields, ex.getStringArray("reg"));
+	    	}
     	}
     	
     }

@@ -236,7 +236,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	
 		getSupportMenuInflater().inflate(R.menu.activity_sliding_screen, menu);
 		
-		followItem = menu.findItem(R.id.follow).setOnMenuItemClickListener(this);
+		setFollowItem(menu.findItem(R.id.follow).setOnMenuItemClickListener(this));
 		parkItem = menu.findItem(R.id.park).setOnMenuItemClickListener(this);
 		
 		menu.findItem(R.id.about).setOnMenuItemClickListener(this);
@@ -316,7 +316,10 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		case R.id.follow:
 			mList.switchToMap();
 			mList.getMapFragment().getMap().setOnMapClickListener(this);
-			mList.getMapFragment().toggleFollow(item);
+			
+			if(mList.getMapFragment().getManager().isNavigating()){
+				mList.getMapFragment().disableNavigation(item);
+			} else	mList.getMapFragment().toggleFollow(item);
 			return true;
 		case R.id.park:
 			mList.switchToMap();
@@ -395,7 +398,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			for(int i =0; i < mList.getMapFragment().getSearchExhibits().size(); i++){
 				PlaceItem place = mList.getMapFragment().getSearchExhibits().get(i);
 				if(place.getName().toLowerCase().startsWith(s.toString().toLowerCase()))
-					selected.add(place.distance(mList.getMapFragment().getLastKnownLocation().distanceTo(place.getLocation())));
+					selected.add(place);
 				}
 			
 			Collections.sort(selected, new Comparator<PlaceItem>(){
@@ -466,7 +469,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	@Override
 	public void onMapClick(LatLng point) {
 		if(mList.getMapFragment().isTracking())
-			mList.getMapFragment().toggleFollow(followItem);
+			mList.getMapFragment().toggleFollow(getFollowItem());
 	}	
 	
 	public MenuItem getParkingIcon(){
@@ -475,6 +478,14 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	
 	public PlaceFragmentList getCurrentPlaceFragment(){
 		return mCurrentPlaceFragment;
+	}
+
+	public MenuItem getFollowItem() {
+		return followItem;
+	}
+
+	public void setFollowItem(MenuItem followItem) {
+		this.followItem = followItem;
 	}
 	
 }

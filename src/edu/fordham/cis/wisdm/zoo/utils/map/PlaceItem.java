@@ -22,8 +22,6 @@ public class PlaceItem {
 	
 	private Location mLocation = null;
 	
-	private Float mDistance = 0f;
-	
 	private int mIconId = 0;
 	
 	private int mId = -1;
@@ -59,11 +57,6 @@ public class PlaceItem {
 	
 	public PlaceItem point(LatLng point){
 		mPoint = point;
-		return this;
-	}
-	
-	public PlaceItem distance(float distanceFt){
-		mDistance = distanceFt;
 		return this;
 	}
 	
@@ -116,10 +109,6 @@ public class PlaceItem {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-	}
-	
-	public float getDistance(){
-		return mDistance;
 	}
 	
 	public LatLng getPoint(){

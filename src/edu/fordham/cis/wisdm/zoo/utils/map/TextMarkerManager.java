@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
 
@@ -18,7 +19,7 @@ import android.location.Location;
  * @author Andrew Grosner
  *
  */
-public class TextMarkerManager {
+public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowClickListener{
 
 	/**
 	 * Holds the textmarker data
@@ -26,14 +27,9 @@ public class TextMarkerManager {
 	private ArrayList<TextMarker> mMarkers = new ArrayList<TextMarker>();
 	
 	/**
-	 * Application context object
+	 * The parent fragment associated with this manager
 	 */
-	private Context mContext;
-	
-	/**
-	 * The googlemap
-	 */
-	private GoogleMap mGoogleMap;
+	private MapViewFragment mMap;
 	
 	/**
 	 * The text color of the items labels
@@ -50,8 +46,8 @@ public class TextMarkerManager {
 	 * @param con
 	 * @param map
 	 */
-	public TextMarkerManager(Context con, GoogleMap map){
-		reset(con, map);
+	public TextMarkerManager(MapViewFragment map){
+		reset(map);
 	}
 	
 	/**
@@ -59,9 +55,8 @@ public class TextMarkerManager {
 	 * @param con
 	 * @param map
 	 */
-	public void reset(Context con, GoogleMap map){
-		mContext = con;
-		mGoogleMap = map;
+	public void reset(MapViewFragment map){
+		mMap = map;
 		for(TextMarker m: mMarkers){
 			m.remove();
 		}
@@ -90,7 +85,7 @@ public class TextMarkerManager {
 	 * @throws IOException
 	 */
 	public void readInData(Activity act, String fName) throws IOException{
-		Scanner mScanner = new Scanner(mContext.getAssets().open(fName));
+		Scanner mScanner = new Scanner(act.getAssets().open(fName));
 		int idIndex = -1;
 		while(mScanner.hasNextLine()){
 			String line = mScanner.nextLine();
@@ -132,10 +127,19 @@ public class TextMarkerManager {
 			if(text.equals(place)){
 				text.useImage(true);
 				text.setFocus(true);
-				text.refresh(mGoogleMap);
+				text.refresh(mMap.getMap());
 				place.mMarker = text.mMarker;
 			}
 		}
+		hasFocus = true;
+		return true;
+	}
+	
+	public boolean addFocus(TextMarker text){
+		if(!mMarkers.contains(text)) return false;
+		text.useImage(true);
+		text.setFocus(true);
+		text.refresh(mMap.getMap());
 		hasFocus = true;
 		return true;
 	}
@@ -148,7 +152,7 @@ public class TextMarkerManager {
 		for(TextMarker text: mMarkers){
 			text.useImage(false);
 			text.setFocus(false);
-			text.refreshWithZoom(mGoogleMap, zoom);
+			text.refreshWithZoom(mMap.getMap(), zoom);
 			if(text.mMarker!=null) text.mMarker.hideInfoWindow();
 		}
 		hasFocus = false;
@@ -176,11 +180,37 @@ public class TextMarkerManager {
 	}
 	
 	/**
+	 * Returns whether the marker is in the list
+	 * @param marker
+	 * @return
+	 */
+	public boolean contains(Marker marker){
+		for(TextMarker text: mMarkers){
+			if(text.equals(marker))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns an index of the marker specified
+	 * @param marker
+	 * @return
+	 */
+	public int indexOf(Marker marker){
+		for(int i =0; i < mMarkers.size(); i++){
+			if(mMarkers.get(i).equals(marker))
+				return i;
+		}
+		return -1;
+	}
+	
+	/**
 	 * Adds all text markers to the map
 	 */
 	public void addToMap(){
 		for(TextMarker text: mMarkers){
-			text.addMarker(mGoogleMap);
+			text.addMarker(mMap.getMap());
 		}
 	}
 	
@@ -192,7 +222,7 @@ public class TextMarkerManager {
 	 */
 	public void refreshData(float zoom){
 		for(TextMarker text: mMarkers){
-			text.refreshWithZoom(mGoogleMap, zoom);
+			text.refreshWithZoom(mMap.getMap(), zoom);
 		}
 	}
 	
@@ -206,9 +236,24 @@ public class TextMarkerManager {
 			mTextColor = color;
 			for(TextMarker text: mMarkers){
 				text.color(color);
-				text.refreshWithZoom(mGoogleMap, zoom);
+				text.refreshWithZoom(mMap.getMap(), zoom);
 			}
 		}
+	}
+
+	@Override
+	public boolean onMarkerClick(Marker marker) {
+		if(contains(marker))	{
+			mMap.addPlaceMove(mMarkers.get(indexOf(marker)));
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public void onInfoWindowClick(Marker marker) {
+		MapUtils.showExhibitInfoDialog(mMap.getManager(), mMap.getActivity().getLayoutInflater(), 
+				mMap.getActivity(), marker);
 	}
 	
 }

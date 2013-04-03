@@ -115,7 +115,7 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
 		exhibit = (RelativeLayout) inflater.inflate(R.layout.fragment_place, null, false);
 		exhibitList = (LinearLayout) exhibit.findViewById(R.id.exhibitList);
-		Operations.setViewOnClickListeners(exhibit, this, R.id.refresh, R.id.exit);
+		Operations.setOnClickListeners(exhibit, this, R.id.refresh, R.id.exit);
 		
 		return exhibit;
 	}
@@ -140,10 +140,9 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 		String fName = type.toString() + ".txt";
 		SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
 		
-		if(points.isEmpty())	PlaceController.readInData(act.mList.getMapFragment().getLastKnownLocation(),act, act, points, fName);
-		PlaceController.reCalculateDistance(act.mList.getMapFragment().getLastKnownLocation(), points);
+		if(points.isEmpty())	PlaceController.readInData(act, act, points, fName);
 		
-		PlaceController.reOrderByDistance(points);
+		PlaceController.reOrderByDistance(points, act.mList.getMapFragment().getLastKnownLocation());
 		PlaceController.readInDataIntoList(act.mList.getMapFragment().getLastKnownLocation(), getActivity(), exhibitList, points, this);
 			
 		//new GetDataTask(fName).execute();
@@ -154,7 +153,7 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 	public void onClick(View v) {
 		//load up splashscreenactivity's instance
 
-		SlidingScreenActivity act = (SlidingScreenActivity) getActivity();FragmentTransaction mTransaction = getFragmentManager().beginTransaction();
+		final SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
 		int id = v.getId();
 		
 		if(id == R.id.refresh){
@@ -179,7 +178,8 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 
 						@Override
 						public int compare(PlaceItem lhs, PlaceItem rhs) {
-							return Float.valueOf(lhs.getDistance()).compareTo(rhs.getDistance());
+							return Float.valueOf(lhs.getLocation().distanceTo(act.mList.getMapFragment().getLastKnownLocation()))
+									.compareTo(rhs.getLocation().distanceTo(act.mList.getMapFragment().getLastKnownLocation()));
 						}
 						
 					});

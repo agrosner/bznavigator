@@ -7,6 +7,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
+import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
 import android.content.Context;
 import android.location.Location;
@@ -33,17 +36,23 @@ public class CurrentLocationManager implements LocationSource{
 	
 	private Location mLocation = null;
 	
+	/**
+	 * Whether user has indicated that they want map to follow current location
+	 */
 	private boolean isTracking = false;
+	
+	/**
+	 * Whether user wants to navigate to place, points map in direction of location
+	 */
+	private boolean isNavigating = false;
+	
+	private Location mDestination = null;
 	
 	private boolean mFirstFixSuccess = false;
 	
 	private boolean mMyLocationEnabled = false;
 	
 	private boolean locationAvailable = false;
-	
-	private boolean gpsAvail = false;
-	
-	private boolean networkAvail = false;
 	
 	public static String locationMessage = "";
 	
@@ -58,11 +67,9 @@ public class CurrentLocationManager implements LocationSource{
 		if (mManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 			locationMessage ="GPS provider enabled.";
 			locationAvailable = true;
-			gpsAvail = true;
 		} else if (mManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
 			locationMessage = "Network provider enabled.";
 			locationAvailable = true;
-			networkAvail = true;
 		} else	{
 			locationMessage = "No provider enabled. Please check settings and allow locational services.";
 			locationAvailable = false;
@@ -82,12 +89,19 @@ public class CurrentLocationManager implements LocationSource{
 						
 					}
 					if(isTracking){
-						mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+						if(!isNavigating){
+							mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+										new CameraPosition.Builder()
+										.bearing(location.getBearing())
+										.target(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()))
+										.build()));
+						}else if(mDestination!=null){
+							mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
 									new CameraPosition.Builder()
-									.bearing(location.getBearing())
-									.tilt(45)
+									.bearing(location.bearingTo(mDestination))
 									.target(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()))
 									.build()));
+						}
 					}	
 					for(OnLocationChangedListener run: mLocationListeners){
 						run.onLocationChanged(location);
@@ -110,6 +124,14 @@ public class CurrentLocationManager implements LocationSource{
 			}
 			
 		};
+		
+		Float latitude = Preference.getFloat("lat", null);
+		Float longitude = Preference.getFloat("lon", null);
+		if(latitude!=null && longitude!=null){
+			mLocation = new Location("my location");
+			mLocation.setLatitude(latitude);
+			mLocation.setLongitude(longitude);
+		}
 	}
 	
 	public void setFields(Context con, GoogleMap map){
@@ -125,8 +147,24 @@ public class CurrentLocationManager implements LocationSource{
 		isTracking = follow;
 	}
 	
+	public void navigate(Location locationTo){
+		mDestination = locationTo;
+		isNavigating = true;
+		follow(true);
+	}
+	
+	public void disableNavigation(){
+		mDestination = null;
+		isNavigating = false;
+		follow(false);
+	}
+	
 	public Location getLastKnownLocation(){
 		return mLocation;
+	}
+	
+	public boolean isNavigating(){
+		return isNavigating;
 	}
 
 	@Override
@@ -151,6 +189,10 @@ public class CurrentLocationManager implements LocationSource{
 	public void deactivate() {
 		mManager.removeUpdates(mListener);
 		mMyLocationEnabled = false;
+		if(mLocation!=null){
+			Preference.putFloat("lat", (float) mLocation.getLatitude());
+			Preference.putFloat("lon", (float) mLocation.getLongitude());
+		}
 	}
 	
 	

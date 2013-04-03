@@ -114,7 +114,7 @@ public class PlaceController {
 	 * @param fName
 	 * @param points
 	 */
-	private static void readInData(Location myLocation, Activity act, String fName, List<PlaceItem> points, OnClickListener onInfoClick){
+	private static void readInData(Activity act, String fName, List<PlaceItem> points, OnClickListener onInfoClick){
 		try {
 			Scanner mScanner = new Scanner(act.getAssets().open(fName));
 			int idIndex = -1;
@@ -131,9 +131,6 @@ public class PlaceController {
 						loc.setLatitude(lat);
 						loc.setLongitude(lon);
 						
-						if(myLocation==null)	distance = 0; 
-						else	distance = loc.distanceTo(myLocation);
-						
 						if(lineArray[0].toLowerCase().contains("restroom")){
 							lineArray[0] = "Restroom";
 						}
@@ -143,7 +140,7 @@ public class PlaceController {
 							lineArray[0]+="(Staff Only)";
 						}
 						
-						points.add(new PlaceItem().point(new LatLng(lat, lon)).name(lineArray[0]).id(idIndex).iconId(drawableId).drawablePath(lineArray[1]).distance(distance));
+						points.add(new PlaceItem().point(new LatLng(lat, lon)).name(lineArray[0]).id(idIndex).iconId(drawableId).drawablePath(lineArray[1]));
 					} 
 				}
 			}
@@ -161,9 +158,9 @@ public class PlaceController {
 	 * @param points
 	 * @param fNames
 	 */
-	public static void readInData(Location myLocation, Activity act, OnClickListener onInfoClick, LinkedList<PlaceItem> points, String... fNames){
+	public static void readInData(Activity act, OnClickListener onInfoClick, LinkedList<PlaceItem> points, String... fNames){
 		for(String fName: fNames){
-			readInData(myLocation, act, fName, points, onInfoClick);
+			readInData(act, fName, points, onInfoClick);
 		}
 	}
 	
@@ -187,45 +184,18 @@ public class PlaceController {
 	} 
 	
 	/**
-	 * Regenerates the distances to the exhibits
-	 * @param currentLoc
-	 * @param points
-	 */
-	public static void reCalculateDistance(Location currentLoc, LinkedList<PlaceItem>... points){
-		if(currentLoc!=null){
-			for (LinkedList<PlaceItem> point: points){
-				point = reCalculateDistance(currentLoc, point);
-			}
-		}
-	}
-	
-	/**
-	 * Recalculates a linkedlist of placeitems
-	 * @param currentLoc
-	 * @param points
-	 * @return
-	 */
-	public static LinkedList<PlaceItem> reCalculateDistance(Location currentLoc, LinkedList<PlaceItem> points){
-		LinkedList<PlaceItem> temp = new LinkedList<PlaceItem>();
-		for(PlaceItem place: points){
-			float distance = 0;
-			if(currentLoc!=null) distance = currentLoc.distanceTo(place.getLocation());
-			temp.add(place.distance(distance));
-		}
-		return temp;
-	}
-	
-	/**
 	 * Reorders the list of elements by distance to the place
 	 * @param currentLoc
 	 * @param points
 	 */
-	public static void reOrderByDistance(LinkedList<PlaceItem> points){
+	public static void reOrderByDistance(LinkedList<PlaceItem> points, final Location currentLoc){
 		Collections.sort(points, new Comparator<PlaceItem>(){
 
 			@Override
 			public int compare(PlaceItem lhs, PlaceItem rhs) {
-				return Float.valueOf(lhs.getDistance()).compareTo(rhs.getDistance());
+				if(currentLoc!=null)
+					return Float.valueOf(lhs.getLocation().distanceTo(currentLoc)).compareTo(rhs.getLocation().distanceTo(currentLoc));
+				else return 0;
 			}
 				
 		});

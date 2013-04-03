@@ -1,8 +1,5 @@
 package edu.fordham.cis.wisdm.zoo.utils;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +9,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.TableRow;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -25,30 +21,6 @@ import android.widget.TextView;
 public class Operations {
 	
 	/**
-	 * Removes a view object from the screen
-	 * @param view
-	 */
-	public static void removeView(View...views){
-		for(View view: views){
-			view.setVisibility(View.GONE);
-		}
-	}
-	
-	public static void removeViewAnimate(View v, Animation a){
-		v.startAnimation(a);
-		removeView(v);
-	}
-	
-	/**
-	 * Removes a row from a table
-	 * @param con
-	 * @param id
-	 */
-	public static void removeTableRow(Activity con, int id){
-		TableRow row = (TableRow) con.findViewById(id);
-		Operations.removeView(row);
-	}
-	/**
 	 * Shows a view that was previously removed
 	 * @param view
 	 */
@@ -58,9 +30,34 @@ public class Operations {
 		}
 	}
 	
+	/**
+	 * Shows a view with the specified animation
+	 * @param v
+	 * @param a
+	 */
 	public static void addViewAnimate(View v, Animation a){
 		v.startAnimation(a);
 		addView(v);
+	}
+	
+	/**
+	 * Removes a view object from the screen
+	 * @param view
+	 */
+	public static void removeView(View...views){
+		for(View view: views){
+			view.setVisibility(View.GONE);
+		}
+	}
+	
+	/**
+	 * Removes a view from the screen with the specified animation
+	 * @param v
+	 * @param a
+	 */
+	public static void removeViewAnimate(View v, Animation a){
+		v.startAnimation(a);
+		removeView(v);
 	}
 	
 	/**
@@ -81,13 +78,13 @@ public class Operations {
 	 * @param views
 	 * @param show
 	 */
-	public static void addRemoveViews(View[] views, boolean show){
+	public static void addRemoveViews(boolean show, View...views){
 		for(int i = 0; i < views.length; i++){
 			addRemoveView(views[i], show);
 		}
 	}
 	/**
-	 * Starts an activity specified
+	 * Starts an activity specified with empty intent
 	 * @param c
 	 * @param context
 	 */
@@ -111,57 +108,12 @@ public class Operations {
 	}
 	
 	/**
-	 * Switches text from a buttonview
-	 * @param buttonView
-	 * @param firstString
-	 * @param secondString
-	 */
-	public static void flipText(CompoundButton buttonView, String firstString,
-			String secondString) {
-		if (buttonView.getText().toString().equals(firstString)){
-			buttonView.setText(secondString);
-		} else{
-			buttonView.setText(firstString);
-		}
-	}
-	
-	/**
-	 * Flips text and buttons from the menu screens
-	 * @param view
-	 * @param firstString
-	 * @param secondString
-	 * @param buttons
-	 */
-	public static void expandButton(TextView view, String firstString, String secondString, Button[] buttons){
-		flipText(view, firstString, secondString);
-		flipButtons(buttons);
-	}
-	
-	/**
-	 * If the button array is shown, it will hide the buttons, otherwise show the button
-	 * @param buttons
-	 */
-	public static void flipButtons(Button[] buttons){
-		boolean shown = false;
-		for (int i =0; i < buttons.length; i ++){
-			if (buttons[i].isShown()){
-				shown = true;
-			}
-		}
-		if (shown == false)
-			addView(buttons);
-		else
-			removeView(buttons);
-	}
-	/**
 	 * View array of objects that sets all onClicks at once
 	 * @param context
 	 * @param views
 	 */
 	public static void setOnClickListeners(View.OnClickListener context, View...views){
-		for (int i =0; i < views.length; i++){
-			views[i].setOnClickListener(context);
-		}
+		for (View v: views) v.setOnClickListener(context);
 	}
 	
 	/**
@@ -171,10 +123,9 @@ public class Operations {
 	 * @param onclick
 	 * @param ids
 	 */
-	public static void setViewOnClickListeners(View parent, View.OnClickListener onclick, int...ids){
-		for(int id: ids){
-			parent.findViewById(id).setOnClickListener(onclick);
-		}
+	public static void setOnClickListeners(View parent, View.OnClickListener onclick, int...ids){
+		for(int id: ids) parent.findViewById(id).setOnClickListener(onclick);
+		
 	}
 	
 	/**
@@ -184,10 +135,8 @@ public class Operations {
 	 * @param onclick
 	 * @param ids
 	 */
-	public static void setViewOnClickListeners(Activity act, View.OnClickListener onclick, int...ids){
-		for(int id: ids){
-			act.findViewById(id).setOnClickListener(onclick);
-		}
+	public static void setOnClickListeners(Activity act, View.OnClickListener onclick, int...ids){
+		for(int id: ids) act.findViewById(id).setOnClickListener(onclick);
 	}
 	
 	/**
@@ -196,112 +145,158 @@ public class Operations {
 	 * @param checks
 	 */
 	public static void setOnCheckedChangeListeners(OnCheckedChangeListener listener, CompoundButton[] checks){
-		for(int i =0; i < checks.length; i++){
-			checks[i].setOnCheckedChangeListener(listener);
-		}
+		for(CompoundButton button: checks) button.setOnCheckedChangeListener(listener);
 	}
 	
 	/**
-	 * Good for more than 2 buttons, puts view objects into memory for manipulation 
+	 * Returns an array of buttons specified by id 
 	 * @param context
-	 * @param button
 	 * @param ids
+	 * @return array
 	 */
-	public static void findButtonViewsByIds(Activity context, Button[] button, int...ids){
+	public static Button[] findButtonViewsByIds(Activity context, int...ids){
+		Button[] button = new Button[ids.length];
 		for (int i =0; i < button.length; i++){
 			button[i] = (Button) context.findViewById(ids[i]);
 		}
+		return button;
 	}
 	
-	/**
-	 * Finds and sets a view text
-	 * @param parent
-	 * @param text
-	 * @param id
-	 */
-	public static void setViewText(View parent, String text, int id){
-		((TextView) parent.findViewById(id)).setText(text);
-	}
 	
 	/**
-	 * Good for more than 2 buttons, puts view objects into memory for manipulation
+	 * Returns an array of buttons specified by id 
 	 * @param layout
-	 * @param button
 	 * @param ids
+	 * @return array;
 	 */
-	public static void findButtonViewsByIds(View layout, Button[] button, int...ids){
+	public static Button[] findButtonViewsByIds(View layout, int...ids){
+		Button[] button = new Button[ids.length];
 		for (int i =0; i < button.length; i++){
 			button[i] = (Button) layout.findViewById(ids[i]);
 		}
-	}
-	/**
-	 * Good for more than 2 textViews, puts view objects into memory for manipulation
-	 * @param context
-	 * @param text
-	 * @param ids
-	 */
-	public static void findTextViewsByIds(Activity context, TextView[] text, int...ids){
-		for (int i =0; i < text.length; i++){
-			text[i] = (TextView) context.findViewById(ids[i]);
-		}
+		return button;
 	}
 	
 	/**
-	 * Gets multiple views in one line of code
+	 * Returns an array of textviews specified by id
 	 * @param layout
-	 * @param text
 	 * @param ids
+	 * @return array;
 	 */
-	public static void findTextViewsByIds(View layout, TextView[] text, int...ids){
+	public static TextView[] findTextViewsByIds(Activity layout, int...ids){
+		TextView[] text = new TextView[ids.length];
 		for(int i =0; i < text.length; i++){
 			text[i] = (TextView) layout.findViewById(ids[i]);
 		}
+		return text;
 	}
+	
 	/**
-	 * Loads checkBox views into memory, allowing changes to each view object
-	 * @param context
-	 * @param check
+	 * Returns an array of textviews specified by id
+	 * @param layout
 	 * @param ids
+	 * @return array;
 	 */
-	public static void findCheckBoxViewsByIds(Activity context, CheckBox[] check, int...ids){
+	public static TextView[] findTextViewsByIds(View layout, int...ids){
+		TextView[] text = new TextView[ids.length];
+		for(int i =0; i < text.length; i++){
+			text[i] = (TextView) layout.findViewById(ids[i]);
+		}
+		return text;
+	}
+	
+	/**
+	 * Returns an array of checkboxes specified by id
+	 * @param context
+	 * @param ids
+	 * @return array
+	 */
+	public static CheckBox[] findCheckBoxViewsByIds(Activity context, int...ids){
+		CheckBox[] check = new CheckBox[ids.length];
 		for (int i = 0; i < check.length; i++){
 			check[i] = (CheckBox) context.findViewById(ids[i]);
 		}
+		return check;
 	}
 	
 	/**
-	 * Good for more than 2 textViews, puts view objects into memory for manipulation
+	 * Returns an array of edittexts specified by id
 	 * @param context
-	 * @param text
 	 * @param ids
+	 * @return array
 	 */
-	public static void findEditTextViewsByIds(Activity context, EditText[] text, int...ids){
-		for (int i =0; i < text.length; i++){
-			text[i] = (EditText) context.findViewById(ids[i]);
+	public static EditText[] findEditTextViewsByIds(View context, int...ids){
+		EditText[] edits = new EditText[ids.length];
+		for (int i =0; i < ids.length; i++){
+			edits[i] = (EditText) context.findViewById(ids[i]);
 		}
+		return edits;
+	}
+	
+	
+	/**
+	 * Returns an array of edittexts specified by id
+	 * @param context
+	 * @param ids
+	 * @return array
+	 */
+	public static EditText[] findEditTextViewsByIds(Activity context, int...ids){
+		EditText[] edits = new EditText[ids.length];
+		for (int i =0; i < ids.length; i++){
+			edits[i] = (EditText) context.findViewById(ids[i]);
+		}
+		return edits;
 	}
 	
 	/**
-	 * Parses all larger than two decimals down to only two decimal places
-	 * @param d
-	 * @return new d
+	 * Returns an array of imagebuttons specified by id
+	 * @param con
+	 * @param ids
+	 * @return array
 	 */
-	public static double roundTwoDecimals(double d){
-		DecimalFormat twoDForm = new DecimalFormat("#.##");
-		return Double.valueOf(twoDForm.format(d));
+	public static ImageButton[] findImageButtonViewsByIds(View con, int...ids) {
+		ImageButton[] buttons = new ImageButton[ids.length];
+		for (int i =0; i < buttons.length; i++){
+			buttons[i] = (ImageButton) con.findViewById(ids[i]);
+		}
+		return buttons;
 	}
 	
 	/**
-	 * Rounds a string number into specified number of decimal places
-	 * @param s
-	 * @param number
-	 * @return
+	 * Returns an array of imagebuttons specified by id
+	 * @param con
+	 * @param ids
+	 * @return array
 	 */
-	public static String roundDecimals(String s, int number){
-		BigDecimal bd = new BigDecimal(s);
-		bd = bd.setScale(number, BigDecimal.ROUND_UP);
-		
-		return bd.toString();
+	public static ImageButton[] findImageButtonViewsByIds(Activity con, int...ids) {
+		ImageButton[] buttons = new ImageButton[ids.length];
+		for (int i =0; i < buttons.length; i++){
+			buttons[i] = (ImageButton) con.findViewById(ids[i]);
+		}
+		return buttons;
+	}
+	
+	/**
+	 * Finds and sets a view text, returning the object if needed
+	 * @param parent
+	 * @param id
+	 * @return array
+	 */
+	public static TextView setViewText(View parent, String text, int id){
+		TextView v = ((TextView) parent.findViewById(id));
+		v.setText(text);
+		return v;
+	}
+	
+	/**
+	 * Sets multiple views with the specified strings
+	 * @param views
+	 * @param strings
+	 */
+	public static void setViewTexts(TextView[] views, String...strings){
+		for(int i =0; i < views.length; i++){
+			views[i].setText(strings[i]);
+		}
 	}
 	
 	/**
@@ -319,32 +314,5 @@ public class Operations {
 		addViewAnimate(notShowing, a2);
 	}
 	
-	/**
-	 * Finds multiple imagebuttons in succession from memory
-	 * @param layout
-	 * @param buttons
-	 * @param ids
-	 */
-	public static void findImageButtonViewsByIds(View layout,ImageButton[] buttons, int...ids) {
-		for (int i =0; i < buttons.length; i++){
-			buttons[i] = (ImageButton) layout.findViewById(ids[i]);
-		}
-	}
-	/**
-	 * Finds multiple imagebuttons in succession from memory
-	 * @param layout
-	 * @param buttons
-	 * @param ids
-	 */
-	public static void findImageButtonViewsByIds(Activity con,ImageButton[] buttons, int...ids) {
-		for (int i =0; i < buttons.length; i++){
-			buttons[i] = (ImageButton) con.findViewById(ids[i]);
-		}
-	}
 	
-	public static void setViewTexts(TextView[] views, String...strings){
-		for(int i =0; i < views.length; i++){
-			views[i].setText(strings[i]);
-		}
-	}
 }

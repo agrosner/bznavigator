@@ -27,7 +27,7 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
 
 	private Connections mConnection = null;
 	
-	private EditText[] fields = new EditText[3];
+	private EditText[] fields;
 	
 	private static String ID;
 	
@@ -37,17 +37,16 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
         setContentView(R.layout.activity_register);
         
         ID = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-        
         getSupportActionBar().setTitle("Create Account");
         
-        Operations.findEditTextViewsByIds(this, fields, R.id.email, R.id.password, R.id.password_confirm);
+        fields = Operations.findEditTextViewsByIds(this, R.id.email, R.id.password, R.id.password_confirm);
         
-        if(LoginActivity.mConnection!=null){
-        	mConnection = LoginActivity.mConnection;
+        if(savedInstanceState!=null){
+        	mConnection = (Connections) getIntent().getExtras().get("user");
         	Operations.setViewTexts(fields, mConnection.getmEmail(),mConnection.getmPassword());
         }
         
-        Operations.setViewOnClickListeners(this, this, R.id.register);
+        Operations.setOnClickListeners(this, this, R.id.register);
     }
     
     /**

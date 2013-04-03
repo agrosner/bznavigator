@@ -61,11 +61,16 @@ public class Preference {
 		sprefs.edit().putLong(loc, val).commit();
 	}
 	
-	public static float getFloat(String loc, float defVal){
-		return sprefs.getFloat(loc, defVal);
+	public static Float getFloat(String loc, Float defVal){
+		try{
+			return sprefs.getFloat(loc, defVal);
+		} catch(NullPointerException n){
+			return null;
+		}
 	}
 	
 	public static void putFloat(String loc, float val){
 		sprefs.edit().putFloat(loc, val).commit();
 	}
+
 }

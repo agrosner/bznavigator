@@ -5,13 +5,12 @@
        	<RelativeLayout 
        		style="@style/fill"
        	    >
-       	    <Button 
+       	    <ImageButton 
        	        android:layout_alignParentTop="true"
        	      	android:id="@+id/overview"
        	       	style="@style/wrap"
-       	       	android:text="Zoo Overview"
-       	       	android:layout_margin="5dip"
-       	       	android:drawableLeft="@drawable/ic_action_map"
+       	       	android:layout_margin="10dip"
+       	       	android:src="@drawable/ic_action_world"
        	    />
        	    <ImageButton 
        	        android:layout_below="@id/overview"
@@ -29,14 +28,13 @@
        	        style="@style/wrap"
        	        android:src="@drawable/ic_action_globe"
        	    />
-       	    <Button 
-       	        android:layout_alignParentBottom="true"
-       	        android:layout_alignParentRight="true"
+       	    <ImageButton 
+       	        android:layout_below="@id/satellite"
+       	        android:layout_alignParentLeft="true"
        	        android:id="@+id/clear"
-       	        android:text="Clear Map"
        	        android:layout_margin="10dip"
        	        style="@style/wrap"
-       	        android:drawableLeft="@drawable/exit"
+       	        android:src="@drawable/exit"
        	        />
        </RelativeLayout>
        	    

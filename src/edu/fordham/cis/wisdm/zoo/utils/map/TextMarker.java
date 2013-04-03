@@ -76,10 +76,19 @@ public class TextMarker extends PlaceItem{
 			mUseImage = use;
 		return this;
 	}
+	
+	/**
+	 * Whether the item to use an image or not
+	 * @return
+	 */
 	public boolean usesImage(){
 		return mUseImage;
 	}
 
+	/**
+	 * Sets this item to display persistently on the map at any zoom level
+	 * @param focus
+	 */
 	public void setFocus(boolean focus){
 		hasFocus = focus;
 	}
@@ -148,5 +157,10 @@ public class TextMarker extends PlaceItem{
 	public void refresh(GoogleMap map){
 		mMarker.remove();
 		addMarker(map, false, null);
+	}
+	
+	public boolean equals(Marker marker){
+		return (mMarker.getTitle().equals(marker.getTitle()) && 
+				mMarker.getPosition().equals(marker.getPosition()));
 	}
 }

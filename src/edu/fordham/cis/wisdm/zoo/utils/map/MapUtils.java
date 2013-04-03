@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,6 +20,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
+import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 
@@ -125,14 +128,14 @@ public class MapUtils {
 	 * @param con
 	 * @param marker
 	 */
-	public static void showExhibitInfoDialog(Location myLocation, LayoutInflater inflater, Context con, Marker marker){
+	public static void showExhibitInfoDialog(final CurrentLocationManager manager, LayoutInflater inflater, final Activity act, final Marker marker){
 		
-		AlertDialog.Builder builder = new AlertDialog.Builder(con);
+		AlertDialog.Builder builder = new AlertDialog.Builder(act);
 		View v = inflater.inflate(R.layout.dialog_exhibit, null);
 		
 		Operations.setViewText(v, marker.getTitle(), R.id.title);
 		Operations.setViewText(v, 
-				PlaceController.calculateDistanceString(myLocation, 
+				PlaceController.calculateDistanceString(manager.getLastKnownLocation(), 
 						latLngToLocation(marker.getPosition())), 
 				R.id.distance);
 
@@ -147,12 +150,20 @@ public class MapUtils {
 				if(id == R.id.exit){
 					dialog.cancel();
 				} else if(id == R.id.navigate){
-					//TODO: add following feature that points in direction of desired location
+					manager.navigate(latLngToLocation(marker.getPosition()));
+					
+					if(act instanceof SlidingScreenActivity){
+						SlidingScreenActivity sa = (SlidingScreenActivity) act;
+						sa.mList.getMapFragment().enableNavigation(sa.getFollowItem(), latLngToLocation(marker.getPosition()));
+					}
+					
+					dialog.dismiss();
+					Toast.makeText(act, "Now navigating to " + marker.getTitle(), Toast.LENGTH_SHORT).show();
 				}
 			}
 			
 		};
-		Operations.setViewOnClickListeners(v, onclick, R.id.exit, R.id.navigate);
+		Operations.setOnClickListeners(v, onclick, R.id.exit, R.id.navigate);
 		
 		dialog.show();
 		

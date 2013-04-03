@@ -136,10 +136,7 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	 */
 	private void readInAmenity(LinkedList<PlaceItem> pts, String fName){
 		SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
-		if(pts.isEmpty())	PlaceController.readInData(act.mList.getMapFragment().getLastKnownLocation(),
-							act, act, pts, fName);
-		else				PlaceController.reCalculateDistance(act.mList.getMapFragment()
-							.getLastKnownLocation(), pts);
+		if(pts.isEmpty())	PlaceController.readInData(act, act, pts, fName);
 		
 		MapUtils.addToMap(act.mList.getMapFragment().getMap(), pts);
 	}

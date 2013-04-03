@@ -20,7 +20,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.LocationSource.OnLocationChangedListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -124,7 +123,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		ViewGroup v = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
 		View layout = inflater.inflate(R.layout.fragment_map, container, false);
 		
-		Operations.setViewOnClickListeners(layout, this, R.id.satellite, R.id.normal, R.id.overview, R.id.clear);
+		Operations.setOnClickListeners(layout, this, R.id.satellite, R.id.normal, R.id.overview, R.id.clear);
 		Operations.removeView(layout.findViewById(R.id.clear));
 		
 		mInflater = inflater;
@@ -160,21 +159,22 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * @param inflater
 	 */
 	private void setUpMap(LayoutInflater inflater){
+		final SlidingScreenActivity act = (SlidingScreenActivity)getActivity();
+		final MapViewFragment frag = this;
+		
 		mGoogleMap.setOnCameraChangeListener(this);
 		mGoogleMap.setMyLocationEnabled(true);
 		mGoogleMap.setInfoWindowAdapter(new PlaceItemWindowAdapter(inflater));
 		mGoogleMap.setOnInfoWindowClickListener(this);
    		mGoogleMap.getUiSettings().setCompassEnabled(false);
-   		mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
 		
    		if(mManager==null){
    			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
    		}
    		else	mManager.setFields(getActivity(), mGoogleMap);
    		
-   		((SlidingScreenActivity)getActivity()).notifyLocationSet();
+   		act.notifyLocationSet();
    		
-   		final MapViewFragment frag = this;
    		mManager.runOnFirstFix(new Runnable(){
    			
 			@Override
@@ -184,7 +184,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 				if(list!=null){
 					list.refresh();
 				}
-				new LoadDataTask(((SlidingScreenActivity)getActivity()), frag).execute();
+				new LoadDataTask(act, frag).execute();
 			}
 				
 		});
@@ -198,14 +198,14 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			OverlayManager.addToMap(mGoogleMap);
 			
 			if(mTextMarkerManager==null){
-				mTextMarkerManager = new TextMarkerManager(getActivity(), mGoogleMap);
+				mTextMarkerManager = new TextMarkerManager(this);
 			} else{
-				mTextMarkerManager.reset(getActivity(), mGoogleMap);
+				mTextMarkerManager.reset(this);
 			}
 			mTextMarkerManager.readInData(getActivity(),"exhibits.txt", "special.txt");
 			mTextMarkerManager.addToMap();
 			mTextMarkerManager.refreshData(getMap().getCameraPosition().zoom);
-			
+			mGoogleMap.setOnMarkerClickListener(mTextMarkerManager);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -231,11 +231,20 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * @param place
 	 */
 	public void addPlace(PlaceItem place){
-		Operations.addView(getView().findViewById(R.id.clear));
+		addPlaceMove(place);
 		MapUtils.moveRelativeToCurrentLocation(mManager.getLastKnownLocation(),place.getPoint(), mGoogleMap);
-		//if not within the text marker manager, we add icon to map
+	}
+	
+	/**
+	 * Adds a place to the map, moves to the location
+	 * @param place
+	 */
+	public void addPlaceMove(PlaceItem place){
+		Operations.addView(getView().findViewById(R.id.clear));
 		if(!mTextMarkerManager.addFocus(place))
 			mLastMarkers.add(place.addMarker(mGoogleMap));
+		MapUtils.animateTo(mGoogleMap, place.getLocation());
+		
 		place.mMarker.showInfoWindow();
 	}
 	
@@ -263,8 +272,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		//switch so toggle works as expected
 		isParked = !isParked;
 		if(!isParked){
-			float lat = Preference.getFloat("parking-lat", 0);
-			float lon = Preference.getFloat("parking-lon", 0);
+			float lat = Preference.getFloat("parking-lat", 0f);
+			float lon = Preference.getFloat("parking-lon", 0f);
 			
 			Location loc = new Location("My Parking Location");
 			loc.setLatitude(lat);
@@ -285,8 +294,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
 	@Override
 	public void onInfoWindowClick(Marker marker) {
-		MapUtils.showExhibitInfoDialog(mManager.getLastKnownLocation(),
-				getActivity().getLayoutInflater(), 
+		MapUtils.showExhibitInfoDialog(mManager, getActivity().getLayoutInflater(), 
 				getActivity(), marker);
 	}
 	
@@ -348,6 +356,21 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			Toast.makeText(getActivity(), "Following Off", Toast.LENGTH_SHORT).show();
 		}
 		mManager.follow(isTracking);
+	}
+	
+	public void enableNavigation(MenuItem item, Location locationTo){
+		isTracking = false;
+		toggleFollow(item);
+		
+		mManager.navigate(locationTo);
+	}
+	
+	public void disableNavigation(MenuItem item){
+		//this will disable following
+		isTracking = true;
+		toggleFollow(item);
+		
+		mManager.disableNavigation();
 	}
 	
 	public boolean isTracking(){
@@ -455,8 +478,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			//reads exhibits into the searchbar list of places
-			PlaceController.readInData(mManager.getLastKnownLocation(),
-					mActivity, mOnClick, searchExhibits, 
+			PlaceController.readInData(mActivity, mOnClick, searchExhibits, 
 					getActivity().getResources().getStringArray(R.array.search_list));
 			return null;
 		}

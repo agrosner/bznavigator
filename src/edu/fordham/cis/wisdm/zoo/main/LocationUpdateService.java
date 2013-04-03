@@ -318,7 +318,6 @@ public class LocationUpdateService extends Service implements LocationListener{
 		for(int i =0; i < files.length; i++){
 			try {
 				files[i].close();
-				Log.e(TAG, "Error in data");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

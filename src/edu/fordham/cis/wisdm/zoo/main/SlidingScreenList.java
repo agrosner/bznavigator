@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
@@ -51,13 +50,12 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 		super.onCreateView(inflater, container, instance);
 		View v = inflater.inflate(R.layout.fragment_slide_list, container, false);
 		
-		int[] drawables = {R.drawable.map,		R.drawable.find,
-						   R.drawable.shop,		R.drawable.special,  
-						   R.drawable.food,		R.drawable.exhibit,  
-						   R.drawable.amenities, R.drawable.admin,
-						   R.drawable.logout};
+		IconTextListAdapter icontextlist=  new IconTextListAdapter(this.getActivity(), 
+				R.array.splash_list2, R.drawable.map, R.drawable.find,
+				R.drawable.shop, R.drawable.special, R.drawable.food,
+				R.drawable.exhibit, R.drawable.amenities, R.drawable.admin,
+				R.drawable.logout);
 		
-		IconTextListAdapter icontextlist=  new IconTextListAdapter(this.getActivity(), R.array.splash_list2, drawables);
 		setListAdapter(icontextlist);
 		return v;
 	}
@@ -76,7 +74,8 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 			 message.setTitle("Logout?");
 			 final Activity act = getActivity();
 			 message.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
-				 @Override
+				 @SuppressWarnings("deprecation")
+				@Override
 				 public void onClick(DialogInterface dialog, int which) {
 					 getActivity().stopService(new Intent(getActivity().getApplicationContext(), LocationUpdateService.class));
 					 Preference.putBoolean(REMEMBER_ME_LOC, false);
