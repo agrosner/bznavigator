@@ -6,10 +6,10 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/ant.jar"/>
-	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/bonecp-0.7.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/commons-codec-1.7.jar"/>
-	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/slf4j-api-1.6.4.jar"/>
-	<classpathentry kind="lib" path="/Users/andrewgrosner/Dropbox/Programming/jars/weka.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/ant.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/bonecp-0.7.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/weka.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
