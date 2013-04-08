@@ -9,11 +9,11 @@ import com.google.android.gms.maps.model.Marker;
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 
-public class PlaceItemWindowAdapter implements InfoWindowAdapter{
+public class PlaceMarkerWindowAdapter implements InfoWindowAdapter{
 
 	private final View mWindow;
 	
-	public PlaceItemWindowAdapter(LayoutInflater inflater){
+	public PlaceMarkerWindowAdapter(LayoutInflater inflater){
 		mWindow = inflater.inflate(R.layout.overlay_exhibit, null);
 	}
 	

@@ -10,7 +10,6 @@ import com.actionbarsherlock.app.SherlockFragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,7 +23,7 @@ import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenList;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
-import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceMarker;
 
 public class PlaceFragmentList extends SherlockFragment implements OnClickListener{
 	public enum PlaceType{EXHIBITS, FOOD, SPECIAL, SHOPS, ADMIN, NEARBY;
@@ -61,7 +60,7 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 	/**
 	 * The places that will be put onto the map
 	 */
-	private LinkedList<PlaceItem> points = new LinkedList<PlaceItem>();
+	private LinkedList<PlaceMarker> points = new LinkedList<PlaceMarker>();
 	
 	/**
 	 * Default constructor, sets type to "Exhibits"
@@ -82,12 +81,12 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 	 * Constructor specifying type and custom list
 	 * @param type
 	 */
-	public PlaceFragmentList(PlaceType type, LinkedList<PlaceItem> places){
+	public PlaceFragmentList(PlaceType type, LinkedList<PlaceMarker> places){
 		this.type = type;
 		points = places;
 	}
 	
-	public void setPoints(LinkedList<PlaceItem> places){
+	public void setPoints(LinkedList<PlaceMarker> places){
 		points = places;
 	}
 	
@@ -130,7 +129,6 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 	 * Refreshes a list based on the amount of params passed to it
 	 * @param custom
 	 */
-	@SuppressWarnings("unchecked")
 	public void refresh(){
 		exhibitList.removeAllViews();
 		exhibitList.addView(PlaceController.createExhibitItem(getActivity(), 0, "ic_action_location", "View All On Map", "", this));
@@ -170,20 +168,20 @@ public class PlaceFragmentList extends SherlockFragment implements OnClickListen
 			if(id > 0){
 				map.addPlace(points.get(id-1));
 			} else if(id == 0){
-				LinkedList<PlaceItem> placeList = null;
+				LinkedList<PlaceMarker> placeList = null;
 				if(type !=  PlaceType.NEARBY){
 					placeList = points;
 				} else{
-					Collections.sort(points, new Comparator<PlaceItem>(){
+					Collections.sort(points, new Comparator<PlaceMarker>(){
 
 						@Override
-						public int compare(PlaceItem lhs, PlaceItem rhs) {
+						public int compare(PlaceMarker lhs, PlaceMarker rhs) {
 							return Float.valueOf(lhs.getLocation().distanceTo(act.mList.getMapFragment().getLastKnownLocation()))
 									.compareTo(rhs.getLocation().distanceTo(act.mList.getMapFragment().getLastKnownLocation()));
 						}
 						
 					});
-					LinkedList<PlaceItem> reducePoints = new LinkedList<PlaceItem>();
+					LinkedList<PlaceMarker> reducePoints = new LinkedList<PlaceMarker>();
 					while(reducePoints.size()!=10){
 						reducePoints.add(points.get(reducePoints.size()));
 					}

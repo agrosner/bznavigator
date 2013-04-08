@@ -24,6 +24,11 @@ import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 
+/**
+ * This class is useful for performing certain map operations such as conversion, simplification, and generation
+ * @author Andrew Grosner
+ *
+ */
 public class MapUtils {
 
 	/**
@@ -31,8 +36,8 @@ public class MapUtils {
 	 * @param map
 	 * @param places
 	 */
-	public static void addToMap(GoogleMap map, LinkedList<PlaceItem> places){
-		for(PlaceItem place: places){
+	public static void addToMap(GoogleMap map, LinkedList<PlaceMarker> places){
+		for(PlaceMarker place: places){
 			place.addMarker(map);
 		}
 	}
@@ -42,9 +47,9 @@ public class MapUtils {
 	 * @param map
 	 * @param places
 	 */
-	public static void moveToBounds(Location myLocation, GoogleMap map, LinkedList<PlaceItem> places){
+	public static void moveToBounds(Location myLocation, GoogleMap map, LinkedList<PlaceMarker> places){
 		LatLngBounds.Builder builder = new LatLngBounds.Builder();
-		for(PlaceItem place: places){
+		for(PlaceMarker place: places){
 			builder.include(place.getPoint());
 		}
 		if(myLocation!=null)
@@ -60,8 +65,8 @@ public class MapUtils {
 	 * Removes a list of placeitems from the map
 	 * @param places
 	 */
-	public static void removeList(LinkedList<PlaceItem> places){
-		for(PlaceItem place: places){
+	public static void removeList(LinkedList<PlaceMarker> places){
+		for(PlaceMarker place: places){
 			place.remove();
 		}
 	}
@@ -167,16 +172,6 @@ public class MapUtils {
 		
 		dialog.show();
 		
-	}
-	
-	/**
-	 * Convert pixel size of text into density-independent pixels
-	 * @param con
-	 * @param size
-	 * @return
-	 */
-	public static float getDip(Context con, float size){
-		return con.getResources().getDisplayMetrics().density*size;
 	}
 	
 	/**

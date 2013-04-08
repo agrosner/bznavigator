@@ -1,8 +1,13 @@
 package edu.fordham.cis.wisdm.zoo.utils;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.Button;
@@ -14,7 +19,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 /**
- * This class is useful for manipulating android view objects programmatically
+ * This class is useful for manipulating android objects programmatically
  * @author Andrew Grosner
  * @version 1.0
  */
@@ -314,5 +319,41 @@ public class Operations {
 		addViewAnimate(notShowing, a2);
 	}
 	
+	/**
+	 * Stores a list of fragments into the fragmentmanager for retrieval later. 
+	 * The ref parameter specifies an intial reference such as "frag" that becomes "frag1, frag2,frag3..."etc
+	 * @param manager
+	 * @param outstate
+	 * @param ref
+	 * @param frags
+	 */
+	public static void putFragments(FragmentManager manager, 
+			Bundle outstate, String ref, Fragment...frags){
+		int i = 1;
+		for(Fragment frag: frags){
+			manager.putFragment(outstate, ref+i, frag);
+			i++;
+		}
+	}
+	
+	/**
+	 * Convert pixel size of text into density-independent pixels
+	 * @param con
+	 * @param size
+	 * @return
+	 */
+	public static float getDip(Context con, float size){
+		return con.getResources().getDisplayMetrics().density*size;
+	}
+	
+	public static boolean isRunning(Class<?> c, Context mCtx) {
+        ActivityManager manager = (ActivityManager) mCtx.getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (c.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 	
 }

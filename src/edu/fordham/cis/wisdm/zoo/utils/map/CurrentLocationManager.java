@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 
 import android.content.Context;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -46,12 +47,24 @@ public class CurrentLocationManager implements LocationSource{
 	 */
 	private boolean isNavigating = false;
 	
+	/**
+	 * The destination that the provider tells the map to point towards
+	 */
 	private Location mDestination = null;
 	
+	/**
+	 * When we get a first fix, we do not want to run any of our first fixes anymore
+	 */
 	private boolean mFirstFixSuccess = false;
 	
+	/**
+	 * Whether location is enabled natively
+	 */
 	private boolean mMyLocationEnabled = false;
 	
+	/**
+	 * Whether location is currently available or not
+	 */
 	private boolean locationAvailable = false;
 	
 	public static String locationMessage = "";
@@ -60,6 +73,11 @@ public class CurrentLocationManager implements LocationSource{
 	
 	private LinkedList<OnLocationChangedListener> mLocationListeners = new LinkedList<OnLocationChangedListener>();
 	
+	/**
+	 * Constructs a new instance
+	 * @param context
+	 * @param map
+	 */
 	public CurrentLocationManager(Context context, GoogleMap map){
 		mCtx = context;
 		mMap = map;
@@ -143,22 +161,37 @@ public class CurrentLocationManager implements LocationSource{
 		mFirstFix.add(run);
 	}
 	
+	/**
+	 * Sets whether the map will follow the current location
+	 * @param follow
+	 */
 	public void follow(boolean follow){
 		isTracking = follow;
 	}
 	
+	/**
+	 * We will navigate to the specified location
+	 * @param locationTo
+	 */
 	public void navigate(Location locationTo){
 		mDestination = locationTo;
 		isNavigating = true;
 		follow(true);
 	}
 	
+	/**
+	 * We will disable navigation 
+	 */
 	public void disableNavigation(){
 		mDestination = null;
 		isNavigating = false;
 		follow(false);
 	}
 	
+	/**
+	 * Retrieves the last known location found by location changes
+	 * @return
+	 */
 	public Location getLastKnownLocation(){
 		return mLocation;
 	}
@@ -166,16 +199,21 @@ public class CurrentLocationManager implements LocationSource{
 	public boolean isNavigating(){
 		return isNavigating;
 	}
+	
+	public void activate(){
+		activate(null);
+	}
 
 	@Override
 	public void activate(OnLocationChangedListener listener) {
 		if(!locationAvailable)	return;
-		if(!mLocationListeners.contains(listener))
+		if(listener!=null && !mLocationListeners.contains(listener))
 			mLocationListeners.add(listener);
 		if (!mMyLocationEnabled) {
             try {
-            	mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 2, mListener);
-            	mManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 2, mListener);
+            	Criteria cr = new Criteria();
+            	cr.setAccuracy(Criteria.ACCURACY_FINE);
+            	mManager.requestLocationUpdates(mManager.getBestProvider(cr, true), 1000, 0, mListener);
             } catch(Exception e) {
             	deactivate();
                 Toast.makeText(this.mCtx, "Location is not turned on", Toast.LENGTH_LONG).show();

@@ -22,7 +22,7 @@ import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
 import edu.fordham.cis.wisdm.zoo.utils.map.CurrentLocationManager;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
-import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceMarker;
 
 /**
  * This view fragment stores place information that is displayed on the map
@@ -31,17 +31,17 @@ import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
  */
 public class AmenitiesFragment extends SherlockFragment implements OnCheckedChangeListener {
 
-	private LinkedList<PlaceItem> gates = new LinkedList<PlaceItem>();
+	private LinkedList<PlaceMarker> gates = new LinkedList<PlaceMarker>();
 	
-	private LinkedList<PlaceItem> restrooms = new LinkedList<PlaceItem>();
+	private LinkedList<PlaceMarker> restrooms = new LinkedList<PlaceMarker>();
 	
-	private LinkedList<PlaceItem> shops = new LinkedList<PlaceItem>();
+	private LinkedList<PlaceMarker> shops = new LinkedList<PlaceMarker>();
 	
-	private LinkedList<PlaceItem> parking = new LinkedList<PlaceItem>();
+	private LinkedList<PlaceMarker> parking = new LinkedList<PlaceMarker>();
 	
-	private LinkedList<PlaceItem> food = new LinkedList<PlaceItem>();
+	private LinkedList<PlaceMarker> food = new LinkedList<PlaceMarker>();
 	
-	private LinkedList<PlaceItem> misc = new LinkedList<PlaceItem>();
+	private LinkedList<PlaceMarker> misc = new LinkedList<PlaceMarker>();
 	
 	
 	@Override
@@ -96,7 +96,7 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		LinkedList<PlaceItem> pts = null;
+		LinkedList<PlaceMarker> pts = null;
 		String fName = "";
 		
 		switch(buttonView.getId()){
@@ -134,11 +134,16 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	 * @param pts
 	 * @param fName
 	 */
-	private void readInAmenity(LinkedList<PlaceItem> pts, String fName){
+	private void readInAmenity(LinkedList<PlaceMarker> pts, String fName){
 		SlidingScreenActivity act = (SlidingScreenActivity) getActivity();
 		if(pts.isEmpty())	PlaceController.readInData(act, act, pts, fName);
 		
-		MapUtils.addToMap(act.mList.getMapFragment().getMap(), pts);
+		try{
+			MapUtils.addToMap(act.mList.getMapFragment().getMap(), pts);
+		} catch(Exception e){
+			e.printStackTrace();
+			setCheckboxes(false);
+		}
 	}
 	
 }

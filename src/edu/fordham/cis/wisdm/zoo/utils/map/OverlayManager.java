@@ -15,6 +15,8 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
+
 /**
  * Manages polygons and polylines displayed on the map. Reads them from files and puts them on the map
  * @author andrewgrosner
@@ -48,7 +50,7 @@ public class OverlayManager {
 		for(String fName: list){
 			if(fName.endsWith(".txt")){
 				Scanner scan = new Scanner(assets.open(mPolylineFolder+"/"+fName));
-				PolylineOptions polylineOptions = new PolylineOptions().color(Color.parseColor("#FCF357")).width(MapUtils.getDip(con, 5)).geodesic(true);
+				PolylineOptions polylineOptions = new PolylineOptions().color(Color.parseColor("#FCF357")).width(Operations.getDip(con, 5)).geodesic(true);
 				while(scan.hasNext()){
 					String line = scan.next();
 					String[] values = line.split(",");

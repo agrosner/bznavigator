@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * @author Andrew Grosner
  *
  */
-public class PlaceItem {
+public class PlaceMarker {
 	
 	protected Marker mMarker = null;
 	
@@ -35,7 +35,7 @@ public class PlaceItem {
 	 * @param resId
 	 * @return
 	 */
-	public PlaceItem iconId(int resId){
+	public PlaceMarker iconId(int resId){
 		mIconId = resId;
 		return this;
 	}
@@ -45,22 +45,22 @@ public class PlaceItem {
 	 * @param id
 	 * @return
 	 */
-	public PlaceItem id(int id){
+	public PlaceMarker id(int id){
 		mId = id;
 		return this;
 	}
 	
-	public PlaceItem drawablePath(String path){
+	public PlaceMarker drawablePath(String path){
 		mDrawablePath = path;
 		return this;
 	}
 	
-	public PlaceItem point(LatLng point){
+	public PlaceMarker point(LatLng point){
 		mPoint = point;
 		return this;
 	}
 	
-	public PlaceItem name(String name){
+	public PlaceMarker name(String name){
 		mName = name;
 		return this;
 	}
@@ -150,7 +150,7 @@ public class PlaceItem {
 	 * @param place
 	 * @return
 	 */
-	public boolean equals(PlaceItem place){
+	public boolean equals(PlaceMarker place){
 		return (mPoint.equals(place.mPoint)) && mName.equals(place.getName());
 	}
 

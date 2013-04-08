@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
-import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceMarker;
 
 /**
  * Class provides operations on creating and manipulating place data
@@ -81,7 +81,7 @@ public class PlaceController {
 	 * @param wrap
 	 * @return
 	 */
-	public static RelativeLayout createExhibitItem(Location loc, Activity act, int id, PlaceItem place, OnClickListener mListener){
+	public static RelativeLayout createExhibitItem(Location loc, Activity act, int id, PlaceMarker place, OnClickListener mListener){
 		return createExhibitItem(act, id, place.getDrawablePath(), place.getName(), calculateDistanceString(loc, place.getLocation()), mListener);
 	}
 
@@ -94,11 +94,11 @@ public class PlaceController {
 	 * @param onClick
 	 * @param wrap
 	 */
-	public static void readInDataIntoList(Location loc, Activity act, LinearLayout exhibitList, LinkedList<PlaceItem> points, OnClickListener onClick){
+	public static void readInDataIntoList(Location loc, Activity act, LinearLayout exhibitList, LinkedList<PlaceMarker> points, OnClickListener onClick){
 		if(exhibitList==null)	return;
 		int idIndex = 0;
 			synchronized(points){
-				for(PlaceItem place: points){
+				for(PlaceMarker place: points){
 					idIndex++;
 					exhibitList.addView(createExhibitItem(loc, act,idIndex, place, onClick));
 				}
@@ -114,7 +114,7 @@ public class PlaceController {
 	 * @param fName
 	 * @param points
 	 */
-	private static void readInData(Activity act, String fName, List<PlaceItem> points, OnClickListener onInfoClick){
+	private static void readInData(Activity act, String fName, List<PlaceMarker> points, OnClickListener onInfoClick){
 		try {
 			Scanner mScanner = new Scanner(act.getAssets().open(fName));
 			int idIndex = -1;
@@ -140,7 +140,7 @@ public class PlaceController {
 							lineArray[0]+="(Staff Only)";
 						}
 						
-						points.add(new PlaceItem().point(new LatLng(lat, lon)).name(lineArray[0]).id(idIndex).iconId(drawableId).drawablePath(lineArray[1]));
+						points.add(new PlaceMarker().point(new LatLng(lat, lon)).name(lineArray[0]).id(idIndex).iconId(drawableId).drawablePath(lineArray[1]));
 					} 
 				}
 			}
@@ -158,7 +158,7 @@ public class PlaceController {
 	 * @param points
 	 * @param fNames
 	 */
-	public static void readInData(Activity act, OnClickListener onInfoClick, LinkedList<PlaceItem> points, String... fNames){
+	public static void readInData(Activity act, OnClickListener onInfoClick, LinkedList<PlaceMarker> points, String... fNames){
 		for(String fName: fNames){
 			readInData(act, fName, points, onInfoClick);
 		}
@@ -188,11 +188,11 @@ public class PlaceController {
 	 * @param currentLoc
 	 * @param points
 	 */
-	public static void reOrderByDistance(LinkedList<PlaceItem> points, final Location currentLoc){
-		Collections.sort(points, new Comparator<PlaceItem>(){
+	public static void reOrderByDistance(LinkedList<PlaceMarker> points, final Location currentLoc){
+		Collections.sort(points, new Comparator<PlaceMarker>(){
 
 			@Override
-			public int compare(PlaceItem lhs, PlaceItem rhs) {
+			public int compare(PlaceMarker lhs, PlaceMarker rhs) {
 				if(currentLoc!=null)
 					return Float.valueOf(lhs.getLocation().distanceTo(currentLoc)).compareTo(rhs.getLocation().distanceTo(currentLoc));
 				else return 0;

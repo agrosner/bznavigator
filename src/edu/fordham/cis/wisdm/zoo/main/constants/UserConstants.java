@@ -22,4 +22,5 @@ public interface UserConstants {
 	 */
 	static final String PASS_LOC = "edu.fordham.cis.wisdm.zoo.password";
 	
+	
 }

@@ -20,11 +20,11 @@ import android.widget.TextView;
  * @author Andrew Grosner
  * @version 1.0
  */
-public class IconTextListAdapter extends BaseAdapter {
+public class SlidingScreenListAdapter extends BaseAdapter {
 
 	private List<IconTextItem> mItems = new ArrayList<IconTextItem>();
 	
-	public IconTextListAdapter(FragmentActivity act, int arrayId, int...drawables){
+	public SlidingScreenListAdapter(FragmentActivity act, int arrayId, int...drawables){
 		String[] items = act.getResources().getStringArray(arrayId);
 		for(int i =0; i < items.length; i++){
 			mItems.add(new IconTextItem(act, items[i], drawables[i]));

@@ -25,7 +25,8 @@ import com.google.android.gms.maps.MapsInitializer;
 import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList.PlaceType;
-import edu.fordham.cis.wisdm.zoo.utils.IconTextListAdapter;
+import edu.fordham.cis.wisdm.zoo.utils.SlidingScreenListAdapter;
+import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 
@@ -46,11 +47,34 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 	private MapViewFragment map = null;
 	
 	@Override
+	public void onCreate(Bundle instance){
+		super.onCreate(instance);
+		if(instance!=null){
+			food = (PlaceFragmentList) getFragmentManager().getFragment(instance, "frag1");
+			nearby = (PlaceFragmentList) getFragmentManager().getFragment(instance, "frag2");
+			exhibit = (PlaceFragmentList) getFragmentManager().getFragment(instance, "frag3");
+			special = (PlaceFragmentList) getFragmentManager().getFragment(instance, "frag4");
+			shops = (PlaceFragmentList) getFragmentManager().getFragment(instance, "frag5");
+			admin = (PlaceFragmentList) getFragmentManager().getFragment(instance, "frag6");
+			map = (MapViewFragment) getFragmentManager().getFragment(instance, "frag7");
+		}
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState){
+		super.onSaveInstanceState(outState);
+		
+		Operations.putFragments(getFragmentManager(), outState, "frag", 
+				food, nearby, exhibit, special, shops, admin, map);
+	
+	}
+	
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
 		super.onCreateView(inflater, container, instance);
 		View v = inflater.inflate(R.layout.fragment_slide_list, container, false);
 		
-		IconTextListAdapter icontextlist=  new IconTextListAdapter(this.getActivity(), 
+		SlidingScreenListAdapter icontextlist=  new SlidingScreenListAdapter(this.getActivity(), 
 				R.array.splash_list2, R.drawable.map, R.drawable.find,
 				R.drawable.shop, R.drawable.special, R.drawable.food,
 				R.drawable.exhibit, R.drawable.amenities, R.drawable.admin,
@@ -108,6 +132,9 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 		}
 	}
 	
+	/**
+	 * Switches list to the map fragment
+	 */
 	public void switchToMap(){
 		switchFragment(map);
 	}

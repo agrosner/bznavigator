@@ -39,7 +39,7 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 	/**
 	 * Whether any icons are focused on the map
 	 */
-	private boolean hasFocus = false;
+	private boolean hasAnyFocus = false;
 	
 	/**
 	 * Constructs a new instance
@@ -72,6 +72,8 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 	 * @throws IOException
 	 */
 	public void readInData(Activity act, String...fNames) throws IOException{
+		if(!mMarkers.isEmpty()) mMarkers.clear();
+		
 		for(String file: fNames){
 			readInData(act, file);
 		}
@@ -121,7 +123,7 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 	 * add specific location to have focus (icon appears next to text and text is displayed at all zoom levels)
 	 * @param place
 	 */
-	public boolean addFocus(PlaceItem place){
+	public boolean addFocus(PlaceMarker place){
 		if(!contains(place))	return false;
 		for(TextMarker text: mMarkers){
 			if(text.equals(place)){
@@ -131,16 +133,21 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 				place.mMarker = text.mMarker;
 			}
 		}
-		hasFocus = true;
+		hasAnyFocus = true;
 		return true;
 	}
 	
+	/**
+	 * finds the textmarker (icon appears next to text and text is displayed at all zoom levels)
+	 * @param text
+	 * @return
+	 */
 	public boolean addFocus(TextMarker text){
 		if(!mMarkers.contains(text)) return false;
 		text.useImage(true);
 		text.setFocus(true);
 		text.refresh(mMap.getMap());
-		hasFocus = true;
+		hasAnyFocus = true;
 		return true;
 	}
 	
@@ -155,15 +162,15 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 			text.refreshWithZoom(mMap.getMap(), zoom);
 			if(text.mMarker!=null) text.mMarker.hideInfoWindow();
 		}
-		hasFocus = false;
+		hasAnyFocus = false;
 	}
 	
 	/**
 	 * Whether there are markers with focus or not
 	 * @return
 	 */
-	public boolean hasFocus(){
-		return hasFocus;
+	public boolean hasAnyFocus(){
+		return hasAnyFocus;
 	}
 	
 	/**
@@ -171,7 +178,7 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 	 * @param place
 	 * @return
 	 */
-	public boolean contains(PlaceItem place){
+	public boolean contains(PlaceMarker place){
 		for(TextMarker text: mMarkers){
 			if(text.equals(place))
 				return true;
@@ -193,7 +200,7 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 	}
 	
 	/**
-	 * Returns an index of the marker specified
+	 * Returns an index of a text marker that shares same location as marker specified
 	 * @param marker
 	 * @return
 	 */

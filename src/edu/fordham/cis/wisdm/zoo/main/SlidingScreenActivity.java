@@ -36,9 +36,8 @@ import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
-import edu.fordham.cis.wisdm.zoo.utils.ServiceOps;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
-import edu.fordham.cis.wisdm.zoo.utils.map.PlaceItem;
+import edu.fordham.cis.wisdm.zoo.utils.map.PlaceMarker;
 
 /**
  * Class displays the main menu that will switch between different fragments
@@ -49,12 +48,24 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 
 	protected static final String TAG = "SlidingScreenActivity";
 
+	/**
+	 * The content of the activity that is currently showing
+	 */
 	private Fragment mContent = null;
 	
+	/**
+	 * The currently selected placefragment
+	 */
 	private PlaceFragmentList mCurrentPlaceFragment = null;
 	
+	/**
+	 * The amenities fragment accessed by swiping from the right edge of the screen
+	 */
 	private AmenitiesFragment mAmenities;
 	
+	/**
+	 * The list accessible by tapping back button, swiping from the left, or by touching the top left icon on the screen
+	 */
 	public SlidingScreenList mList = null;
 	
 	/**
@@ -62,17 +73,26 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	 */
 	public LinearLayout searchList;
 	
-	public LinkedList<PlaceItem> selected = new LinkedList<PlaceItem>();
+	/**
+	 * items that are selected on the map
+	 */
+	public LinkedList<PlaceMarker> selected = new LinkedList<PlaceMarker>();
 	
 	/**
 	 * the searchbar widget
 	 */
 	private MenuItemSearchAction searchItem;
 	
+	/**
+	 * Holds a reference to the follow icon
+	 */
 	private MenuItem followItem;
 	
 	private MenuItem parkItem;
 	
+	/**
+	 * The user login credentials in order to log into the server and send information
+	 */
 	private Connections mUser = null;
 	
 	@Override
@@ -217,7 +237,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		if(instance==null)
 			mUser = (Connections) getIntent().getExtras().getSerializable("user");
 		else	mUser = (Connections) instance.getSerializable("user");
-		if(!ServiceOps.isRunning(LocationUpdateService.class, getApplicationContext())){
+		if(!Operations.isRunning(LocationUpdateService.class, getApplicationContext())){
 			Intent i = new Intent(this, LocationUpdateService.class);
 			i.putExtra("user", mUser);
 			startService(i);
@@ -371,7 +391,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	 * Switches to map, collapses search bar, hides the searchlist, and sends the query to the server
 	 * @param place
 	 */
-	public void performSearch(PlaceItem place){
+	public void performSearch(PlaceMarker place){
 		mList.switchToMap();
 		searchItem.getMenuItem().collapseActionView();
 		Operations.removeView(searchList);
@@ -379,10 +399,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	}
 	
 	@Override
-	public void afterTextChanged(Editable s) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void afterTextChanged(Editable s) {}
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count,
@@ -396,15 +413,15 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		if(s.length()>0){
 			searchList.removeAllViews();
 			for(int i =0; i < mList.getMapFragment().getSearchExhibits().size(); i++){
-				PlaceItem place = mList.getMapFragment().getSearchExhibits().get(i);
+				PlaceMarker place = mList.getMapFragment().getSearchExhibits().get(i);
 				if(place.getName().toLowerCase().startsWith(s.toString().toLowerCase()))
 					selected.add(place);
 				}
 			
-			Collections.sort(selected, new Comparator<PlaceItem>(){
+			Collections.sort(selected, new Comparator<PlaceMarker>(){
 
 				@Override
-				public int compare(PlaceItem lhs, PlaceItem rhs) {
+				public int compare(PlaceMarker lhs, PlaceMarker rhs) {
 					Boolean lstart = lhs.getName().toLowerCase().startsWith(s.toString().toLowerCase());
 					Boolean rstart = rhs.getName().toLowerCase().startsWith(s.toString().toLowerCase());
 					
@@ -426,9 +443,9 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	public void performSearch(String query) {
 		String querie = query.toLowerCase();
 		boolean found = false;
-		PlaceItem placeFound = null;
+		PlaceMarker placeFound = null;
 		
-		for(PlaceItem place: mList.getMapFragment().getSearchExhibits()){
+		for(PlaceMarker place: mList.getMapFragment().getSearchExhibits()){
 			String name = place.getName().toLowerCase();
 			if(name.equals(querie)){
 				found = true;

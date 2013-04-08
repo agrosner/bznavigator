@@ -27,8 +27,9 @@ import android.location.Location;
 import android.util.Log;
 
 /**
- * This class wraps around server class socket parser
- * @author agrosner
+ * This class wraps around server class socket parser. 
+ * Provides static connection handling and each object declared is used in connection methods
+ * @author Andrew Grosner
  *
  */
 public class Connections implements Serializable{
@@ -112,6 +113,7 @@ public class Connections implements Serializable{
 	 */
 	private static int mVisitID = -1;
 	
+	
 	private static boolean connect(){
 		Log.v(TAG, "Connecting to server...");
 		
@@ -152,6 +154,8 @@ public class Connections implements Serializable{
 	 * @return
 	 */
 	private static boolean authorize(Connections con){
+		if(!isConnected) return false;
+		
 		Log.v(TAG, "Authorizing user");
 		boolean checkWrite = false;
 
@@ -194,18 +198,6 @@ public class Connections implements Serializable{
 			disconnect();
 		}
 		return isAuthorized;
-	}
-	
-	/**
-	 * Stores user information
-	 * @param email
-	 * @param password
-	 * @param devId
-	 */
-	public Connections(String email, String password, String devId){
-		mEmail = email;
-		mPassword = password;
-		mDevId = devId;
 	}
 	
 	/**
@@ -269,6 +261,8 @@ public class Connections implements Serializable{
 	 * @return
 	 */
 	public static boolean visitAuth(Connections con){
+		if(!isConnected) return false;
+		
 		boolean success = false;
 		try {
 			SocketParser.writeVisitReq(mOutputStream, mVisitID);
@@ -531,6 +525,19 @@ public class Connections implements Serializable{
 	 */
 	public static boolean isActive(){
 		return isConnected&&isAuthorized;
+	}
+	
+	
+	/**
+	 * Stores user information
+	 * @param email
+	 * @param password
+	 * @param devId
+	 */
+	public Connections(String email, String password, String devId){
+		mEmail = email;
+		mPassword = password;
+		mDevId = devId;
 	}
 	
 	public String getmEmail() {

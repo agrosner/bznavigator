@@ -87,12 +87,12 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	/**
 	 * Item that will go on map when user saves parking spot
 	 */
-	private PlaceItem mParkingPlace = null;
+	private PlaceMarker mParkingPlace = null;
 	
 	/**
 	 * List of searchable places
 	 */
-	private LinkedList<PlaceItem> searchExhibits = new LinkedList<PlaceItem>();
+	private LinkedList<PlaceMarker> searchExhibits = new LinkedList<PlaceMarker>();
 	
 	/**
 	 * The markers (excluding textmarkers, the textmarkermanager manages those) focused caused by either clicking on an item in the PlaceFragment, 
@@ -111,9 +111,13 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	public void onResume(){
 		super.onResume();
 
-		mGoogleMap = super.getMap();
-		if(mGoogleMap!=null){
-			setUpMap(mInflater);
+		if(mGoogleMap==null){
+			mGoogleMap = super.getMap();
+			if(mGoogleMap!=null){
+				setUpMap(mInflater);
+			}
+		} else{
+			mManager.activate();
 		}
 	}
 	
@@ -147,7 +151,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			clearMap();
 		} else{
 			SlidingScreenActivity act = ((SlidingScreenActivity) getActivity());
-			PlaceItem place = act.selected.get(id-1);
+			PlaceMarker place = act.selected.get(id-1);
 			act.performSearch(place);
 			clearMap();
 			addPlace(place);
@@ -164,33 +168,32 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		
 		mGoogleMap.setOnCameraChangeListener(this);
 		mGoogleMap.setMyLocationEnabled(true);
-		mGoogleMap.setInfoWindowAdapter(new PlaceItemWindowAdapter(inflater));
+		mGoogleMap.setInfoWindowAdapter(new PlaceMarkerWindowAdapter(inflater));
 		mGoogleMap.setOnInfoWindowClickListener(this);
    		mGoogleMap.getUiSettings().setCompassEnabled(false);
 		
    		if(mManager==null){
    			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
+   			mManager.runOnFirstFix(new Runnable(){
+   	   			
+   				@Override
+   				public void run() {
+   					mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBounds.build(), 10));
+   					PlaceFragmentList list = ((SlidingScreenActivity)getActivity()).getCurrentPlaceFragment();
+   					if(list!=null){
+   						list.refresh();
+   					}
+   					new LoadDataTask(act, frag).execute();
+   				}
+   					
+   			});
+   	   		
    		}
    		else	mManager.setFields(getActivity(), mGoogleMap);
+   		mManager.activate();
    		
    		act.notifyLocationSet();
    		
-   		mManager.runOnFirstFix(new Runnable(){
-   			
-			@Override
-			public void run() {
-				mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBounds.build(), 10));
-				PlaceFragmentList list = ((SlidingScreenActivity)getActivity()).getCurrentPlaceFragment();
-				if(list!=null){
-					list.refresh();
-				}
-				new LoadDataTask(act, frag).execute();
-			}
-				
-		});
-   		
-   		mGoogleMap.setLocationSource(mManager);
-		
 		try{
    			MapUtils.generatePolygon(getActivity(), mMapBounds);
    			
@@ -230,7 +233,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * Adds a place and shows place in relation to location
 	 * @param place
 	 */
-	public void addPlace(PlaceItem place){
+	public void addPlace(PlaceMarker place){
 		addPlaceMove(place);
 		MapUtils.moveRelativeToCurrentLocation(mManager.getLastKnownLocation(),place.getPoint(), mGoogleMap);
 	}
@@ -239,7 +242,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * Adds a place to the map, moves to the location
 	 * @param place
 	 */
-	public void addPlaceMove(PlaceItem place){
+	public void addPlaceMove(PlaceMarker place){
 		Operations.addView(getView().findViewById(R.id.clear));
 		if(!mTextMarkerManager.addFocus(place))
 			mLastMarkers.add(place.addMarker(mGoogleMap));
@@ -252,10 +255,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * Adds a list of placeitems to the map
 	 * @param places
 	 */
-	public void addPlaceList(LinkedList<PlaceItem> places){
+	public void addPlaceList(LinkedList<PlaceMarker> places){
 		Operations.addView(getView().findViewById(R.id.clear));
 		MapUtils.moveToBounds(mManager.getLastKnownLocation(), mGoogleMap, places);
-		for(PlaceItem place: places){
+		for(PlaceMarker place: places){
 			//if not within the text marker manager, we add icon to map
 			if(!mTextMarkerManager.addFocus(place))
 				mLastMarkers.add(place.addMarker(mGoogleMap));
@@ -309,7 +312,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * This will put the focus on a location that the user navigates to, 
 	 * adding an icon to the text label
 	 */
-	public boolean setMarkerFocus(PlaceItem place){
+	public boolean setMarkerFocus(PlaceMarker place){
 		return mTextMarkerManager.addFocus(place);
 	}
 	
@@ -449,14 +452,14 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 */
 	private void createParkingItems(Location location){
 		mParkingLocation = new LatLng(location.getLatitude(), location.getLongitude());
-		mParkingPlace = new PlaceItem().point(mParkingLocation).iconId(R.drawable.car).name("My Parking Spot");
+		mParkingPlace = new PlaceMarker().point(mParkingLocation).iconId(R.drawable.car).name("My Parking Spot");
 	}
 	
 	public boolean isParked(){
 		return isParked;
 	}
 	
-	public LinkedList<PlaceItem> getSearchExhibits(){
+	public LinkedList<PlaceMarker> getSearchExhibits(){
 		return searchExhibits;
 	}
 	

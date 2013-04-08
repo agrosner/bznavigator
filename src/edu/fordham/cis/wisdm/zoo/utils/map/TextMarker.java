@@ -6,7 +6,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -23,26 +22,51 @@ import android.util.TypedValue;
  * @author Andrew Grosner
  *
  */
-public class TextMarker extends PlaceItem{
+public class TextMarker extends PlaceMarker{
 	
+	/**
+	 * The image that the text is placed onto
+	 */
 	private Bitmap mBitmap;
 	
+	/**
+	 * Text size of the text marker
+	 */
 	public static float TEXT_SIZE = 9;
 	
-	public static final float MIN_TEXT_SIZE = 9;
-	
+	/**
+	 * The text color
+	 */
 	private int mColor = Color.BLACK;
 	
-	public static float ZOOM_MIN = 16.5f;
+	/**
+	 * Minimum zoom to consider text to be shown, global constraint
+	 */
+	private static float ZOOM_MIN = 16.5f;
 	
+	/**
+	 * Minimum zoom of this item to be shown, local constraint
+	 */
 	private float mZoomMin = 0;
 	
+	/**
+	 * The icon that displayed when this item has focus
+	 */
 	private Bitmap mImage =null;
 	
-	private Resources mRes = null;
+	/**
+	 * The resources of the map
+	 */
+	private static Resources mRes = null;
 	
+	/**
+	 * Whether to use the image associated with this marker
+	 */
 	private boolean mUseImage = false;
 	
+	/**
+	 * Whether this text has focus (icon appears next to text and text is displayed at all zoom levels)
+	 */
 	private boolean hasFocus = false;
 	
 	public TextMarker color(int color){
@@ -60,9 +84,16 @@ public class TextMarker extends PlaceItem{
 		return this;
 	}
 	
+	/**
+	 * Sets the image resource for the textmarker when it has focus
+	 * @param res
+	 * @param id
+	 * @return
+	 */
 	public TextMarker setImage(Resources res, int id){
 		mImage = BitmapFactory.decodeResource(res, id);
-		mRes = res;
+		if(mRes==null)
+			mRes = res;
 		return this;
 	}
 	
@@ -139,7 +170,6 @@ public class TextMarker extends PlaceItem{
 	
 	/**
 	 * When it resizes, the label will not appear if the text is smaller than
-	 * the MIN_TEXT_SIZE
 	 * @param map
 	 * @param scale
 	 */
@@ -147,18 +177,28 @@ public class TextMarker extends PlaceItem{
 		boolean info = mMarker.isInfoWindowShown();
 			
 		mMarker.remove();
-		if((mZoomMin!=0 && mZoomMin>=ZOOM_MIN) || zoom>=ZOOM_MIN || hasFocus){
+		if((mZoomMin!=0 && zoom>=mZoomMin) || zoom>=ZOOM_MIN || hasFocus){
 			addMarker(map, false, null);
 			if(info){
 				mMarker.showInfoWindow();
 			}
 		}
 	}
+	
+	/**
+	 * Removes and re-adds this textmarker to the map
+	 * @param map
+	 */
 	public void refresh(GoogleMap map){
 		mMarker.remove();
 		addMarker(map, false, null);
 	}
 	
+	/**
+	 * If this textmarker shares title and position of the marker compared
+	 * @param marker
+	 * @return
+	 */
 	public boolean equals(Marker marker){
 		return (mMarker.getTitle().equals(marker.getTitle()) && 
 				mMarker.getPosition().equals(marker.getPosition()));
