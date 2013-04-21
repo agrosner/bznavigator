@@ -1,4 +1,4 @@
-package edu.fordham.cis.wisdm.zoo.file;
+package edu.fordham.cis.wisdm.zoo.utils;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;

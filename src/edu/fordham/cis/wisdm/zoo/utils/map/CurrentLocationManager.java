@@ -111,12 +111,16 @@ public class CurrentLocationManager implements LocationSource{
 							mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
 										new CameraPosition.Builder()
 										.bearing(location.getBearing())
+										.zoom(mMap.getCameraPosition().zoom)
+										.tilt(mMap.getCameraPosition().tilt)
 										.target(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()))
 										.build()));
 						}else if(mDestination!=null){
 							mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
 									new CameraPosition.Builder()
 									.bearing(location.bearingTo(mDestination))
+									.zoom(mMap.getCameraPosition().zoom)
+									.tilt(mMap.getCameraPosition().tilt)
 									.target(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()))
 									.build()));
 						}

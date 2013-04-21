@@ -9,8 +9,8 @@ import java.util.TimerTask;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.GPSWriter;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.map.Polygon;
 import android.app.NotificationManager;
@@ -19,6 +19,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -212,6 +213,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		if(!openFiles(this)){
 			Log.e(TAG, "Root cannot write");
 			stopLocation();
+			stopNotification();
 			stopSelf();
 		}
 			
@@ -279,13 +281,9 @@ public class LocationUpdateService extends Service implements LocationListener{
 	}
 	
 	private void startLocation(){
-		if (lManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-			lManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSUpdate, 0, this);
-		} else if (lManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-			lManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, GPSUpdate, 0, this);
-		} else{
-			Log.v(TAG, "Locational services are not available");
-		}
+		Criteria cr = new Criteria();
+		cr.setAccuracy(Criteria.ACCURACY_FINE);
+		lManager.requestLocationUpdates(lManager.getBestProvider(cr, true), GPSUpdate, 0, this);
 	}
 	
 	private void stopLocation(){

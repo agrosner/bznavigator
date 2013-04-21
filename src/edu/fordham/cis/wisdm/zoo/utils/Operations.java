@@ -331,7 +331,8 @@ public class Operations {
 			Bundle outstate, String ref, Fragment...frags){
 		int i = 1;
 		for(Fragment frag: frags){
-			manager.putFragment(outstate, ref+i, frag);
+			if(frag!=null)
+				manager.putFragment(outstate, ref+i, frag);
 			i++;
 		}
 	}

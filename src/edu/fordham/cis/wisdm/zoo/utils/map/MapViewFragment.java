@@ -339,6 +339,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		return mManager.getLastKnownLocation();
 	}
 	
+	public float getCurrentZoom(){
+		return mCurrentZoom;
+	}
+	
 	/**
 	 * Toggles map tracking on screen
 	 * @param item

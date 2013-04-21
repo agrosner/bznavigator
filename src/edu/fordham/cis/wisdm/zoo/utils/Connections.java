@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import edu.fordham.cis.wisdm.utils.SocketParser;
-import edu.fordham.cis.wisdm.zoo.file.GPSWriter;
 
 import android.app.Service;
 import android.content.Context;
