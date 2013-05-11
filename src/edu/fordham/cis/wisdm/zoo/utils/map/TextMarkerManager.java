@@ -19,7 +19,7 @@ import android.location.Location;
  * @author Andrew Grosner
  *
  */
-public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowClickListener{
+public class TextMarkerManager implements OnMarkerClickListener{
 
 	/**
 	 * Holds the textmarker data
@@ -109,10 +109,17 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 					}
 					int drawableId = act.getResources().getIdentifier(lineArray[1], "drawable", act.getPackageName());
 
-					mMarkers.add(((TextMarker) 
+					TextMarker marker = ((TextMarker) 
 							new TextMarker()
 							.point(new LatLng(lat, lon))
-							.name(lineArray[0])).setImage(act.getResources(), drawableId));
+							.name(lineArray[0])).setImage(act.getResources(), drawableId);
+					
+					//optional link included
+					if(lineArray.length>=5){
+						marker.link(lineArray[4]);
+					}
+					
+					mMarkers.add(marker);
 				} 
 			}
 		}
@@ -255,12 +262,6 @@ public class TextMarkerManager implements OnMarkerClickListener, OnInfoWindowCli
 			return true;
 		}
 		return false;
-	}
-	
-	@Override
-	public void onInfoWindowClick(Marker marker) {
-		MapUtils.showExhibitInfoDialog(mMap.getManager(), mMap.getActivity().getLayoutInflater(), 
-				mMap.getActivity(), marker);
 	}
 	
 }

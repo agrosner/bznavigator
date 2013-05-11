@@ -100,6 +100,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 */
 	private LinkedList<Marker> mLastMarkers = new LinkedList<Marker>();
 	
+	/**
+	 * Whether map has changed camera for the first time or not
+	 */
+	private boolean firstCameraChange = true;
+	
 	@Override
 	public void onPause(){
 		super.onPause();
@@ -178,12 +183,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
    	   			
    				@Override
    				public void run() {
-   					mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBounds.build(), 10));
    					PlaceFragmentList list = ((SlidingScreenActivity)getActivity()).getCurrentPlaceFragment();
    					if(list!=null){
    						list.refresh();
    					}
-   					new LoadDataTask(act, frag).execute();
+   					
    				}
    					
    			});
@@ -194,9 +198,12 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
    		
    		act.notifyLocationSet();
    		
+   		new LoadDataTask(act, frag).execute();
+   		
+   		
 		try{
    			MapUtils.generatePolygon(getActivity(), mMapBounds);
-   			
+   				
    			OverlayManager.readFiles(getActivity());
 			OverlayManager.addToMap(mGoogleMap);
 			
@@ -287,6 +294,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	
 	@Override
 	public void onCameraChange(CameraPosition position) {
+		if(firstCameraChange){
+			mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBounds.build(), 10));
+			firstCameraChange = false;
+		}
+		
 		float zoom = position.zoom;
 		if(zoom!=mCurrentZoom){
 			mCurrentZoom = zoom;
@@ -297,8 +309,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
 	@Override
 	public void onInfoWindowClick(Marker marker) {
-		MapUtils.showExhibitInfoDialog(mManager, getActivity().getLayoutInflater(), 
+		if(marker.getSnippet().equals(""))
+			MapUtils.showExhibitInfoDialog(mManager, getActivity().getLayoutInflater(), 
 				getActivity(), marker);
+		else MapUtils.startInfoActivity(mManager, (SlidingScreenActivity) getActivity(), marker);
 	}
 	
 	/**
@@ -396,6 +410,14 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		}
 	}
 	
+	public void toggleParking(MenuItem item){
+		Location loc = null;
+		if(mManager!=null){
+			loc = mManager.getLastKnownLocation();
+		}
+		toggleParking(loc, item);
+	}
+	
 	public void addParking(MenuItem item){
 		addParking(mManager.getLastKnownLocation(), item);
 	}
@@ -447,9 +469,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			mParkingPlace.remove();
 	}
 	
-	public void toggleParking(MenuItem item){
-		toggleParking(mManager.getLastKnownLocation(), item);
-	}
 	
 	/**
 	 * Initializes the parking location geopoint and placeitem

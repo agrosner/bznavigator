@@ -293,6 +293,12 @@ public class Operations {
 		return v;
 	}
 	
+	public static TextView setViewText(Activity act, String text, int id) {
+		TextView v = (TextView) act.findViewById(id);
+		v.setText(text);
+		return v;
+	}
+	
 	/**
 	 * Sets multiple views with the specified strings
 	 * @param views
@@ -356,5 +362,7 @@ public class Operations {
         }
         return false;
     }
+
+	
 	
 }

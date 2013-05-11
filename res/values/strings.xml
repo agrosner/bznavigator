@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">BZ Navigator</string>
     <string name="google_debug_key">AIzaSyDwhMo1GzOsossxq3xhNfP0IcNXFdrZLWA</string>
     <string name="google_debug_key2">AIzaSyA_02fCrRku2KZIQybqbdarjVy45meuIww</string>
@@ -8,5 +9,8 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_register">RegisterActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
-	
+    <string name="title_activity_info_display">InfoDisplayActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
 </resources>

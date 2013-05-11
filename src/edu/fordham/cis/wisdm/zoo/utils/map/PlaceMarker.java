@@ -1,5 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.utils.map;
 
+import java.io.Serializable;
+
 import android.location.Location;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -14,7 +16,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * @author Andrew Grosner
  *
  */
-public class PlaceMarker {
+public class PlaceMarker implements Serializable{
 	
 	protected Marker mMarker = null;
 	
@@ -29,6 +31,18 @@ public class PlaceMarker {
 	private String mDrawablePath = "0";
 	
 	private String mName = "";
+	
+	private String mLink = "";
+	
+	/**
+	 * The common prefix for all links
+	 */
+	public static String HTML_PREFIX = "http://bronxzoo.com/animals-and-exhibits/";
+	
+	/**
+	 * Common link ending
+	 */
+	public static String HTML_POSTFIX =".aspx";
 	
 	/**
 	 * Sets icon thats used on the map
@@ -65,11 +79,21 @@ public class PlaceMarker {
 		return this;
 	}
 	
+	/**
+	 * Sets the internet page that we want to decode information from
+	 * @param link
+	 * @return
+	 */
+	public PlaceMarker link(String link){
+		mLink = link;
+		return this;
+	}
+	
 	protected Marker addMarker(GoogleMap map, boolean draggable, OnMarkerDragListener listener){
 		if(mPoint!=null){
 			MarkerOptions options = 
 					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(mIconId))
-					.title(mName).position(mPoint);
+					.title(mName).position(mPoint).snippet(mLink);
 			if(draggable){
 				options.draggable(draggable);
 				map.setOnMarkerDragListener(listener);
@@ -143,6 +167,16 @@ public class PlaceMarker {
 		} else{
 			return mLocation;
 		}
+	}
+	
+	/**
+	 * Returns the page associated with this marker that contains information about it
+	 * @return
+	 */
+	public String getLink(){
+		if(!mLink.equals(""))
+			return HTML_PREFIX + mLink + HTML_POSTFIX;
+		else return mLink;
 	}
 	
 	/**

@@ -290,7 +290,7 @@ public class Connections implements Serializable{
 	public static boolean sendSearchQuery(Connections con, String query, Location loc){
 		
 		//ensure connection
-		if(!prepare(con) ||	!visitAuth(con))	return false;
+		if(loc==null||!prepare(con) ||	!visitAuth(con))	return false;
 		
 		boolean success = false;
 		try {

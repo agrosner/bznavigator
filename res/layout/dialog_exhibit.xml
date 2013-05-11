@@ -25,13 +25,26 @@
         android:layout_alignParentRight="true"
         />
 	<TextView 
+	    android:id="@+id/info"
 	    android:layout_marginTop="10dip"
 	    android:layout_below="@id/title"
 	    android:layout_alignParentLeft="true"
-	    android:text="This is where the information goes."
+	    android:text="No information available yet."
 	    android:textSize="16dip"
 	    style="@style/wrap"
 	    />
+	<ScrollView 
+	    android:layout_below="@id/info"
+	    style="@style/wrap"
+	    >
+	    <LinearLayout 
+	        android:id="@+id/info_page"
+	        style="@style/wrap"
+	        android:orientation="vertical"
+	        >
+	        
+	    </LinearLayout>
+	</ScrollView>
 
 	<TextView
 	    android:id="@+id/distance"

@@ -196,7 +196,7 @@ public class LocationUpdateService extends Service implements LocationListener{
 		}
 		
 		//attempt to save connection in an event of restart
-		if(mConnection!=null){
+		if(mConnection!=null && mConnection.getmEmail()!=null && mConnection.getmPassword()!=null){
 			Preference.putString("service-email", mConnection.getmEmail());
 			Preference.putString("service-pass", mConnection.getmPassword());
 		} else{

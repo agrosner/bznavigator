@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import org.apache.http.client.ClientProtocolException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -19,9 +23,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 
+import edu.fordham.cis.wisdm.zoo.main.InfoDisplayActivity;
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
+import edu.fordham.cis.wisdm.zoo.utils.HTMLScraper;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 
 /**
@@ -126,6 +132,23 @@ public class MapUtils {
 	}
 	
 	/**
+	 * Displays information about the place clicked on
+	 * @param manager
+	 * @param act
+	 * @param marker
+	 */
+	public static void startInfoActivity(final CurrentLocationManager manager, SlidingScreenActivity act, final Marker marker){
+		Intent i = new Intent(act, InfoDisplayActivity.class);
+		i.putExtra("title", marker.getTitle());
+		i.putExtra("distance", PlaceController.calculateDistanceString(manager.getLastKnownLocation(), 
+						latLngToLocation(marker.getPosition())));
+		i.putExtra("snippet", marker.getSnippet());
+		//i.putExtra("act", act);
+		i.putExtra("position", marker.getPosition());
+		act.startActivity(i);
+	}
+	
+	/**
 	 * Shows exhibit information in the form of a custom dialog. This dialog should
 	 * poll the server for exhibit information in the near future
 	 * @param myLocation
@@ -143,9 +166,21 @@ public class MapUtils {
 				PlaceController.calculateDistanceString(manager.getLastKnownLocation(), 
 						latLngToLocation(marker.getPosition())), 
 				R.id.distance);
+		if(!marker.getSnippet().equals("")){
+			v.findViewById(R.id.info).setVisibility(View.GONE);
+			try {
+				new HTMLScraper().getInfoContent(act,(LinearLayout) v.findViewById(R.id.info_page), marker.getSnippet());
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
-		builder.setView(v);
-		final AlertDialog dialog = builder.create();
+		builder.setView(v);	
+		final AlertDialog dialog = builder.create(); 
 		
 		OnClickListener onclick = new OnClickListener(){
 

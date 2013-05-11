@@ -1,41 +1,40 @@
-Place Name,drawable_file_name,latitude,longitude,
+Place Name,drawable_file_name,latitude,longitude,link (optional)
 Aquatic Bird House,exhibit,40.85385537579192,-73.87946560489237,
 Northern Ponds,exhibit,40.85032211497356,-73.87744630550742,
-Mouse House,exhibit,40.84884717924178,-73.87968630629983,
-Bears,exhibit,40.84889511785726,-73.87784542223737,
+Mouse House,exhibit,40.84884717924178,-73.87968630629983,exhibits/mouse-house
+Bears,exhibit,40.84889511785726,-73.87784542223737,exhibits/big-bears
 Stork Viewing,exhibit,40.85395359068379,-73.87918646291644,
-Giraffe Viewing,exhibit,40.84782456039579,-73.8803417299679,
-Rhinos,exhibit,40.85096418932606,-73.87914561069289,
-Bison Range,exhibit,40.8536408457655,-73.87692308648116,
+Giraffe Viewing,exhibit,40.84782456039579,-73.8803417299679,animals/mammals/giraffe
+Rhinos,exhibit,40.85096418932606,-73.87914561069289,animals/mammals/indian-rhinoceros
 Camel Rides,exhibit,40.84507299574192,-73.87718417016863,
-Sea Lions,exhibit,40.85297558234547,-73.87827164291014,
-Himalayan Highlands,exhibit,40.84858085677305,-73.87650310520137,
+Sea Lions,exhibit,40.85297558234547,-73.87827164291014,animals/mammals/california-sea-lion
+Himalayan Highlands,exhibit,40.84858085677305,-73.87650310520137,exhibits/himalayan-highlands
 Monkeys,exhibit,40.84897747374156,-73.87949887940647,
 Thomsons Gazelle Viewing,exhibit,40.84743439808476,-73.87847058063939,
-Flamingos,exhibit,40.84926315133636,-73.8808681650847,
-Astor Court,exhibit,40.85250902812878,-73.87862785486112,
-Madagascar,exhibit,40.85266237546735,-73.87909180599726,
-Giraffe Viewing 2,exhibit,40.84790771197562,-73.8797086549556,
-Sea Bird Aviary,exhibit,40.85408524383858,-73.87883471494061,
+Flamingos,exhibit,40.84926315133636,-73.8808681650847,animals/birds/caribbean-flamingo
+Astor Court,exhibit,40.85250902812878,-73.87862785486112,exhibits/astor-court-and-sea-lion-pool
+Madagascar,exhibit,40.85266237546735,-73.87909180599726,exhibits/madagascar
+Giraffe Viewing 2,exhibit,40.84790771197562,-73.8797086549556,animals/mammals/giraffe
+Sea Bird Aviary,exhibit,40.85408524383858,-73.87883471494061,exhibits/sea-bird-colony
 Capuchin Viewing,exhibit,40.85239588140438,-73.87833512499972,
 Camel Viewing,exhibit,40.84454611533142,-73.87733317788279,
 Tapir Viewing,exhibit,40.85202290143839,-73.87948158772814,
 Birds Of Prey,exhibit,40.8530414580696,-73.87984323887513,
 Pere David Deer,exhibit,40.8515721702596,-73.87721652663483,
-Polar Bears,exhibit,40.8492360398713,-73.87707083604396,
-Carter Giraffe Building,exhibit,40.84687963354428,-73.88013291516171,
+Polar Bears,exhibit,40.8492360398713,-73.87707083604396,animals/mammals/polar-bear
+Carter Giraffe Building,exhibit,40.84687963354428,-73.88013291516171,animals/mammals/giraffe
 Wild Asia Stage,exhibit,40.84523675317508,-73.87672173029259,
-Bison Viewing,exhibit,40.85377743874025,-73.87706859378109,
-African Plains Lion Viewing,exhibit,40.84706648660776,-73.87789737492892,
-African Plains Hoofstock Viewing,exhibit,40.84573367672583,-73.87870373528838,
-Tiger Mountain,exhibit,40.85106654560636,-73.87733029630228,
-World Of Reptiles,exhibit,40.84947519040088,-73.878722129985,
+Bison Viewing,exhibit,40.85377743874025,-73.87706859378109,animals/mammals/bison
+African Plains Lion Viewing,exhibit,40.84706648660776,-73.87789737492892,exhibits/african-plains
+African Plains Hoofstock Viewing,exhibit,40.84573367672583,-73.87870373528838,exhibits/african-plains
+Tiger Mountain,exhibit,40.85106654560636,-73.87733029630228,exhibits/tiger-mountain
+World Of Reptiles,exhibit,40.84947519040088,-73.878722129985,exhibits/world-of-reptiles
 Pheasant Aviary,exhibit,40.8488660369806,-73.88116887524816,
-World Of Birds,exhibit,40.85260902495595,-73.8758215353799,
-African Plains Nyala Viewing,exhibit,40.8464377668956,-73.877357175995,
+World Of Birds,exhibit,40.85260902495595,-73.8758215353799,exhibits/world-of-birds
+African Plains Nyala Viewing,exhibit,40.8464377668956,-73.877357175995,exhibits/african-plains
 Mitsubishi Riverwalk,exhibit,40.85460459675939,-73.87440297959239,
-Baboon Reserve,exhibit,40.84804918658885,-73.87834523518531,
+Baboon Reserve,exhibit,40.84804918658885,-73.87834523518531,exhibits/baboon-reserve
 Babirusa Viewing,exhibit,40.85159800516544,-73.87986390059248,
 Hyena Viewing,exhibit,40.84665948826105,-73.88028957507365,
 Zoo Center,exhibit,40.85151543960428,-73.87936490781544,
-African Wild Dogs,exhibit,40.84724771184833,-73.88079067108565,
+African Wild Dogs,exhibit,40.84724771184833,-73.88079067108565,animals/mammals/african-wild-dog

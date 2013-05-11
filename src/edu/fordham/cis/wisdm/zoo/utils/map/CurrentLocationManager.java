@@ -17,6 +17,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -211,13 +212,17 @@ public class CurrentLocationManager implements LocationSource{
 	@Override
 	public void activate(OnLocationChangedListener listener) {
 		if(!locationAvailable)	return;
-		if(listener!=null && !mLocationListeners.contains(listener))
+		if(listener!=null && !mLocationListeners.contains(listener)){
 			mLocationListeners.add(listener);
+			Log.d("CurrentLocationManager", mLocationListeners.size() + " are activated");
+		}
 		if (!mMyLocationEnabled) {
             try {
             	Criteria cr = new Criteria();
             	cr.setAccuracy(Criteria.ACCURACY_FINE);
-            	mManager.requestLocationUpdates(mManager.getBestProvider(cr, true), 1000, 0, mListener);
+            	String provider = mManager.getBestProvider(cr, true);
+            	mManager.requestLocationUpdates(provider, 1000, 0, mListener);
+            	Toast.makeText(mCtx, provider + " enabled", Toast.LENGTH_LONG).show();
             } catch(Exception e) {
             	deactivate();
                 Toast.makeText(this.mCtx, "Location is not turned on", Toast.LENGTH_LONG).show();

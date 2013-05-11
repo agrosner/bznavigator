@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/commons-codec-1.7.jar"/>
 	<classpathentry kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/slf4j-api-1.6.4.jar"/>
 	<classpathentry kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/weka.jar"/>
+	<classpathentry exported="true" kind="lib" path="/Users/andrewgrosner/Programming/android/zoo/jars/jsoup-1.7.2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

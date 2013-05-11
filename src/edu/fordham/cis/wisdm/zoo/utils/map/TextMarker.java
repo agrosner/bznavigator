@@ -1,5 +1,7 @@
 package edu.fordham.cis.wisdm.zoo.utils.map;
 
+import java.io.Serializable;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -22,7 +24,7 @@ import android.util.TypedValue;
  * @author Andrew Grosner
  *
  */
-public class TextMarker extends PlaceMarker{
+public class TextMarker extends PlaceMarker implements Serializable{
 	
 	/**
 	 * The image that the text is placed onto
@@ -129,7 +131,7 @@ public class TextMarker extends PlaceMarker{
 		generateBitmap();
 		mMarker = map.addMarker(new MarkerOptions()
 			.icon(BitmapDescriptorFactory.fromBitmap(mBitmap))
-			.title(getName()).position(getPoint()).draggable(draggable).anchor(0.5f, 1));
+			.title(getName()).snippet(getLink()).position(getPoint()).draggable(draggable).anchor(0.5f, 1));
 		return mMarker;
 	}
 	

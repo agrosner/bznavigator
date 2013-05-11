@@ -22,7 +22,11 @@ public class Preference {
 	}
 	
 	public static void putString(String loc, String value){
-		sprefs.edit().putString(loc, value).commit();
+		try{
+			sprefs.edit().putString(loc, value).commit();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	public static String getString(String loc, String defalt){
