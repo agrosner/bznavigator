@@ -28,6 +28,9 @@ import android.widget.Toast;
  */
 public class CurrentLocationManager implements LocationSource{
 
+	/**
+	 * listens for location updates
+	 */
 	private LocationListener mListener;
 	
 	private LocationManager mManager = null;

@@ -47,12 +47,8 @@ public class AmenitiesFragment extends SherlockFragment implements OnCheckedChan
 	@Override
 	 public View onCreateView(LayoutInflater inflater, ViewGroup container,
           Bundle savedInstanceState) {
-		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.fragment_amenities, null, false);
-		
-		TextView title = new TextView(getActivity());
-		title.setText("Amenities Menu");
-		title.setTextSize(25);
-		layout.addView(title);
+		LinearLayout layout = new LinearLayout(getActivity());
+		layout.setOrientation(LinearLayout.VERTICAL);
 		
 		layout.addView(createIconCheckBox("Gates", R.drawable.fordham, 0));
 		layout.addView(createIconCheckBox("Restrooms", R.drawable.bathroom, 1));

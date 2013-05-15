@@ -1,67 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Login Screen Piece -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/fill"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical" 
     android:id="@+id/login"
-    android:background="@drawable/background_holo_light"
     >
    
-	<RelativeLayout android:id="@+id/LoginContainer"
-	    style="@style/fill_width_partial"
+      <ImageView
+	        android:id="@+id/bxzoo_image"
+	        style="@style/wrap"
+	        android:layout_alignParentTop="true"
+	        android:src="@drawable/login_header"
+	        android:adjustViewBounds="true"
+	         />
+    
+	<LinearLayout android:id="@+id/LoginContainer"
+	    style="@style/wrap"
+	    android:layout_below="@id/bxzoo_image"
 	    android:layout_centerHorizontal="true"
+	    android:orientation="vertical"
+	    android:gravity="center"
 	    >	 
-	       <TextView 
-	           android:id="@+id/Welcome"
-	           android:layout_alignParentTop="true"
-	           android:layout_centerHorizontal="true"
-	           android:text="Bronx Zoo Navigator"
-	           android:background="@drawable/edit_text_holo_light"
-	           android:textColor="@color/forestgreen"
-	           android:textSize="25dip"
-	           style="@style/wrap"
-	           />
+
 	       <EditText 
-	           android:layout_below="@id/Welcome"
 	           android:id="@+id/Email"
-	           android:hint="Email"
+	           android:hint="\t\t\tEmail"
 	           style="@style/fill_width_partial"
-	           android:textColor="@color/forestgreen"
-	           android:background="@drawable/edit_text_holo_light"
 	           android:inputType="textEmailAddress"
 	           android:layout_marginBottom="5dip"
-	           android:layout_marginTop="30dip"
 	           
 	           />
 	       <EditText 
 	           android:layout_marginTop="20dip"
 	           android:layout_below="@id/Email"
 	           android:id="@+id/Password"
-	           android:textColor="@color/forestgreen"
 	           android:background="@drawable/edit_text_holo_light"
-	           android:hint="Password"
+	           android:hint="\t\tPassword\t\t"
 	           style="@style/fill_width_partial"
 	           android:inputType="textPassword"
 	           />
-	</RelativeLayout>
+	</LinearLayout>
 
 	<CheckBox 
 	    android:id="@+id/RememberMe"
-	    style="@style/fill_width_partial"
+	    android:layout_centerHorizontal="true"
+	    style="@style/wrap"
 	    android:layout_marginTop="10dip"
 	  	android:layout_below="@id/LoginContainer"
 	  	android:text="Remember Me"
-	  	android:textColor="@color/forestgreen"
+	  	android:textSize="25dip"
+	  	android:textColor="@android:color/white"
 	  	android:button="@drawable/btn_checkbox_holo_light"
 	    />
-	<Button
-	    android:id="@+id/LoginButton"
-	    style="@style/fill_width_partial"
-	    android:layout_below="@id/RememberMe"
-	    android:layout_centerHorizontal="true"
-	    android:background="@drawable/btn_default_holo_light"
-	    android:text="Login"
-	    android:textColor="@color/forestgreen"
-	    android:textSize="25dip" />
-	 
+	
 </RelativeLayout>

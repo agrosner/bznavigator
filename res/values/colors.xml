@@ -3,4 +3,7 @@
     <color name="lightgreen">#2DBD3E</color>
     <color name="androidblue">#33B5E5</color>
     <color name="forestgreen">#669900</color>
+    <color name="background_green">#81BB3F</color>
+    <color name="active_orange">#FFA31D</color>
+    <color name="inactive_orange">#FFCB72</color>
 </resources>

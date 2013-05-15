@@ -128,9 +128,13 @@ public class Operations {
 	 * @param onclick
 	 * @param ids
 	 */
-	public static void setOnClickListeners(View parent, View.OnClickListener onclick, int...ids){
-		for(int id: ids) parent.findViewById(id).setOnClickListener(onclick);
-		
+	public static View[] setOnClickListeners(View parent, View.OnClickListener onclick, int...ids){
+		View[] views = new View[ids.length];
+		for(int i = 0; i < views.length; i++){ 
+			views[i] = parent.findViewById(ids[i]);
+			views[i].setOnClickListener(onclick);
+		}
+		return views;
 	}
 	
 	/**

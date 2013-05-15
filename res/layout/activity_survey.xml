@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/whole"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    style="@style/fill"
+    android:background="@drawable/background"
+    >
+
     <TextView
 	     android:id="@+id/title"
 	     android:text="Please take a short survey"
-	     android:textSize="20dip"
-	     android:layout_marginBottom="20dip"
+	     android:textSize="22dip"
 	     android:layout_width="fill_parent"
+	     android:gravity="center"
+	     android:layout_marginTop="25dip"
+	     android:textColor="@android:color/white"
 	     android:layout_height="wrap_content"
 	     android:layout_alignParentTop="true"/>
 	<ScrollView
@@ -22,37 +26,36 @@
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:orientation="vertical">	        
-	        <Button
-	           android:id="@+id/start"
-	           android:text="Start!"
-	           android:textSize="20dip"
-	           android:textColor="@color/forestgreen"
-	           android:drawableRight="@drawable/ic_action_arrow_right"
-	           android:padding="10dip"
-	           android:layout_gravity="right"
-	           style="@style/wrap"/>
 	        
 	    </LinearLayout>	
 	</ScrollView>
 	<Button
 	    android:id="@id/cont"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
 	    android:text="Continue"
-	    style="@style/splash_button"
+	    style="@style/wrap"
+	    android:paddingLeft="45dip"
+	    android:paddingRight="45dip"
+	    android:layout_marginBottom="20dip"
+	    android:textSize="25dip"
+	    android:textColor="@android:color/white"
+	    android:layout_centerHorizontal="true"
+	    android:layout_above="@+id/progress_display"
+	    />
+	<TextView 
+	    android:id="@id/progress_display"
+	    android:text="0%"
+	    style="@style/wrap"
+	    android:textColor="@color/active_orange"
+	    android:textSize="20dip"
 	    android:layout_above="@+id/completion"
-	    android:visibility="gone"/>
-	<SeekBar 
+	    android:layout_centerHorizontal="true"
+	    />
+	<ProgressBar
 	    android:id="@id/completion"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
-	    android:visibility="gone"/>
-	<Button 
-	    android:id="@+id/skip"
-	    style="@style/wrap"
-	    android:layout_alignParentLeft="true"
-	    android:drawableLeft="@drawable/exit"
-	    android:layout_alignParentBottom="true"
-	    android:text="Skip"/>
+	    style="@style/ProgressBarAppTheme"
+	    android:layout_marginBottom="10dip"
+	    />
 </RelativeLayout>

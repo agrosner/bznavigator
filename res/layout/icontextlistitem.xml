@@ -16,6 +16,7 @@
 	    android:padding="10dip"
 	    android:text="Name"
 	    android:textSize="20dip"
+	    android:textColor="@android:color/white"
 	    android:layout_marginLeft="10dip"
 	    />
     

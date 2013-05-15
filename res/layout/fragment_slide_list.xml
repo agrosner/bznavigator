@@ -4,7 +4,9 @@
   android:orientation="vertical"
   style="@style/wrap"
   android:paddingLeft="8dp"
-  android:paddingRight="8dp">
+  android:paddingRight="8dp"
+  android:background="@drawable/background"
+  >
 
       <ListView
           android:id="@android:id/list"

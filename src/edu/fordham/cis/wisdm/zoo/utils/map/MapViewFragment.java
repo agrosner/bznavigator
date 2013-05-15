@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
@@ -105,6 +106,13 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 */
 	private boolean firstCameraChange = true;
 	
+	/**
+	 * Whether map on screen is satellite or not
+	 */
+	private boolean isSatelliteMap = false;
+	
+	private ImageButton mMapToggle;
+	
 	@Override
 	public void onPause(){
 		super.onPause();
@@ -132,7 +140,12 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		ViewGroup v = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
 		View layout = inflater.inflate(R.layout.fragment_map, container, false);
 		
-		Operations.setOnClickListeners(layout, this, R.id.satellite, R.id.normal, R.id.overview, R.id.clear);
+		View[] btns = Operations.setOnClickListeners(layout, this, R.id.toggle, R.id.overview, R.id.clear);
+		mMapToggle = (ImageButton) btns[0];
+		
+		for(View view: btns)
+			view.setBackgroundResource(R.color.transparent);
+		
 		Operations.removeView(layout.findViewById(R.id.clear));
 		
 		mInflater = inflater;
@@ -144,12 +157,18 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	@Override
 	public void onClick(View v) {
 		int id = v.getId();
-		if(id == R.id.satellite){
-			mGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-			mTextMarkerManager.changeTextLabelColor(Color.MAGENTA,mCurrentZoom);
-		} else if(id == R.id.normal){
-			mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-			mTextMarkerManager.changeTextLabelColor(Color.BLACK,mCurrentZoom);
+		if(id == R.id.toggle){
+			if(!isSatelliteMap){
+				mGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+				mTextMarkerManager.changeTextLabelColor(Color.MAGENTA,mCurrentZoom);
+				mMapToggle.setImageResource(R.drawable.ic_action_map);
+			} else{
+				mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+				mTextMarkerManager.changeTextLabelColor(Color.BLACK,mCurrentZoom);
+				mMapToggle.setImageResource(R.drawable.ic_action_globe);
+			}
+			
+			isSatelliteMap = !isSatelliteMap;
 		} else if(id == R.id.overview){
 			mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(getMapBounds(), 10));
 		} else if(id == R.id.clear){

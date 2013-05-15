@@ -25,8 +25,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.model.LatLng;
-import com.slidingmenu.lib.SlidingMenu;
-import com.slidingmenu.lib.app.SlidingFragmentActivity;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
@@ -100,6 +100,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		super.onCreate(savedInstanceState);
 		setTitle("Bronx Zoo");
 		setContentView(R.layout.activity_slide_splash);
+		
 		
 		//cancel button used for both dialogs
 		DialogInterface.OnClickListener cancel = new DialogInterface.OnClickListener() {

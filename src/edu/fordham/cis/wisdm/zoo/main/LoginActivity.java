@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.util.DisplayMetrics;
 import android.util.Patterns;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -72,8 +73,6 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
 	
 	public static final int PASS_LENGTH = 5;
 	
-	private boolean start = false;
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,51 +87,10 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
         if(isMember && email.length()> 1 && password.length() >= PASS_LENGTH){
         	login(email, password, true);
         } else{
-        	chooseLogin();
+        	enhance();
         }
     }
-    
-    @Override
-    public void onResume(){
-    	super.onResume();
-    	if(start)	chooseLogin();
-    }
-    
-    /**
-     * A popup dialog will ask a new user whether he/she wants to register or login as a guest
-     */
-    private void chooseLogin(){
-    	new HoloAlertDialogBuilder(this).setTitle("Choose your login")
-    		.setMessage("Register for an account and receive multiple benefits!" +
-    			"\nIncludes (future) visit path viewing, personal settings, social features, and many more")
-    		.setPositiveButton("Member Login", new DialogInterface.OnClickListener(){
-    			@Override
-    			public void onClick(DialogInterface dialog, int which) {
-    				Preference.putBoolean("member", true);
-    				isMember = true;
-    				enhance();
-    			}
-    		})
-    		.setNegativeButton("Login as Guest", new DialogInterface.OnClickListener() {
-    			@Override
-    			public void onClick(DialogInterface dialog, int which) {
-    				Preference.putBoolean("member", false);
-    				isMember = false;
-    				login("","", false);
-    			}
-    		}).setCancelable(false).show();
-    }
-    
-    @Override
-	public boolean onOptionsItemSelected(MenuItem item){
-		if(item.getItemId() == android.R.id.home)	{
-			Intent intent = getIntent();
-	    	finish();
-	    	startActivity(intent);
-		}
-		return false;
-	}
-    
+   
     /**
      * Changes the layout objects if member, large screen, and chosen to remember
      */
@@ -140,14 +98,13 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
     	setContentView(R.layout.login_extended);
     	
     	//set up buttons
-    	Operations.setOnClickListeners(this, this, R.id.SignUp, R.id.LoginButton);
+    	Operations.setOnClickListeners(this, this, R.id.SignUp, R.id.LoginButton, R.id.GuestLogin);
     	
     	//set up text fields
     	fields = Operations.findEditTextViewsByIds(this,R.id.Email, R.id.Password);
     	rememberMe = (CheckBox) findViewById(R.id.RememberMe);
     	
     	ActionBar mAction = this.getSupportActionBar();
-		mAction.setDisplayHomeAsUpEnabled(true);
         mAction.setTitle("Choose Login");
     	largeScreen = false;
     	
@@ -158,16 +115,13 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
     	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	largeScreen = true;
     	
     	//play around with widgets and resize them
-    	if(largeScreen){
+    	if(largeScreen && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
     		int newWidth = display.widthPixels/2;
     		
     		RelativeLayout loginScreen =  (RelativeLayout) findViewById(R.id.login);
     		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(newWidth, LayoutParams.WRAP_CONTENT);
-    		params.addRule(RelativeLayout.CENTER_IN_PARENT);
+    		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
     		loginScreen.setLayoutParams(params);
-    		
-    		TextView title = (TextView) loginScreen.findViewById(R.id.Welcome);
-    		title.setTextSize(40);
     		
     	}
     	
@@ -225,10 +179,15 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
 	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.LoginButton:
+			isMember = true;
 			login(fields[0].getText().toString(), fields[1].getText().toString(), rememberMe.isChecked());
 			break;
 		case R.id.SignUp:
 			signUp();
+			break;
+		case R.id.GuestLogin:
+			isMember = false;
+			login("","", false);
 			break;
 		}
 	}
@@ -254,7 +213,7 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
 
 		@Override
 		protected void onPreExecute(){
-			dia = ProgressDialog.show(mContext, "Connecting", "Authorizing with server");
+			dia = ProgressDialog.show(new ContextThemeWrapper(mContext, R.style.AlertDialogAppTheme), "Connecting", "Authorizing with server");
 		}
 		
 		@Override
@@ -279,12 +238,27 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
 				if(!gotVisit && isMember){
 					Toast.makeText(mContext, "Could not register visit for some reason", Toast.LENGTH_SHORT).show();
 				}else{
-					startActivity(new Intent(mContext, SurveyActivity.class)
-					.putExtra("user", mConnection));
+					new AlertDialog.Builder(new ContextThemeWrapper(mContext, R.style.AlertDialogAppTheme)).setTitle("Visitor Survey")
+						.setMessage("If you would like to take a survey to allow us" +
+								" to learn how to best meet your needs, please click the button below")
+						.setPositiveButton("Take it", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								startActivity(new Intent(mContext, SurveyActivity.class)
+								.putExtra("user", mConnection));
+							}
+						}).setNegativeButton("Skip it", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								startActivity(new Intent(mContext, SlidingScreenActivity.class)
+								.putExtra("user", mConnection));
+							}
+						}).create().show();
 				}
 			}
 			dia.dismiss();
-			start = true;
 		}
 		
 	}

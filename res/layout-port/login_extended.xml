@@ -1,25 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout 
-    style="@style/fill" xmlns:android="http://schemas.android.com/apk/res/android">
-   	
-    <include layout="@layout/activity_login">
+    style="@style/fill" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/background"
+    >
+    <include 
+        android:id="@+id/login"
+        layout="@layout/activity_login">
     	
 	</include>
-	<ImageView 
-       android:id="@+id/WisdmLogo"
-       style="@style/wrap"
-       android:src="@drawable/wisdmsmall"
-       android:layout_alignParentBottom="true"
-       android:layout_marginBottom="10dip"
-       android:layout_centerHorizontal="true"
-        />
-    <Button
-        android:id="@+id/SignUp"
-        style="@style/wrap"
-        android:drawableTop="@drawable/ic_action_user_add"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/WisdmLogo"
-        android:layout_marginBottom="15dip"
-        android:text="Sign Up" />
-    
+	
+    <LinearLayout 
+	    android:id="@+id/login_button"
+	    android:layout_centerHorizontal="true"
+	    style="@style/wrap"
+	    android:layout_below="@id/login"
+	    android:gravity="center"	
+	    android:orientation="vertical"
+	    >
+	    <Button
+		    android:id="@+id/LoginButton"
+		    style="@style/fill_width"
+		    android:text="Login"
+		    android:textColor="@android:color/white"
+		    android:textSize="25dip" />
+   
+	     <Button
+	         android:id="@+id/SignUp"
+	         style="@style/fill_width"
+	         android:text="Register"
+	         android:textColor="@android:color/white"
+	         android:textSize="25dip" />
+		<Button
+		    android:id="@+id/GuestLogin"
+		    style="@style/wrap"
+		    android:layout_weight="1.12"
+		    android:text="Guest Login"
+		    android:textColor="@android:color/white"
+		    android:textSize="25dip" />
+	 	
+	 </LinearLayout>
 </RelativeLayout>	

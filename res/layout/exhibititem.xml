@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
    style="@style/fill_width"
    android:id="@+id/mainrel"
-   android:background="@drawable/background_holo_light"
    android:padding="20dip"
    android:clickable="true">    
 
@@ -16,6 +15,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:text="0ft"
+        android:textColor="@color/inactive_orange"
         style="@style/wrap"
         />
 	<TextView 
@@ -23,6 +23,7 @@
 	    android:layout_toLeftOf="@id/distancetext"
 	    android:id="@+id/title"
 	    android:textSize="15dip"
+	    android:textColor="@android:color/white"
 	    style="@style/fill_width_partial"
 	    android:layout_alignParentTop="true"
 	    />

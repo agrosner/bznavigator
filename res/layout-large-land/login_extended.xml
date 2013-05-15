@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout 
+    style="@style/fill" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/background"
+    >
+    <include 
+        android:id="@+id/login"
+        layout="@layout/activity_login"
+        >
+    	
+	</include>
+	
+    <LinearLayout 
+	    android:id="@+id/login_button"
+	    style="@style/wrap"
+	    android:layout_toRightOf="@id/login"
+	    android:layout_alignParentBottom="true"
+	    android:gravity="center"	
+	    android:orientation="vertical"
+	    >
+	    <Button
+		    android:id="@+id/LoginButton"
+		    style="@style/fill_width"
+		    android:text="Login"
+		    android:textColor="@android:color/white"
+		    android:textSize="25dip" />
+   
+	     <Button
+	         android:id="@+id/SignUp"
+	         style="@style/fill_width"
+	         android:text="Register"
+	         android:textColor="@android:color/white"
+	         android:textSize="25dip" />
+		<Button
+		    android:id="@+id/GuestLogin"
+		    style="@style/wrap"
+		    android:layout_weight="1.12"
+		    android:text="Guest Login"
+		    android:textColor="@android:color/white"
+		    android:textSize="25dip" />
+	 	
+	 </LinearLayout>
+</RelativeLayout>	

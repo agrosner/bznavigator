@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generated with http://android-holo-colors.com -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <style name="AppTheme" parent="@style/Theme.HoloEverywhereLight.Sherlock.ForceOverflow">
+
+    <item name="android:editTextStyle">@style/EditTextAppTheme</item>
+
+    <item name="android:checkboxStyle">@style/CheckBoxAppTheme</item>
+    
+    <item name="android:radioButtonStyle">@style/RadioButtonAppTheme</item>
+
+    <item name="android:buttonStyle">@style/ButtonAppTheme</item>
+
+    <item name="android:imageButtonStyle">@style/ImageButtonAppTheme</item>
+
+    <item name="android:spinnerStyle">@style/SpinnerAppTheme</item>
+
+    <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemAppTheme</item>
+
+    <item name="android:progressBarStyleHorizontal">@style/ProgressBarAppTheme</item>
+
+    <item name="android:seekBarStyle">@style/SeekBarAppTheme</item>
+
+    <item name="android:listViewStyle">@style/ListViewAppTheme</item>
+
+    <item name="android:listViewWhiteStyle">@style/ListViewAppTheme.White</item>
+
+    <item name="android:spinnerItemStyle">@style/SpinnerItemAppTheme</item>
+    
+    <item name="actionBarItemBackground">@drawable/selectable_background_bxzoo</item>
+    
+  	<item name="popupMenuStyle">@style/PopupMenu.Bxzoo</item>
+  	
+	<item name="dropDownListViewStyle">@style/DropDownListView.Bxzoo</item>
+	
+    <item name="actionBarTabStyle">@style/ActionBarTabStyle.Bxzoo</item>
+    
+    <item name="actionDropDownStyle">@style/DropDownNav.Bxzoo</item>
+    
+    <item name="actionBarStyle">@style/ActionBar.Solid.Bxzoo</item>
+    
+    <item name="actionModeBackground">@drawable/cab_background_top_bxzoo</item>
+    
+    <item name="actionModeSplitBackground">@drawable/cab_background_bottom_bxzoo</item>
+    
+    <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Bxzoo</item>
+
+    
+
+  </style>
+
+</resources>

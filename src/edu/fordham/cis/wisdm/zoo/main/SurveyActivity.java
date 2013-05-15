@@ -3,7 +3,6 @@ package edu.fordham.cis.wisdm.zoo.main;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Scanner;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -21,10 +20,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Settings.Secure;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,6 +34,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -66,14 +66,14 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 	//to keep track of which survey field is displayed currently/next
 	private int qindex;
 	
-	private Button[] buttons = new Button[3];
+	private Button buttons;
 	
 	//other options
 	private RadioButton other;
 	private EditText otherentry;
 	
 	//survey completion progress bar
-	private SeekBar completion;
+	private ProgressBar completion;
 	
 	//survey field name/question
 	private TextView title;
@@ -127,7 +127,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         
         title = (TextView)this.findViewById(R.id.title);
         
-        buttons = Operations.findButtonViewsByIds(this, R.id.start, R.id.skip, R.id.cont);
+        buttons = (Button) findViewById(R.id.cont);
         Operations.setOnClickListeners(this, buttons);
                 
         other = new RadioButton(this);
@@ -135,8 +135,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         otherentry.setOnTouchListener(this);
         otherentry.setVisibility(View.GONE);
                 
-        completion = (SeekBar)this.findViewById(R.id.completion);
-        completion.setOnSeekBarChangeListener(this);
+        completion = (ProgressBar)this.findViewById(R.id.completion);
         
         try {
 			in = new Scanner(this.getAssets().open("survey.txt"));
@@ -164,6 +163,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
         completion.setMax(surveyfields.size());
         completion.setProgress(qindex);
         
+        setQuestion(surveyfields.get(qindex));
     }
     
     //set widgets/layout for specified survey field
@@ -215,7 +215,9 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     				Tsb.setProgress((int)(Tsb.getMax() / 2));
     				Tsb.setOnSeekBarChangeListener(this);
     				progressdisplay = new TextView(this);
-    				progressdisplay.setTextSize(30);
+    				progressdisplay.setTextSize(75);
+    				progressdisplay.setTextColor(R.color.active_orange);
+    				progressdisplay.setGravity(Gravity.CENTER);
     				progressdisplay.setText("" + Tsb.getProgress());
     				mainlayout.addView(progressdisplay);
     				mainlayout.addView(Tsb);
@@ -245,8 +247,6 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
     			}
     		}
     	}
-    	buttons[2].setVisibility(View.VISIBLE);
-    	completion.setVisibility(View.VISIBLE);
     	mainlayout.addView(rg);
     	if(other.isEnabled())
     		mainlayout.addView(otherentry);
@@ -273,16 +273,8 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			imm.hideSoftInputFromWindow(otherentry.getWindowToken(), 0);
 		}
 				
-		//start survey
-		if(v.equals(buttons[0])){
-			setQuestion(surveyfields.get(qindex));
-			buttons[1].setVisibility(View.GONE);
-		} else if(v.equals(buttons[1])){
-			startActivity(splash);
-		}
-		
 		//submit entered data and display next survey field
-		if(v.equals(buttons[2])){
+		if(v.equals(buttons)){
 			imm.hideSoftInputFromWindow(otherentry.getWindowToken(), 0);
 			
 			this.uploadCurrentResponses();
@@ -290,11 +282,12 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 			if(qindex < surveyfields.size() - 1){
 				qindex++;
 				setQuestion(surveyfields.get(qindex));
+	
 			}
 			else{
 				qindex++;
 				mainlayout.removeAllViews();
-				buttons[2].setVisibility(View.GONE);
+				buttons.setVisibility(View.GONE);
 				completion.setVisibility(View.GONE);
 				other.setSelected(false);
 				other.setEnabled(false);

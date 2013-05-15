@@ -15,6 +15,7 @@
         style="@style/wrap"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/icon"
-        android:text="Name" />
+        android:text="Name"
+        android:textColor="@android:color/white" />
     
 </RelativeLayout>

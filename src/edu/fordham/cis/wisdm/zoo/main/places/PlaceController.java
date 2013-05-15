@@ -60,7 +60,6 @@ public class PlaceController {
 			int drawableId = act.getResources().getIdentifier(drawablePath, "drawable", act.getPackageName());
 			image.setBackgroundDrawable(act.getResources().getDrawable(drawableId));
 		}
-		
 		exhibitItem.setId(id);
 		exhibitItem.setOnClickListener(mListener);
 		
