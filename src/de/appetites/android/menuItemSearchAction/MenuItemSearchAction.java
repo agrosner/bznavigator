@@ -31,11 +31,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.R;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnActionExpandListener;
+import edu.fordham.cis.wisdm.zoo.main.R;
 
 /**
  * <p>This class creates a MenuItem with an expandable and collapsable ActionView for search purposes</p> 

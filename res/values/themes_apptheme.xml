@@ -3,7 +3,7 @@
 <!-- Generated with http://android-holo-colors.com -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <style name="AppTheme" parent="@style/Theme.HoloEverywhereLight.Sherlock.ForceOverflow">
+  <style name="AppTheme" parent="@style/Holo.Theme.Light">
 
     <item name="android:editTextStyle">@style/EditTextAppTheme</item>
 

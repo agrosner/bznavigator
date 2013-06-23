@@ -13,7 +13,7 @@
       <item name="android:textColor">@android:color/white</item>
   </style>
 
-  <style name="AlertDialogAppTheme" parent="@style/AlertDialogHoloLight">
+  <style name="AlertDialogAppTheme" parent="@style/Holo.AlertDialog.Light">
       <item name="android:textColor">@color/active_orange</item>
       <item name="android:gravity">center</item>
       <item name="android:textSize">25dip</item>
