@@ -4,15 +4,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList.PlaceType;
 import edu.fordham.cis.wisdm.zoo.utils.SlidingScreenListAdapter;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
+import edu.fordham.cis.wisdm.zoo.utils.ZooDialog;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 
 public class SlidingScreenList extends SherlockListFragment implements UserConstants{
@@ -94,13 +96,13 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 			}
 		} else if(position==8){
 			 //ask user whether quit or not
-			 AlertDialog.Builder message = new AlertDialog.Builder(getActivity());
+			 ZooDialog message = new ZooDialog(getActivity());
 			 message.setTitle("Logout?");
 			 final Activity act = getActivity();
-			 message.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+			 message.setPositiveButton("Yes", new OnClickListener(){
 				 @SuppressWarnings("deprecation")
 				@Override
-				 public void onClick(DialogInterface dialog, int which) {
+				 public void onClick(View v) {
 					 getActivity().stopService(new Intent(getActivity().getApplicationContext(), LocationUpdateService.class));
 					 Preference.putBoolean(REMEMBER_ME_LOC, false);
 					 
@@ -119,12 +121,8 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 					 }
 				 }
 			 });
-			 message.setNegativeButton("No", new DialogInterface.OnClickListener() {
-				 
-				 @Override	
-				 public void onClick(DialogInterface dialog, int which) {}
-			 });
-			 message.create().show();
+			 message.setNegativeButton("No",null);
+			 message.show();
 		} else{
 				Fragment newContent = getSelectedFragment(getActivity(), position);
 				if (newContent != null)
@@ -157,7 +155,6 @@ public class SlidingScreenList extends SherlockListFragment implements UserConst
 				try{
 					MapsInitializer.initialize(act);
 					map = new MapViewFragment();
-					map.setRetainInstance(true);
 				} catch (GooglePlayServicesNotAvailableException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

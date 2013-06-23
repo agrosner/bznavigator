@@ -47,8 +47,7 @@
     
     <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Bxzoo</item>
 
-    
-
+    <item name="android:textColor">@android:color/white</item>
   </style>
 
 </resources>

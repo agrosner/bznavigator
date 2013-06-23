@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@color/background_green"
+     >
     <ImageButton 
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
@@ -20,6 +22,7 @@
         style="@style/wrap"
         android:text="Title"
         android:textSize="20dip"
+        android:textColor="@color/inactive_orange"
         android:padding="10dip"
         android:layout_below="@id/exit"
         android:layout_alignParentRight="true"
@@ -28,6 +31,7 @@
 	    android:id="@+id/info"
 	    android:layout_marginTop="10dip"
 	    android:layout_below="@id/title"
+	    android:textColor="@android:color/white"
 	    android:layout_alignParentLeft="true"
 	    android:text="No information available yet."
 	    android:textSize="16dip"
@@ -54,6 +58,7 @@
 	    android:layout_marginTop="15dip"
 	    android:layout_marginRight="15dp"
 	    android:text="0ft"
+	    android:textColor="@android:color/white"
 	    android:textSize="18dip" />
 
 </RelativeLayout>

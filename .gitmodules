@@ -1,0 +1,15 @@
+[submodule "Libraries/bzserver"]
+	path = Libraries/bzserver
+	url = gitolite@netlab.cis.fordham.edu:bz-server.git
+[submodule "Libraries/sherlock"]
+	path = Libraries/sherlock
+	url = https://github.com/JakeWharton/ActionBarSherlock.git
+[submodule "Libraries/slidingmenu"]
+	path = Libraries/slidingmenu
+	url = https://github.com/jfeinstein10/SlidingMenu.git
+[submodule "Libraries/atutils"]
+	path = Libraries/atutils
+	url = gitolite@netlab.cis.fordham.edu:at-utils.git
+[submodule "Libraries/hololib"]
+	path = Libraries/hololib
+	url = gitolite@netlab.cis.fordham.edu:hololib.git

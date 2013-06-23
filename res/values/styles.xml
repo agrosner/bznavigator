@@ -45,4 +45,21 @@
        <item name="android:paddingTop">10dip</item>
     </style>
     
+    <style name="dialog_button" parent='wrap'>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textColor">@color/active_orange</item>
+        <item name="android:textSize">20dip</item>
+    </style>
+    
+    <style name="main_text" parent="@style/wrap">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">15dip</item>
+    </style>
+    
+    <style name="gmap_button" parent="@style/wrap">
+        <item name="android:background">@color/google_white</item>
+        <item name="android:padding">5dip</item>
+        <item name="android:layout_margin">10dip</item>
+    </style>
+    
 </resources>

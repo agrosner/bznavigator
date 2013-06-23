@@ -13,17 +13,21 @@ import com.google.android.gms.maps.model.LatLng;
 import edu.fordham.cis.wisdm.zoo.utils.HTMLScraper;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapUtils;
+import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class InfoDisplayActivity extends SherlockActivity implements OnMenuItemClickListener {
 
-	private SlidingScreenActivity mScreen;
+	public static SlidingScreenActivity SCREEN;
 	
 	private LatLng mPosition;
+	
+	public static MapViewFragment MAP = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,15 +86,15 @@ public class InfoDisplayActivity extends SherlockActivity implements OnMenuItemC
 
 	@Override
 	public boolean onMenuItemClick(MenuItem item) {
-		/**mScreen.mList.getMapFragment()
-			.getManager().navigate(MapUtils.latLngToLocation(mPosition));
+		MAP.getManager().navigate(MapUtils.latLngToLocation(mPosition));
 		
-		mScreen.mList.getMapFragment()
-			.enableNavigation(mScreen.getFollowItem(), MapUtils.latLngToLocation(mPosition));
-		
-		Toast.makeText(this, "Now navigating to "
-				+ getSupportActionBar().getTitle(), 
-				Toast.LENGTH_SHORT).show();**/
+		String message = null;
+		if(MAP.enableNavigation(SCREEN.getFollowItem(), MapUtils.latLngToLocation(mPosition)))
+			message =  "Now navigating to "
+				+ ((TextView)findViewById(R.id.title)).getText();
+		else
+			message = "Current location not found";
+		Toast.makeText(this,message,Toast.LENGTH_SHORT).show(); 
 		return true;
 	}
 

@@ -101,6 +101,7 @@ public class HTMLScraper {
 					TextView para = new TextView(mCtx);
 					para.setText(Html.fromHtml(e.html()));
 					para.setTextSize(15);
+					para.setTextColor(mCtx.getResources().getColor(android.R.color.white));
 					para.setMovementMethod(LinkMovementMethod.getInstance());
 					para.setLinksClickable(true);
 					mLayout.addView(para);

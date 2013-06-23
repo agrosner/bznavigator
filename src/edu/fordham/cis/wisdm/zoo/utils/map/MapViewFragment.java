@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 
+import edu.fordham.cis.wisdm.zoo.main.InfoDisplayActivity;
 import edu.fordham.cis.wisdm.zoo.main.R;
 import edu.fordham.cis.wisdm.zoo.main.SlidingScreenActivity;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
@@ -60,7 +61,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	/**
 	 * Map bounds of the zoo
 	 */
-	private LatLngBounds.Builder mMapBounds = new LatLngBounds.Builder();
+	private LatLngBounds.Builder mMapBounds = null;
 	
 	
 	private LayoutInflater mInflater = null;
@@ -113,6 +114,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	
 	private ImageButton mMapToggle;
 	
+	private View[] loaders;
+	
 	@Override
 	public void onPause(){
 		super.onPause();
@@ -140,11 +143,9 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		ViewGroup v = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
 		View layout = inflater.inflate(R.layout.fragment_map, container, false);
 		
-		View[] btns = Operations.setOnClickListeners(layout, this, R.id.toggle, R.id.overview, R.id.clear);
+		View[] btns = Operations.setOnClickListeners(layout, this, R.id.toggle, R.id.overview, R.id.clear, R.id.my_location);
+		loaders = Operations.findViewByIds(layout, R.id.loading, R.id.loading_text);
 		mMapToggle = (ImageButton) btns[0];
-		
-		for(View view: btns)
-			view.setBackgroundResource(R.color.transparent);
 		
 		Operations.removeView(layout.findViewById(R.id.clear));
 		
@@ -153,7 +154,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		v.addView(layout);
 		return v;
 	}
-
+	
 	@Override
 	public void onClick(View v) {
 		int id = v.getId();
@@ -173,7 +174,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(getMapBounds(), 10));
 		} else if(id == R.id.clear){
 			clearMap();
+		} else if (id == R.id.my_location){
+			mGoogleMap.animateCamera(CameraUpdateFactory.newLatLng(MapUtils.locationToLatLng(mGoogleMap.getMyLocation())));
 		} else{
+			
 			SlidingScreenActivity act = ((SlidingScreenActivity) getActivity());
 			PlaceMarker place = act.selected.get(id-1);
 			act.performSearch(place);
@@ -195,6 +199,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		mGoogleMap.setInfoWindowAdapter(new PlaceMarkerWindowAdapter(inflater));
 		mGoogleMap.setOnInfoWindowClickListener(this);
    		mGoogleMap.getUiSettings().setCompassEnabled(false);
+   		mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
 		
    		if(mManager==null){
    			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
@@ -217,29 +222,20 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
    		
    		act.notifyLocationSet();
    		
-   		new LoadDataTask(act, frag).execute();
+   		if(searchExhibits.isEmpty())
+   			new LoadDataTask(act, frag).execute();
    		
-   		
-		try{
-   			MapUtils.generatePolygon(getActivity(), mMapBounds);
-   				
-   			OverlayManager.readFiles(getActivity());
-			OverlayManager.addToMap(mGoogleMap);
-			
-			if(mTextMarkerManager==null){
-				mTextMarkerManager = new TextMarkerManager(this);
-			} else{
-				mTextMarkerManager.reset(this);
-			}
-			mTextMarkerManager.readInData(getActivity(),"exhibits.txt", "special.txt");
-			mTextMarkerManager.addToMap();
-			mTextMarkerManager.refreshData(getMap().getCameraPosition().zoom);
-			mGoogleMap.setOnMarkerClickListener(mTextMarkerManager);
-		} catch (IOException e1) {
+   		mMapBounds = new LatLngBounds.Builder();
+		try {
+			MapUtils.generatePolygon(getActivity(), mMapBounds);
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			Toast.makeText(getActivity(), e1.getMessage(), Toast.LENGTH_SHORT).show();
+			e.printStackTrace();
 		}
+			
+   		new LoadMapDataTask(this).execute();
+   		
+		
 	}
 	
 	/**
@@ -319,7 +315,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		}
 		
 		float zoom = position.zoom;
-		if(zoom!=mCurrentZoom){
+		if(zoom!=mCurrentZoom && mTextMarkerManager!=null){
 			mCurrentZoom = zoom;
 			mTextMarkerManager.refreshData(zoom);
 			//Toast.makeText(getActivity(), "Zoom: " + position.zoom, Toast.LENGTH_SHORT).show();
@@ -331,7 +327,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		if(marker.getSnippet().equals(""))
 			MapUtils.showExhibitInfoDialog(mManager, getActivity().getLayoutInflater(), 
 				getActivity(), marker);
-		else MapUtils.startInfoActivity(mManager, (SlidingScreenActivity) getActivity(), marker);
+		else {
+			InfoDisplayActivity.MAP = this;
+			InfoDisplayActivity.SCREEN = (SlidingScreenActivity) getActivity();
+			MapUtils.startInfoActivity(mManager, (SlidingScreenActivity) getActivity(), marker);
+		}
 	}
 	
 	/**
@@ -379,8 +379,9 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	/**
 	 * Toggles map tracking on screen
 	 * @param item
+	 * @return whether we follow or not
 	 */
-	public void toggleFollow(MenuItem item){
+	public boolean toggleFollow(MenuItem item){
 		if(!isTracking){
 			if(mManager.getLastKnownLocation()!=null){
 				item.setIcon(R.drawable.ic_action_location_blue);
@@ -395,14 +396,21 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			isTracking = false;
 			Toast.makeText(getActivity(), "Following Off", Toast.LENGTH_SHORT).show();
 		}
-		mManager.follow(isTracking);
+		
+		if(mManager.getLastKnownLocation()!=null){
+			mManager.follow(isTracking);
+			return true;
+		} else{
+			return false;
+		}
 	}
 	
-	public void enableNavigation(MenuItem item, Location locationTo){
+	public boolean enableNavigation(MenuItem item, Location locationTo){
 		isTracking = false;
-		toggleFollow(item);
-		
-		mManager.navigate(locationTo);
+		if(toggleFollow(item)){
+			mManager.navigate(locationTo);
+			return true;
+		} else return false;
 	}
 	
 	public void disableNavigation(MenuItem item){
@@ -528,11 +536,51 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			return null;
 		}
 		
-		@SuppressWarnings("unused")
-		protected Void onPostExecute(){
+		@Override
+		protected void onPostExecute(Void result){
 			PlaceController.readInDataIntoList(mManager.getLastKnownLocation(), mActivity, mActivity.searchList, searchExhibits, mOnClick);
-			return null;
 			
+		}
+	}
+	
+	private class LoadMapDataTask extends AsyncTask<Void, Void, Void>{
+
+		private MapViewFragment mMap;
+		
+		public LoadMapDataTask(MapViewFragment map){
+			mMap = map;
+		}
+		
+		@Override
+		protected Void doInBackground(Void... params) {
+			try{
+					
+	   			OverlayManager.readFiles(getActivity());
+				
+				if(mTextMarkerManager==null){
+					mTextMarkerManager = new TextMarkerManager(mMap);
+				} else{
+					mTextMarkerManager.reset(mMap);
+				}
+				mTextMarkerManager.readInData(getActivity(),"exhibits.txt", "special.txt");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				Toast.makeText(getActivity(), e1.getMessage(), Toast.LENGTH_SHORT).show();
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result){
+			OverlayManager.addToMap(mGoogleMap);
+			mTextMarkerManager.addToMap();
+			mTextMarkerManager.refreshData(getMap().getCameraPosition().zoom);
+			mGoogleMap.setOnMarkerClickListener(mTextMarkerManager);
+			
+			for(View v: loaders){
+				v.setVisibility(View.GONE);
+			}
 		}
 	}
 

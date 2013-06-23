@@ -36,16 +36,8 @@
 	    	</FrameLayout>
 	    </FrameLayout>
 	</LinearLayout>
-		<ScrollView
-	        style="@style/wrap">
-	   		<LinearLayout 
-	  	     	android:id="@+id/SearchList"
-	            style="@style/wrap"
-	            android:orientation="vertical"
-	            android:background="@color/background_green"
-	            android:visibility="gone"
-	           >
-	 						<!-- Content here -->              
-	        </LinearLayout>           
-	     </ScrollView>
+		<include 
+		    layout="@layout/activity_slide_search_list"
+		    
+		    />
 </FrameLayout>

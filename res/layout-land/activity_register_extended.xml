@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/fill"
+    android:background="@drawable/background"
+	>    
+
+    <ImageView
+        android:id="@+id/bzxoo_image"
+        style="@style/wrap"
+        android:adjustViewBounds="true"
+        android:layout_marginTop="45dip"
+        android:layout_marginBottom="45dip"
+        android:src="@drawable/login_header" />
+    
+    <include 
+        android:id="@+id/fields"
+        layout="@layout/activity_register_fields"
+        />
+</LinearLayout>

@@ -11,7 +11,11 @@
 
     <item name="android:listChoiceIndicatorSingle">@drawable/btn_radio_holo_light</item>
     
+    <item name="android:checkboxStyle">@style/CheckBoxAppTheme</item>
+    
     <item name="android:buttonStyle">@style/ButtonAppTheme</item>
+    
+    <item name="android:radioButtonStyle">@style/RadioButtonAppTheme</item>
 
     <item name="android:imageButtonStyle">@style/ImageButtonAppTheme</item>
 

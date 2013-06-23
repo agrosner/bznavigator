@@ -11,6 +11,7 @@ import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.ZooDialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -296,10 +297,8 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 				cumulative = "";
 				for(String s: responses)
 					cumulative += s + ",";
-				complete.setText("Survey Complete!\nData String:\n" + responses.toString()
-						+ "\n" + qids.toString() + "\n" + types.toString());
-				mainlayout.addView(complete);
-				new SendSurveyDataTask(mConnection, this).execute();
+				//new SendSurveyDataTask(mConnection, this).execute();
+				startActivity(splash);
 			}
 			
 			//increment progress
@@ -392,12 +391,12 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		else{
 			final Activity act = this;
 			
-			AlertDialog.Builder message = new AlertDialog.Builder(this);
+			ZooDialog message = new ZooDialog(this);
 			message.setTitle("No previous questions! Logout and Quit Survey?");
-			message.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			message.setPositiveButton("Yes", new OnClickListener() {
 				
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
+				public void onClick(View v) {
 					Preference.putBoolean(REMEMBER_ME_LOC, false);
 					 
 					 Intent upIntent = new Intent(act, LoginActivity.class);
@@ -415,15 +414,9 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 					 }
 				}
 			});
-			message.setNegativeButton("No", new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					
-				}
-			});
+			message.setNegativeButton("No",null);
 			
-			message.create().show();
+			message.show();
 		}
 	}
 	
@@ -521,7 +514,7 @@ public class SurveyActivity extends SherlockActivity implements OnClickListener,
 		
 		@Override
 		protected void onPostExecute(Void arg){
-			dia.dismiss();
+			dia.cancel();
 			startActivity(splash);
 		}
 	}

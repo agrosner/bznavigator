@@ -5,21 +5,22 @@ import java.util.Comparator;
 import java.util.LinkedList;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
@@ -36,6 +37,7 @@ import edu.fordham.cis.wisdm.zoo.main.places.PlaceController;
 import edu.fordham.cis.wisdm.zoo.main.places.PlaceFragmentList;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
+import edu.fordham.cis.wisdm.zoo.utils.ZooDialog;
 import edu.fordham.cis.wisdm.zoo.utils.map.MapViewFragment;
 import edu.fordham.cis.wisdm.zoo.utils.map.PlaceMarker;
 
@@ -95,41 +97,42 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	 */
 	private Connections mUser = null;
 	
+	private boolean isLargeScreen = false;
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setTitle("Bronx Zoo");
-		setContentView(R.layout.activity_slide_splash);
 		
+		DisplayMetrics display = new DisplayMetrics();
+    	this.getWindowManager().getDefaultDisplay().getMetrics(display);
+    	int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+                
+    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	isLargeScreen = true;
+    	
+    	if(isLargeScreen){
+    		setRequestedOrientation(Configuration.ORIENTATION_LANDSCAPE);
+    	} else{
+    		setRequestedOrientation(Configuration.ORIENTATION_PORTRAIT);
+    	}
 		
 		//cancel button used for both dialogs
-		DialogInterface.OnClickListener cancel = new DialogInterface.OnClickListener() {
+		OnClickListener cancel = new OnClickListener() {
 			
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(View v) {
 				finish();
 			}
 		};
 			
 		if(savedInstanceState==null){
-			
-			//gives user an option to accept terms or leave the app
-			final HoloAlertDialogBuilder termsDialogBuilder = new HoloAlertDialogBuilder(this);
-			
-			termsDialogBuilder.setNegativeButton("I do not accept", cancel);
-			
-			//terms and conditions
-			termsDialogBuilder.setTitle("Terms and Conditions");
-			termsDialogBuilder.setMessage("Terms and conditions go here");
-			termsDialogBuilder.setPositiveButton("I Accept", new DialogInterface.OnClickListener(){
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					termsDialogBuilder.create().dismiss();
-				}
-								
-			});
-			
-			termsDialogBuilder.setCancelable(false).create().show();
+			final ZooDialog terms = new ZooDialog(this);
+			terms.setNegativeButton("I do not accept", cancel);
+			terms.setTitle("Terms and Conditions");
+			terms.setMessage("Terms and conditions go here");
+			terms.setPositiveButton("I accept", null);
+			terms.setCancelable(false);
+			terms.show();
 			
 		}
 		LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
@@ -137,40 +140,41 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		
 		//	if network error message
 		if(connect.getActiveNetworkInfo()==null || !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-			final HoloAlertDialogBuilder gpsInternetDialogBuilder = new HoloAlertDialogBuilder(this);
-				
-			gpsInternetDialogBuilder.setNegativeButton("Quit", cancel);
-			gpsInternetDialogBuilder.setTitle("Please Turn on GPS and Internet");
-			gpsInternetDialogBuilder.setMessage("Please navigate to settings and make sure GPS and Internet is turned on for the full experience.");
-			gpsInternetDialogBuilder.setPositiveButton("Settings", new DialogInterface.OnClickListener(){
+			final ZooDialog gpsInternet = new ZooDialog(this);
+			
+			
+			gpsInternet.setNegativeButton("Quit", cancel);
+			gpsInternet.setTitle("Please Turn on GPS and Internet");
+			gpsInternet.setMessage("Please navigate to settings and make sure GPS and Internet is turned on for the full experience.");
+			gpsInternet.setPositiveButton("Settings", new OnClickListener(){
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
+				public void onClick(View v) {
 					startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);	
 					finish();
 			}
 				
 			});
-			gpsInternetDialogBuilder.setNeutralButton("Continue Anyways", new DialogInterface.OnClickListener() {
+			gpsInternet.setNeutralButton("Continue Anyways", new OnClickListener() {
 				
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					gpsInternetDialogBuilder.create().dismiss();
+				public void onClick(View v) {
+					gpsInternet.dismiss();
 					init(savedInstanceState);
-						
 				}
 			});
 				
-			gpsInternetDialogBuilder.create().show();
+			gpsInternet.show();
 		} else{
 			init(savedInstanceState);
 		}
+		
+		setSlidingActionBarEnabled(false);
 		
 		SlidingMenu sm = getSlidingMenu();
 		setMode(sm);
 		
 		
 		if(savedInstanceState!=null){
-			mContent = getSupportFragmentManager().getFragment(savedInstanceState, "content");
 			mAmenities = (AmenitiesFragment) getSupportFragmentManager().getFragment(savedInstanceState, "amenities");
 			mList = (SlidingScreenList) getSupportFragmentManager().getFragment(savedInstanceState, "list");
 			Toast.makeText(this, "Activity recreated.", Toast.LENGTH_SHORT).show();
@@ -180,18 +184,16 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		if(mContent ==null)		mContent = mList.getSelectedFragment(this, 0);
 		if(mAmenities==null)	mAmenities = new AmenitiesFragment();
 		
-		getSupportFragmentManager().beginTransaction()
-			.replace(R.id.menu, mList).commit();
-
-		getSupportFragmentManager().beginTransaction()
-			.replace(R.id.map_content, mContent).commit();
-		
-		getSupportFragmentManager().beginTransaction()
-			.replace(R.id.fragment_amenities_content, mAmenities).commit();
-		
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.replace(R.id.menu, mList);
+		ft.replace(R.id.map_content, mContent);
+		ft.replace(R.id.fragment_amenities_content, mAmenities).commit();
 	}
 	
+	
 	private void setMode(SlidingMenu sm){
+		setContentView(R.layout.activity_slide_splash);
+		
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		sm.setShadowWidthRes(R.dimen.shadow_width);
 		sm.setShadowDrawable(R.drawable.shadow);
@@ -199,7 +201,6 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 		sm.setFadeDegree(0.25f);
 		sm.setSlidingEnabled(true);
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
-		setSlidingActionBarEnabled(false);
 		
 		//if the left pane view is null, the screen size is small
 		if(findViewById(R.id.menu) == null){
@@ -208,7 +209,6 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			sm.setSecondaryMenu(R.layout.fragment_amenities);
 		} else{
-			
 			//large screen, only amenities is hidden by the menu so we choose only right sided option
 			sm.setMode(SlidingMenu.RIGHT);
 			setBehindContentView(R.layout.fragment_amenities);
@@ -221,13 +221,13 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	 */
 	@Override
 	public void onSaveInstanceState(Bundle outState){
-		super.onSaveInstanceState(outState);
 		
-		getSupportFragmentManager().putFragment(outState, "content", mContent);
 		getSupportFragmentManager().putFragment(outState, "amenities", mAmenities);
 		getSupportFragmentManager().putFragment(outState, "list", mList);
 		
 		outState.putSerializable("user", mUser);
+		super.onSaveInstanceState(outState);
+		
 	}
 	
 	
@@ -282,7 +282,7 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	 * @param fragment
 	 */
 	public void switchContent(final Fragment fragment) {
-		if(mContent instanceof MapViewFragment){
+		if(mContent instanceof MapViewFragment && mContent.getView()!=null){
 			Operations.removeView(mContent.getView());
 		}
 		if(fragment instanceof MapViewFragment){
@@ -304,11 +304,6 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 	}
 
 	@Override
-	public void onClick(View v) {
-		
-	}
-	
-	@Override
 	public void onBackPressed(){
 		if(!getSlidingMenu().isMenuShowing()){
 			getSlidingMenu().toggle();
@@ -322,14 +317,14 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			startActivity(new Intent(this, PrefActivity.class));
 			return true;
 		case R.id.about:
-			HoloAlertDialogBuilder message = new HoloAlertDialogBuilder(this);
+			ZooDialog message = new ZooDialog(this);
 			message.setTitle("About:");
 			message.setMessage("\nDeveloper: Andrew Grosner\n\t\t\t\t  agrosner@fordham.edu\n" +
 					"\nAssistant Developer: Isaac Ronan\n" 
 					+ "\nWireless Sensor Data Mining (WISDM)"
 					+ "\nSpecial Thanks to: Fordham University");
 			message.setNeutralButton("Ok", null);
-			message.create().show();
+			message.show();
 			return true;
 		case 0:
 			mList.switchToMap();
@@ -346,33 +341,30 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 			mList.switchToMap();
 			if(mList.getMapFragment().isParked()){
 				//bring up menu
-				final HoloAlertDialogBuilder confirm = new HoloAlertDialogBuilder(this);
+				final ZooDialog confirm = new ZooDialog(this);
 				confirm.setTitle("Parking Location Options");
 				confirm.setMessage("Saves a spot on the map for reference to where you may have parked today.");
-				confirm.setPositiveButton("Delete Location", new DialogInterface.OnClickListener(){
+				confirm.setPositiveButton("Delete Location", new OnClickListener(){
 
 					@Override
-					public void onClick(DialogInterface dialog, int which) {
+					public void onClick(View v) {
 						mList.getMapFragment().removeParking(parkItem);
+						confirm.dismiss();
 					}
 					
 				});
-				confirm.setNeutralButton("Reset", new DialogInterface.OnClickListener() {
+				confirm.setNeutralButton("Reset", new OnClickListener() {
 					
 					@Override
-					public void onClick(DialogInterface dialog, int which) {
+					public void onClick(View v) {
 						mList.getMapFragment().addParking(parkItem);
+						confirm.dismiss();
 					}
 				});
 				
-				confirm.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					
-					public void onClick(DialogInterface dialog, int which) {
-						confirm.create().dismiss();
-					}
-				});
+				confirm.setNegativeButton("Cancel", null);
 				
-				confirm.create().show();
+				confirm.show();
 				
 				
 			} else{
@@ -504,6 +496,12 @@ public class SlidingScreenActivity extends SlidingFragmentActivity implements Se
 
 	public void setFollowItem(MenuItem followItem) {
 		this.followItem = followItem;
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

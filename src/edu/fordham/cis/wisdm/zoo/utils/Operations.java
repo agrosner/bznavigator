@@ -157,6 +157,21 @@ public class Operations {
 		for(CompoundButton button: checks) button.setOnCheckedChangeListener(listener);
 	}
 	
+	public static View[] findViewByIds(Activity act, int...ids){
+		View[] views = new View[ids.length];
+		for(int i =0; i < views.length; i++){
+			views[i] = act.findViewById(ids[i]);
+		}
+		return views;
+	}
+	
+	public static View[] findViewByIds(View layout, int...ids){
+		View[] views = new View[ids.length];
+		for(int i =0; i < views.length; i++){
+			views[i] = layout.findViewById(ids[i]);
+		}
+		return views;
+	}
 	/**
 	 * Returns an array of buttons specified by id 
 	 * @param context
@@ -309,7 +324,7 @@ public class Operations {
 	 * @param strings
 	 */
 	public static void setViewTexts(TextView[] views, String...strings){
-		for(int i =0; i < views.length; i++){
+		for(int i =0; i < strings.length; i++){
 			views[i].setText(strings[i]);
 		}
 	}

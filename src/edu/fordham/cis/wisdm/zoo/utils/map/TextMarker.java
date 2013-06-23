@@ -176,9 +176,12 @@ public class TextMarker extends PlaceMarker implements Serializable{
 	 * @param scale
 	 */
 	public void refreshWithZoom(GoogleMap map, float zoom){
-		boolean info = mMarker.isInfoWindowShown();
+		boolean info = false;
+		if(mMarker!=null){
+			info = mMarker.isInfoWindowShown();
+			mMarker.remove();
+		} 
 			
-		mMarker.remove();
 		if((mZoomMin!=0 && zoom>=mZoomMin) || zoom>=ZOOM_MIN || hasFocus){
 			addMarker(map, false, null);
 			if(info){

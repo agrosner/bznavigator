@@ -182,9 +182,11 @@ public class CurrentLocationManager implements LocationSource{
 	 * @param locationTo
 	 */
 	public void navigate(Location locationTo){
-		mDestination = locationTo;
-		isNavigating = true;
-		follow(true);
+		if(mLocation!=null){
+			mDestination = locationTo;
+			isNavigating = true;
+			follow(true);
+		}
 	}
 	
 	/**
@@ -201,6 +203,7 @@ public class CurrentLocationManager implements LocationSource{
 	 * @return
 	 */
 	public Location getLastKnownLocation(){
+		if(mLocation==null) return mMap.getMyLocation();
 		return mLocation;
 	}
 	

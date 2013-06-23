@@ -34,7 +34,8 @@ public class RegisterActivity extends SherlockActivity implements OnClickListene
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_register_extended);
+        getSupportActionBar().hide();
         
         ID = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
         getSupportActionBar().setTitle("Create Account");

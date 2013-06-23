@@ -1,18 +1,16 @@
 package edu.fordham.cis.wisdm.zoo.main;
 
-import com.WazaBe.HoloEverywhere.HoloAlertDialogBuilder;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.MenuItem;
 
 import edu.fordham.cis.wisdm.zoo.main.constants.UserConstants;
 import edu.fordham.cis.wisdm.zoo.utils.Operations;
 import edu.fordham.cis.wisdm.zoo.utils.Preference;
 import edu.fordham.cis.wisdm.zoo.utils.Connections;
+import edu.fordham.cis.wisdm.zoo.utils.ZooDialog;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -24,10 +22,10 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -76,6 +74,8 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
        
         //initialize shared preference object
         Preference.initPrefForContext(this);
@@ -95,6 +95,16 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
      * Changes the layout objects if member, large screen, and chosen to remember
      */
     private void enhance(){
+    	DisplayMetrics display = new DisplayMetrics();
+    	this.getWindowManager().getDefaultDisplay().getMetrics(display);
+    	int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+                
+    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	largeScreen = true;
+    	
+    	if(!largeScreen){
+    		this.setRequestedOrientation(Configuration.ORIENTATION_PORTRAIT);
+    	}
+    	
     	setContentView(R.layout.login_extended);
     	
     	//set up buttons
@@ -108,11 +118,6 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
         mAction.setTitle("Choose Login");
     	largeScreen = false;
     	
-    	DisplayMetrics display = new DisplayMetrics();
-    	this.getWindowManager().getDefaultDisplay().getMetrics(display);
-    	int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-                
-    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	largeScreen = true;
     	
     	//play around with widgets and resize them
     	if(largeScreen && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
@@ -238,24 +243,31 @@ public class LoginActivity extends SherlockActivity implements OnClickListener, 
 				if(!gotVisit && isMember){
 					Toast.makeText(mContext, "Could not register visit for some reason", Toast.LENGTH_SHORT).show();
 				}else{
-					new AlertDialog.Builder(new ContextThemeWrapper(mContext, R.style.AlertDialogAppTheme)).setTitle("Visitor Survey")
-						.setMessage("If you would like to take a survey to allow us" +
-								" to learn how to best meet your needs, please click the button below")
-						.setPositiveButton("Take it", new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(mContext, SurveyActivity.class)
-								.putExtra("user", mConnection));
-							}
-						}).setNegativeButton("Skip it", new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(mContext, SlidingScreenActivity.class)
-								.putExtra("user", mConnection));
-							}
-						}).create().show();
+					final ZooDialog survey = new ZooDialog(mContext);
+					survey.setPositiveButton("Take it", new OnClickListener(){
+
+						@Override
+						public void onClick(View v) {
+							startActivity(new Intent(mContext, SurveyActivity.class)
+							.putExtra("user", mConnection));
+							survey.dismiss();
+						}
+						
+					});
+					survey.setNegativeButton("Skip it", new OnClickListener(){
+
+						@Override
+						public void onClick(View v) {
+							startActivity(new Intent(mContext, SlidingScreenActivity.class)
+							.putExtra("user", mConnection));
+							survey.dismiss();
+						}
+						
+					});
+					survey.setMessage("If you would like to take a survey to allow us" +
+							" to learn how to best meet your needs, please click the button below");
+					survey.setTitle("Visitor Survey");
+					survey.show();
 				}
 			}
 			dia.dismiss();

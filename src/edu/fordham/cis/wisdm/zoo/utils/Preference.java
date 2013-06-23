@@ -69,7 +69,7 @@ public class Preference {
 		try{
 			return sprefs.getFloat(loc, defVal);
 		} catch(NullPointerException n){
-			return null;
+			return defVal;
 		}
 	}
 	

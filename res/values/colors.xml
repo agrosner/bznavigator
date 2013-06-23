@@ -6,4 +6,5 @@
     <color name="background_green">#81BB3F</color>
     <color name="active_orange">#FFA31D</color>
     <color name="inactive_orange">#FFCB72</color>
+    <color name="google_white">#BBEFF5E6</color>
 </resources>
