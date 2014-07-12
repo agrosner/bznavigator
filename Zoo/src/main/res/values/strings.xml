@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BZ Navigator</string>
+    <string name="google_api_key">AIzaSyBGrW-QJGoeBXQ23JIcpSaQU826UPSnhHc</string>
+
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_info_display">InfoDisplayActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+	<string name="menu_item_search_action_hint">Your Search Query</string>
+	<string name="menu_item_search_action_menu_text">Search</string>
+    <string name="fragment_amenities">AmenitiesFragment</string>
+    <string name="bronx_zoo">Bronx Zoo</string>
+    <string name="logout">Logout</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="view_all_on_map">View All On Map</string>
+
+</resources>

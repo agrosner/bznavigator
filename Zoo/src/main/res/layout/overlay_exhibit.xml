@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/wrap"
+    android:background="@drawable/custom_info_bubble"
+     >
+     <RelativeLayout 
+         android:id="@+id/relframe"
+         style="@style/wrap"
+         >
+          <TextView 
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+       		android:id="@+id/name"
+        	android:text="Exhibit Name"
+        	android:layout_marginRight="10dip"
+        	android:layout_marginBottom="10dip"
+        	style="@style/wrap"
+        	/>
+          <ImageView 
+              android:layout_toRightOf="@id/name"
+              android:id="@+id/arrow"
+              style="@style/wrap"
+              android:src="@drawable/ic_action_arrow_right"
+              />
+     </RelativeLayout>
+   
+</FrameLayout>

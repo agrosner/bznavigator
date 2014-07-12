@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/fields_container"
+    style="@style/wrap"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <EditText
+    	android:id="@+id/email"
+        style="@style/wrap"
+        android:ems="10"
+        android:layout_marginBottom="10dip"
+        android:hint="Email"
+        android:inputType="textEmailAddress" />
+
+     <EditText
+        android:id="@+id/password"
+        style="@style/wrap"
+        android:ems="10"
+        android:layout_marginBottom="10dip"
+        android:hint="Password"
+        android:inputType="textPassword" />
+
+     <EditText
+        android:id="@+id/password_confirm"
+        style="@style/wrap"
+        android:ems="10"
+        android:layout_marginBottom="10dip"
+        android:hint="Confirm Password"
+        android:inputType="textPassword" />
+     
+     <Button 
+        android:layout_centerHorizontal="true"
+        android:id="@+id/register"
+        android:textSize="25dip"
+        android:paddingLeft="50dip"
+        android:paddingRight="50dip"
+        style="@style/wrap"
+        android:text="Sign Up"
+        />
+</LinearLayout>

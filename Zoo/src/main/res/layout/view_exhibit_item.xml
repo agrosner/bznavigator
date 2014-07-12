@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+   style="@style/match_width">
+
+	<ImageView 
+	    android:id="@+id/image"
+	    android:layout_alignParentLeft="true"
+	    style="@style/wrap"
+	    />
+	<TextView 
+        android:id="@+id/distanceText"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="0ft"
+        android:textColor="@color/inactive_orange"
+        style="@style/wrap"
+        />
+	<TextView 
+	    android:layout_toRightOf="@id/image"
+	    android:layout_toLeftOf="@id/distanceText"
+	    android:id="@+id/title"
+	    android:textSize="15dip"
+	    android:textColor="@android:color/white"
+	    style="@style/match_width_partial"
+	    android:layout_alignParentTop="true"
+	    />
+    
+</merge>

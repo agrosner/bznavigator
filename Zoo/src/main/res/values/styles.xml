@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+     <style name="match">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+    <style name="match_width">
+         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+    <style name="match_height">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+    <style name="match_width_partial" parent="match_width">
+        <item name="android:layout_marginLeft">10dip</item>
+        <item name="android:layout_marginRight">10dip</item>
+    </style>
+    
+    <style name="wrap">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+    
+    <style name="imagebutton" parent="wrap">
+        <item name="android:padding">5dip</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    
+    <style name="margin_leftright" parent="imagebutton">
+        <item name="android:layout_marginLeft">10dip</item>
+        <item name="android:layout_marginRight">10dip</item>
+    </style>
+    
+    <style name="underline" parent="wrap">
+        <item name="android:background">@color/lightgreen</item>
+        <item name="android:layout_height">4dip</item>
+    </style>
+    
+    <style name="divider">
+       <item name="android:layout_marginTop">10dip</item>
+	   <item name="android:layout_height">35dip</item>
+	   <item name="android:layout_width">2dip</item>      
+       <item name="android:background">@android:color/holo_blue_light</item>
+       <item name="android:paddingTop">10dip</item>
+    </style>
+    
+    <style name="dialog_button" parent='wrap'>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textColor">@color/active_orange</item>
+        <item name="android:textSize">20dip</item>
+    </style>
+    
+    <style name="main_text" parent="@style/wrap">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">15dip</item>
+    </style>
+    
+    <style name="gmap_button" parent="@style/wrap">
+        <item name="android:background">@color/google_white</item>
+        <item name="android:padding">5dip</item>
+        <item name="android:layout_margin">10dip</item>
+    </style>
+    
+</resources>

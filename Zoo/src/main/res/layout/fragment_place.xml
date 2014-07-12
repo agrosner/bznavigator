@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/wrap"
+    android:background="@drawable/background"
+    >    
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        style="@style/match"
+        >
+            <ListView
+                android:id="@+id/exhibitList"
+                style="@style/match"
+                />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    
+</RelativeLayout>

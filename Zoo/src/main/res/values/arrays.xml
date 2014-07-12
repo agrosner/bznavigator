@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <string-array name="action_bar">
+        <item>Settings</item>
+    </string-array>
+    <string-array name="splash_list2">
+        <item>View Map</item>
+        <item>Find Nearby</item>
+        <item>Shops</item>
+        <item>Special Exhibits</item>
+        <item>Food</item>
+        <item>Exhibits</item>
+        <item>Administration</item>
+    </string-array>
+
+    <array name="menu_icons">
+        <item>@drawable/map</item>
+        <item>@drawable/find</item>
+        <item>@drawable/shop</item>
+        <item>@drawable/special</item>
+        <item>@drawable/food</item>
+        <item>@drawable/exhibit</item>
+        <item>@drawable/admin</item>
+    </array>
+
+    <string-array name="search_list">
+        <item>exhibits.txt</item>
+        <item>food.txt</item>
+        <item>shops.txt</item>
+        <item>gates.txt</item>
+        <item>parking.txt</item>
+        <item>admin.txt</item>
+        <item>special.txt</item>
+        <item>restrooms.txt</item>
+        <item>misc.txt</item>
+    </string-array>
+    
+</resources>

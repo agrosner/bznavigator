@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+	android:background="@android:color/transparent"
+	>
+       	<RelativeLayout 
+       		style="@style/match"
+       	    >
+       	    <ImageButton 
+       	        android:layout_alignParentRight="true"
+       	        android:id="@+id/myLocation"
+       	        style="@style/gmap_button"
+       	        android:src="@drawable/ic_action_current_location"
+       	        />
+       	    <ImageButton 
+       	        android:layout_alignParentTop="true"
+       	        android:layout_toLeftOf="@id/myLocation"
+       	      	android:id="@+id/overview"
+       	       	style="@style/gmap_button"
+       	       	android:src="@drawable/ic_action_world"
+       	    />
+       	    <ImageButton 
+       	        android:layout_toLeftOf="@id/overview"
+       	        android:layout_alignParentTop="true"
+       	        android:id="@+id/toggle"
+				style="@style/gmap_button"
+       	        android:src="@drawable/ic_action_globe"
+       	     />
+       	    
+       	    <ImageButton 
+       	        android:layout_toLeftOf="@id/toggle"
+       	        android:layout_alignParentTop="true"
+       	        android:id="@+id/clear"
+       	        style="@style/gmap_button"
+       	        android:src="@drawable/exit"
+       	        />
+       	    <ProgressBar 
+       	        android:id="@+id/loading"
+       	        android:layout_centerInParent="true"
+       	        style="@style/wrap"
+       	        />
+       	    <TextView 
+       	        android:id="@+id/loading_text"
+       	        android:layout_toLeftOf="@id/loading"
+       	        style="@style/wrap"
+       	        android:text="Loading"
+       	        android:textColor="@android:color/black"
+       	        android:layout_centerVertical="true"
+       	        android:textSize="30dip"
+       	        />
+       </RelativeLayout>
+         <FrameLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent" 
+	        android:background="@android:color/transparent" />
+       	    
+</FrameLayout>

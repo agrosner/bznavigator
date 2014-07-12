@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Login Screen Piece -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" 
+    android:id="@+id/login"
+    >
+   
+      <ImageView
+	        android:id="@+id/bxzoo_image"
+	        style="@style/wrap"
+	        android:layout_alignParentTop="true"
+	        android:src="@drawable/login_header"
+	        android:adjustViewBounds="true"
+	        android:maxWidth="600dip"
+	         />
+    
+	<LinearLayout android:id="@+id/LoginContainer"
+	    style="@style/wrap"
+	    android:layout_below="@id/bxzoo_image"
+	    android:layout_centerHorizontal="true"
+	    android:orientation="vertical"
+	    android:gravity="center"
+	    >	 
+
+	       <EditText 
+	           android:id="@+id/Email"
+	           android:hint="\t\t\tEmail"
+	           style="@style/match_width_partial"
+	           android:inputType="textEmailAddress"
+	           android:layout_marginBottom="5dip"
+	           
+	           />
+	       <EditText 
+	           android:layout_marginTop="20dip"
+	           android:layout_below="@id/Email"
+	           android:id="@+id/Password"
+	           android:background="@drawable/edit_text_holo_light"
+	           android:hint="\t\tPassword\t\t"
+	           style="@style/match_width_partial"
+	           android:inputType="textPassword"
+	           />
+	</LinearLayout>
+
+	<CheckBox 
+	    android:id="@+id/RememberMe"
+	    android:layout_centerHorizontal="true"
+	    style="@style/wrap"
+	    android:layout_marginTop="10dip"
+	  	android:layout_below="@id/LoginContainer"
+	  	android:text="Remember Me"
+	  	android:textSize="25dip"
+	  	android:textColor="@android:color/white"
+	    />
+	
+</RelativeLayout>

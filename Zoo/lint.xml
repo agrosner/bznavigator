@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="ResourceAsColor" severity="ignore" />
+    <issue id="ValidFragment">
+        <ignore path="src/edu/fordham/cis/wisdm/zoo/main/places/PlaceFragmentList.java" />
+    </issue>
+</lint>

@@ -1,0 +1,8 @@
+Place Name,drawable_file_name,latitude,longitude,
+Butterfly Gardens,special,40.84879663431204,-73.87918845033597,exhibits/butterfly-garden
+Jungle World,special,40.84459219084797,-73.87640892304361,exhibits/jungleworld
+Congo Gorilla Forest,special,40.84831875742591,-73.8811842044584,exhibits/congo-gorilla-forest
+Children's Zoo,special,40.85195812810515,-73.87997224768543,exhibits/childrens-zoo
+4D Theatre,special,40.8481836364483,-73.87964827276525,exhibits/4d-theater
+Bug Carousel,special,40.8494238617038,-73.87968849478013,exhibits/bug-carousel
+Wild Asia Monorail,special,40.8452014052316,-73.87579799191481,exhibits/wild-asia-monorail
