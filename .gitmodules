@@ -1,0 +1,3 @@
+[submodule "Libraries/SmartInflater"]
+	path = Libraries/SmartInflater
+	url = https://github.com/agrosner/SmartInflater.git
