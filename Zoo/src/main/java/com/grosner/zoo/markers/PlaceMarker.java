@@ -10,6 +10,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.grosner.zoo.application.ZooApplication;
+import com.grosner.zoo.database.PlaceObject;
 
 /**
  * It will hold information regarding a place to display on the map as well as distance and resource information.
@@ -43,6 +45,14 @@ public class PlaceMarker implements Serializable{
 	 * Common link ending
 	 */
 	public static String HTML_POSTFIX =".aspx";
+
+    public PlaceMarker place(PlaceObject placeObject){
+        mPoint = new LatLng(placeObject.getLatitude(), placeObject.getLongitude());
+        mIconId = ZooApplication.getResourceId(placeObject.getDrawable(), "id");
+        mName = placeObject.getName();
+        mLink = placeObject.getLink();
+        return this;
+    }
 	
 	/**
 	 * Sets icon thats used on the map

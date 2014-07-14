@@ -18,6 +18,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.grosner.zoo.application.ZooApplication;
+
 /**
  * This class is useful for manipulating android objects programmatically
  * @author Andrew Grosner
@@ -368,9 +370,13 @@ public class Operations {
 	 * @param size
 	 * @return
 	 */
-	public static float getDip(Context con, float size){
-		return con.getResources().getDisplayMetrics().density*size;
-	}
+	public static int dp(float size){
+        return (int) dpFloat(size);
+    }
+
+    public static float dpFloat(float size){
+        return (ZooApplication.getContext().getResources().getDisplayMetrics().density*size);
+    }
 	
 	public static boolean isRunning(Class<?> c, Context mCtx) {
         ActivityManager manager = (ActivityManager) mCtx.getSystemService(Context.ACTIVITY_SERVICE);

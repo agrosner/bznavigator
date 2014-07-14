@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import com.grosner.zoo.activities.ZooActivity;
 import com.grosner.zoo.fragments.MapViewFragment;
 import com.grosner.zoo.R;
-import com.grosner.zoo.managers.CurrentLocationManager;
+import com.grosner.zoo.location.CurrentLocationManager;
 import com.grosner.zoo.markers.PlaceMarker;
 import org.apache.http.client.ClientProtocolException;
 
@@ -139,10 +139,11 @@ public class MapUtils {
 	 * @param act
 	 * @param marker
 	 */
-	public static void startInfoActivity(final CurrentLocationManager manager, ZooActivity act, final Marker marker){
+	public static void startInfoActivity(ZooActivity act, final Marker marker){
 		Intent i = new Intent(act, InfoDisplayActivity.class);
 		i.putExtra("Title", marker.getTitle());
-		i.putExtra("Distance", PlaceController.calculateDistanceString(manager.getLastKnownLocation(),
+		i.putExtra("Distance", PlaceController.calculateDistanceString(
+                CurrentLocationManager.getSharedManager().getLastKnownLocation(),
 						latLngToLocation(marker.getPosition())));
 		i.putExtra("Snippet", marker.getSnippet());
 		//i.putExtra("act", act);
@@ -155,14 +156,14 @@ public class MapUtils {
 	 * poll the server for exhibit information in the near future
     	 * @param marker
 	 */
-	public static void showExhibitInfoDialog(final CurrentLocationManager manager, LayoutInflater inflater, final FragmentActivity act, final Marker marker){
+	public static void showExhibitInfoDialog(final FragmentActivity act, final Marker marker){
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(act);
-		View v = inflater.inflate(R.layout.dialog_exhibit, null);
+		View v = LayoutInflater.from(act).inflate(R.layout.dialog_exhibit, null);
 		
 		Operations.setViewText(v, marker.getTitle(), R.id.title);
 		Operations.setViewText(v, 
-				PlaceController.calculateDistanceString(manager.getLastKnownLocation(), 
+				PlaceController.calculateDistanceString(CurrentLocationManager.getSharedManager().getLastKnownLocation(),
 						latLngToLocation(marker.getPosition())), 
 				R.id.distance);
 		if(!marker.getSnippet().equals("")){
@@ -189,7 +190,7 @@ public class MapUtils {
 				if(id == R.id.exit){
 					dialog.cancel();
 				} else if(id == R.id.navigate){
-					manager.navigate(latLngToLocation(marker.getPosition()));
+					CurrentLocationManager.getSharedManager().navigate(latLngToLocation(marker.getPosition()));
 					MapViewFragment map = (MapViewFragment) act.getSupportFragmentManager().findFragmentByTag("MapViewFragment");
 						//map.enableNavigation(((SlidingScreenActivity) act).getFollowItem(), latLngToLocation(marker.getPosition()));
 					dialog.dismiss();

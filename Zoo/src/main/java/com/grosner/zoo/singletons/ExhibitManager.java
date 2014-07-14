@@ -4,11 +4,14 @@ import android.location.Location;
 import com.google.android.gms.maps.model.LatLng;
 import com.grosner.zoo.R;
 import com.grosner.zoo.application.ZooApplication;
+import com.grosner.zoo.database.PlaceManager;
+import com.grosner.zoo.database.PlaceObject;
 import com.grosner.zoo.fragments.PlaceFragment;
 import com.grosner.zoo.markers.PlaceMarker;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -49,7 +52,7 @@ public class ExhibitManager {
 
     public LinkedList<PlaceMarker> getAllPlaces(){
         if(mAllPlaces ==null || mAllPlaces.isEmpty()){
-            readInData(DATA_FILES);
+            readInData();
         }
 
         return mAllPlaces;
@@ -75,76 +78,16 @@ public class ExhibitManager {
         } else mMisc.add(marker);
     }
 
-    public LinkedList<PlaceMarker> getList(PlaceFragment.PlaceType type){
-        if(type.equals(PlaceFragment.PlaceType.EXHIBITS)){
-            return mExhibits;
-        } else if(type.equals(PlaceFragment.PlaceType.FOOD)){
-            return mFood;
-        } else if(type.equals(PlaceFragment.PlaceType.SHOPS)){
-            return mShops;
-        } else if(type.equals(PlaceFragment.PlaceType.GATES)){
-            return mGates;
-        } else if(type.equals(PlaceFragment.PlaceType.PARKING)){
-            return mParking;
-        } else if(type.equals(PlaceFragment.PlaceType.ADMIN)){
-            return mAdmin;
-        } else if(type.equals(PlaceFragment.PlaceType.SPECIAL)){
-            return mSpecial;
-        } else if(type.equals(PlaceFragment.PlaceType.RESTROOMS)){
-            return mRestrooms;
-        } else if(type.equals(PlaceFragment.PlaceType.MISC)){
-            return mMisc;
-        } else{
-            return mAllPlaces;
-        }
-    }
-
     /**
      * Reads in data from any number of files into a singular linked list
      * @param fNames
      */
-    private void readInData(String... fNames){
-        for(String fName: fNames){
-            readInExhibits(fName);
-        }
-    }
-
-    private void readInExhibits(String fName){
-        try {
-            PlaceFragment.PlaceType type = PlaceFragment.PlaceType.getFromFileName(fName);
-            Scanner mScanner = new Scanner(ZooApplication.getContext().getAssets().open(fName));
-            int idIndex = -1;
-            while(mScanner.hasNextLine()){
-                String line = mScanner.nextLine();
-                idIndex++;
-                if(idIndex!=0){
-                    String[] lineArray = line.split(",");
-                    if(lineArray.length>=4){
-                        double lat = Double.valueOf(lineArray[2]);
-                        double lon = Double.valueOf(lineArray[3]);
-                        Location loc = new Location("");
-                        loc.setLatitude(lat);
-                        loc.setLongitude(lon);
-
-                        if(lineArray[0].toLowerCase().contains("restroom")){
-                            lineArray[0] = "Restroom";
-                        }
-                        int drawableId = ZooApplication.getContext().getResources().getIdentifier(lineArray[1], "drawable", ZooApplication.getContext().getPackageName());
-
-                        if(fName.equals("admin.txt")){
-                            lineArray[0]+="(Staff Only)";
-                        }
-
-                        PlaceMarker marker = new PlaceMarker().point(new LatLng(lat, lon)).name(lineArray[0]).id(idIndex).iconId(drawableId).drawablePath(lineArray[1]);
-                        mAllPlaces.add(marker);
-                        addToList(type, marker);
-                    }
-                }
-            }
-            mScanner.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public void readInData(){
+        List<PlaceObject> placeObjects = PlaceManager.getManager().getAll();
+        for(PlaceObject placeObject: placeObjects){
+            PlaceMarker marker = new PlaceMarker().place(placeObject);
+            mAllPlaces.add(marker);
+            addToList(PlaceFragment.PlaceType.valueOf(placeObject.getPlaceType()), marker);
         }
     }
 

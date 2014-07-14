@@ -4,12 +4,15 @@ import android.app.Application;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.widget.Toast;
+
+import com.activeandroid.app.AAApplication;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.MapsInitializer;
 import com.grosner.smartinflater.view.SmartInflater;
 import com.grosner.zoo.R;
+import com.grosner.zoo.database.PlaceManager;
 
 /**
  * Created By: andrewgrosner
@@ -17,7 +20,7 @@ import com.grosner.zoo.R;
  * Contributors:
  * Description:
  */
-public class ZooApplication extends Application{
+public class ZooApplication extends AAApplication{
 
     private static Context mContext;
 
@@ -35,6 +38,7 @@ public class ZooApplication extends Application{
                     (GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)), Toast.LENGTH_SHORT).show();
         }
 
+        PlaceManager.getManager().readAllFiles();
     }
 
     public static Context getContext(){
@@ -47,6 +51,11 @@ public class ZooApplication extends Application{
 
     public static String getResourceString(int resId) {
         return getContext().getString(resId);
+    }
+
+    public static int getResourceId(String name, String type){
+        return getContext().getResources().getIdentifier(name,
+                type, ZooApplication.getContext().getPackageName());
     }
 }
 

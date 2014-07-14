@@ -16,7 +16,7 @@ import android.support.v4.app.FragmentTransaction;
 public class FragmentUtils {
 
 
-    public void goToFragment(FragmentActivity activity, String fragmentName, Class fragmentClass, Bundle extras) {
+    public static void goToFragment(FragmentActivity activity, String fragmentName, Class fragmentClass, Bundle extras) {
         goToFragment(activity, fragmentName, fragmentClass, extras, false);
     }
 

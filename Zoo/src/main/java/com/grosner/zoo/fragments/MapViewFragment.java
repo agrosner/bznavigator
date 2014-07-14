@@ -5,12 +5,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
+import android.text.Html;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,8 +24,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -36,22 +46,25 @@ import com.google.android.gms.maps.model.Marker;
 import com.grosner.smartinflater.annotation.SMethod;
 import com.grosner.smartinflater.annotation.SResource;
 import com.grosner.smartinflater.view.SmartInflater;
-import com.grosner.zoo.PlaceController;
 import com.grosner.zoo.R;
 import com.grosner.zoo.activities.InfoDisplayActivity;
 import com.grosner.zoo.activities.ZooActivity;
+import com.grosner.zoo.adapters.ExhibitAdapter;
+import com.grosner.zoo.location.OnNavigateListener;
 import com.grosner.zoo.singletons.ExhibitManager;
 import com.grosner.zoo.utils.Operations;
 import com.grosner.zoo.singletons.Preference;
-import com.grosner.zoo.managers.CurrentLocationManager;
+import com.grosner.zoo.location.CurrentLocationManager;
 import com.grosner.zoo.utils.MapUtils;
 import com.grosner.zoo.managers.OverlayManager;
 import com.grosner.zoo.markers.PlaceMarker;
 import com.grosner.zoo.adapters.PlaceMarkerWindowAdapter;
 import com.grosner.zoo.managers.TextMarkerManager;
+import com.grosner.zoo.utils.StringUtils;
 import com.grosner.zoo.utils.ZooDialog;
+import com.grosner.zoo.views.ClearableTextView;
+import com.grosner.zoo.views.InstantAutoComplete;
 
-import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 
 /**
@@ -60,7 +73,10 @@ import de.appetites.android.menuItemSearchAction.SearchPerformListener;
  * @author Andrew Grosner
  *
  */
-public class MapViewFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnInfoWindowClickListener, MenuItem.OnMenuItemClickListener, GoogleMap.OnMapClickListener, SearchPerformListener, TextWatcher {
+public class MapViewFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener,
+        OnInfoWindowClickListener, MenuItem.OnMenuItemClickListener, GoogleMap.OnMapClickListener,
+        SearchPerformListener, TextWatcher, TextView.OnEditorActionListener,
+        MenuItem.OnActionExpandListener, OnNavigateListener {
 
 	/**
 	 * The handle to the map object that allows for manipulation of the map
@@ -84,15 +100,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	
 	
 	/**
-	 * Provides locational information that the app can pull from while in the foreground
-	 */
-	private CurrentLocationManager mManager = null;
-	
-	/**
 	 * Whether user has indicated to have the map follow his location
 	 */
 	private boolean isTracking = false;
-	
+
 	/**
 	 * whether user has chosen to save his parking spot
 	 */
@@ -129,16 +140,21 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	private View[] loaders;
 
     /**
-     * the searchbar widget
-     */
-    private MenuItemSearchAction searchItem;
-
-    /**
      * Holds a reference to the follow icon
      */
     private MenuItem followItem;
 
     private MenuItem parkItem;
+
+    MenuItem mExpandedItem = null;
+
+    public boolean mSearchExpanded = false;
+
+    private ClearableTextView mSearch;
+
+    private InstantAutoComplete mSearchView;
+
+    private Handler mHandler = new Handler();
 
     /**
      * the popup list of exhibits that shows up when a user searches for an exhibit
@@ -162,7 +178,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	public void onPause(){
 		super.onPause();
 		
-		mManager.deactivate();
+		CurrentLocationManager.getSharedManager().deactivate();
 	}
 	
 	@Override
@@ -177,7 +193,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 				setUpMap(getActivity().getLayoutInflater());
 			}
 		} else{
-			mManager.activate();
+			CurrentLocationManager.getSharedManager().activate();
 		}
 	}
 	
@@ -192,24 +208,67 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		clear.setVisibility(View.GONE);
 		
 		v.addView(layout);
+
+        CurrentLocationManager.getSharedManager().registerOnNavigateListener(this);
 		return v;
 	}
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        CurrentLocationManager.getSharedManager().unRegisterOnNavigateListener(this);
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
 
+        if(mSearch==null){
+            mSearch = new ClearableTextView(getActivity());
+            mSearchView = mSearch.eText;
+
+            int pad = Operations.dp(8);
+
+            mSearchView.setTextColor(Color.BLACK);
+            mSearchView.setPadding(pad, 0, pad, 0);
+            mSearchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+            mSearchView.setOnEditorActionListener(this);
+            mSearchView.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+            mSearchView.setHint(Html.fromHtml("<i>Search</i>"));
+            mSearchView.setFilters(new InputFilter[] {new InputFilter.LengthFilter(30)});
+            mSearchView.addTextChangedListener(this);
+            mSearchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    RelativeLayout layout = (RelativeLayout) view;
+                    if (layout != null) {
+                        String text = ((TextView) layout.getChildAt(0)).getText().toString();
+                        if (text!=null && !text.isEmpty()) {
+
+                            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                                    Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
+                        }
+                    }
+                }
+            });
+
+
+            //TODO: add all exhibits adapter here
+            //mSearchView.setAdapter(new ExhibitAdapter());
+
+        }
         //adds the searchbar to the actionbar
-        searchItem = new MenuItemSearchAction(getActivity(), menu, this, getResources().getDrawable(R.drawable.ic_action_search), this, null);
-        searchItem.setTextColor(getResources().getColor(R.color.forestgreen));
-        searchItem.getMenuItem().setOnMenuItemClickListener(this);
-        searchItem.setId(0);
+        menu.add(0, R.id.search, 0, getString(R.string.search))
+                .setActionView(mSearch).setOnActionExpandListener(this)
+                .setIcon(R.drawable.ic_action_search)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
         inflater.inflate(R.menu.activity_sliding_screen, menu);
 
         followItem = menu.findItem(R.id.follow);
-        toggleFollow(followItem);
+        toggleFollow(false, followItem);
         followItem.setOnMenuItemClickListener(this);
         parkItem = menu.findItem(R.id.park).setOnMenuItemClickListener(this);
 
@@ -217,14 +276,45 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
     }
 
     @Override
+    public boolean onMenuItemActionExpand(MenuItem item) {
+        if (!mSearchExpanded) {
+            mSearchExpanded = true;
+            if (getActivity() != null)
+                getActivity().supportInvalidateOptionsMenu();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    if(getActivity()!=null){
+                        mSearchView.requestFocus();
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                                Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(mSearchView, InputMethodManager.SHOW_FORCED);
+                        mSearchView.showDropDown();
+                    }
+
+                }
+            }, 150);
+        }
+        mExpandedItem = item;
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemActionCollapse(MenuItem item) {
+        return false;
+    }
+
+
+    @Override
     public boolean onMenuItemClick(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.follow){
             getMap().setOnMapClickListener(this);
 
-            if(getManager().isNavigating()){
+            if(CurrentLocationManager.getSharedManager().isNavigating()){
                 disableNavigation(item);
-            } else	toggleFollow(item);
+            } else	toggleFollow(true, item);
             return true;
         } else if(id == R.id.park){
             if(isParked()){
@@ -256,7 +346,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
 
             } else{
-                if(getLastKnownLocation()!=null){
+                if(CurrentLocationManager.getSharedManager().getLastKnownLocation()!=null){
                     addParking(parkItem);
                 } else{
                     Toast.makeText(getActivity(), "Saving Parking Location Not Available When GPS is Not Found", Toast.LENGTH_SHORT).show();
@@ -273,7 +363,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
     public void onMapClick(LatLng point) {
         MapViewFragment map = (MapViewFragment) getFragmentManager().findFragmentByTag("MapViewFragment");
         if(map.isTracking())
-            map.toggleFollow(followItem);
+            map.toggleFollow(false,followItem);
     }
 
     @SMethod
@@ -305,7 +395,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	public void onClick(View v) {
 		int id = v.getId();
 		PlaceMarker place = selected.get(id-1);
-		performSearch(place);
+		searchPlace(place);
 		onClickClear();
 		addPlace(place);
 	}
@@ -318,34 +408,29 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
         final ZooActivity act = (ZooActivity)getActivity();
 		final MapViewFragment frag = this;
-		
+
 		mGoogleMap.setOnCameraChangeListener(this);
 		mGoogleMap.setMyLocationEnabled(true);
 		mGoogleMap.setInfoWindowAdapter(new PlaceMarkerWindowAdapter(inflater));
 		mGoogleMap.setOnInfoWindowClickListener(this);
    		mGoogleMap.getUiSettings().setCompassEnabled(false);
    		mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
-		
-   		if(mManager==null){
-   			mManager = new CurrentLocationManager(getActivity(), mGoogleMap);
-   			mManager.runOnFirstFix(new Runnable(){
-   	   			
-   				@Override
-   				public void run() {
-                    if(getActivity()!=null){
-                        PlaceFragment list = ((ZooActivity)getActivity()).getCurrentPlaceFragment();
-                        if(list!=null){
-                            list.refresh();
-                        }
+        CurrentLocationManager.getSharedManager().setLocation(mGoogleMap.getMyLocation());
+        CurrentLocationManager.getSharedManager().runOnFirstFix(new Runnable() {
+
+            @Override
+            public void run() {
+                if (getActivity() != null) {
+                    PlaceFragment list = ((ZooActivity) getActivity()).getCurrentPlaceFragment();
+                    if (list != null) {
+                        list.refresh();
                     }
-   					
-   				}
-   					
-   			});
-   	   		
-   		}
-   		else	mManager.setFields(getActivity(), mGoogleMap);
-   		mManager.activate();
+                }
+
+            }
+
+        });
+   		CurrentLocationManager.getSharedManager().activate();
    		
    		act.notifyLocationSet();
    		
@@ -361,8 +446,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		}
 			
    		new LoadMapDataTask().execute();
-   		
-		
 	}
 	
 	/**
@@ -387,7 +470,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 */
 	public void addPlace(PlaceMarker place){
 		addPlaceMove(place);
-		MapUtils.moveRelativeToCurrentLocation(mManager.getLastKnownLocation(), place.getPoint(), mGoogleMap);
+		MapUtils.moveRelativeToCurrentLocation(CurrentLocationManager.getSharedManager().getLastKnownLocation(),
+                place.getPoint(), mGoogleMap);
 	}
 	
 	/**
@@ -410,7 +494,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 */
 	public void addPlaceList(LinkedList<PlaceMarker> places){
 		Operations.addView(getView().findViewById(R.id.clear));
-		MapUtils.moveToBounds(mManager.getLastKnownLocation(), mGoogleMap, places);
+		MapUtils.moveToBounds(CurrentLocationManager.getSharedManager().getLastKnownLocation(), mGoogleMap, places);
 		for(PlaceMarker place: places){
 			//if not within the text marker manager, we add icon to map
 			if(!mTextMarkerManager.addFocus(place))
@@ -456,11 +540,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	@Override
 	public void onInfoWindowClick(Marker marker) {
 		if(marker.getSnippet().equals(""))
-			MapUtils.showExhibitInfoDialog(mManager, getActivity().getLayoutInflater(), 
-				getActivity(), marker);
+			MapUtils.showExhibitInfoDialog(getActivity(), marker);
 		else {
 			InfoDisplayActivity.SCREEN = (ZooActivity) getActivity();
-			MapUtils.startInfoActivity(mManager, (ZooActivity) getActivity(), marker);
+			MapUtils.startInfoActivity((ZooActivity) getActivity(), marker);
 		}
 	}
 	
@@ -486,22 +569,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		mTextMarkerManager.clearFocus(mCurrentZoom);
 	}
 	
-	/**
-	 * Returns the current location manager
-	 * @return
-	 */
-	public CurrentLocationManager getManager(){
-		return mManager;
-	}
-	
-	/**
-	 * Returns the last known location
-	 * @return
-	 */
-	public Location getLastKnownLocation(){
-		return mManager.getLastKnownLocation();
-	}
-	
 	public float getCurrentZoom(){
 		return mCurrentZoom;
 	}
@@ -511,24 +578,26 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * @param item
 	 * @return whether we follow or not
 	 */
-	public boolean toggleFollow(MenuItem item){
+	public boolean toggleFollow(boolean showMessage, MenuItem item){
 		if(!isTracking){
-			if(mManager.getLastKnownLocation()!=null){
-				item.setIcon(R.drawable.ic_action_location_blue);
-				MapUtils.animateTo(mGoogleMap, mManager.getLastKnownLocation());
-				isTracking = true;
-				Toast.makeText(getActivity(), "Now Following Current Location, Tap Map to Cancel", Toast.LENGTH_SHORT).show();
-			}	else Toast.makeText(getActivity(), "Cannot find current location",  Toast.LENGTH_LONG).show();
-		
-			
+			if(CurrentLocationManager.getSharedManager().getLastKnownLocation()!=null) {
+                item.setIcon(R.drawable.ic_action_location_blue);
+                MapUtils.animateTo(mGoogleMap, CurrentLocationManager.getSharedManager().getLastKnownLocation());
+                isTracking = true;
+                Toast.makeText(getActivity(), getString(R.string.now_following_current_location),
+                        Toast.LENGTH_SHORT).show();
+            } else if(showMessage){
+                Toast.makeText(getActivity(), getString(R.string.cannot_find_current_location),
+                        Toast.LENGTH_LONG).show();
+            }
 		} else{
 			item.setIcon(R.drawable.ic_action_location);
 			isTracking = false;
 			Toast.makeText(getActivity(), "Following Off", Toast.LENGTH_SHORT).show();
 		}
 		
-		if(mManager.getLastKnownLocation()!=null){
-			mManager.follow(isTracking);
+		if(CurrentLocationManager.getSharedManager().getLastKnownLocation()!=null){
+			CurrentLocationManager.getSharedManager().follow(isTracking);
 			return true;
 		} else{
 			return false;
@@ -537,8 +606,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	
 	public boolean enableNavigation(MenuItem item, Location locationTo){
 		isTracking = false;
-		if(toggleFollow(item)){
-			mManager.navigate(locationTo);
+		if(toggleFollow(true, item)){
+			CurrentLocationManager.getSharedManager().navigate(locationTo);
 			return true;
 		} else return false;
 	}
@@ -546,9 +615,9 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	public void disableNavigation(MenuItem item){
 		//this will disable following
 		isTracking = true;
-		toggleFollow(item);
+		toggleFollow(true, item);
 		
-		mManager.disableNavigation();
+		CurrentLocationManager.getSharedManager().disableNavigation();
 	}
 	
 	public boolean isTracking(){
@@ -568,15 +637,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	}
 	
 	public void toggleParking(MenuItem item){
-		Location loc = null;
-		if(mManager!=null){
-			loc = mManager.getLastKnownLocation();
-		}
-		toggleParking(loc, item);
+		toggleParking(CurrentLocationManager.getSharedManager().getLastKnownLocation(), item);
 	}
 	
 	public void addParking(MenuItem item){
-		addParking(mManager.getLastKnownLocation(), item);
+		addParking(CurrentLocationManager.getSharedManager().getLastKnownLocation(), item);
 	}
 	
 	public void addParking(final Location loc, MenuItem item){
@@ -643,7 +708,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
      * Switches to map, collapses search bar, hides the searchlist, and sends the query to the server
      * @param place
      */
-    public void performSearch(PlaceMarker place){
+    public void searchPlace(PlaceMarker place){
         MenuFragment list = (MenuFragment) getFragmentManager().findFragmentByTag
                 ("MenuFragment");
         list.switchToMap();
@@ -697,30 +762,74 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
     @Override
     public void performSearch(String query) {
-        String querie = query.toLowerCase();
-        boolean found = false;
-        PlaceMarker placeFound = null;
 
-        MapViewFragment map = (MapViewFragment) getFragmentManager().findFragmentByTag
-                ("MapViewFragment");
-        for(PlaceMarker place: ExhibitManager.getSharedInstance().getAllPlaces()){
-            String name = place.getName().toLowerCase();
-            if(name.equals(querie)){
-                found = true;
-                placeFound = place;
-                break;
+        if (StringUtils.stringNotNullOrEmpty(query)) {
+            if (mSearchView != null) {
+                mSearchView.setText("");
             }
-        }
+            if (mExpandedItem != null) {
+                mExpandedItem.collapseActionView();
+            }
 
-        if(found){
-            if(placeFound!=null){
-                performSearch(placeFound);
+            if(getActivity()!=null){
+                ((ZooActivity) getActivity()).getDrawer().closeDrawers();
+            }
+            String querie = query.toLowerCase();
+
+            boolean found = false;
+            PlaceMarker placeFound = null;
+
+            MapViewFragment map = (MapViewFragment) getFragmentManager().findFragmentByTag
+                    ("MapViewFragment");
+            for(PlaceMarker place: ExhibitManager.getSharedInstance().getAllPlaces()){
+                String name = place.getName().toLowerCase();
+                if(name.equals(querie)){
+                    found = true;
+                    placeFound = place;
+                    break;
+                }
+            }
+
+            if(found){
+                searchPlace(placeFound);
                 map.onClickClear();
                 map.addPlace(placeFound);
+            } else{
+                Toast.makeText(getActivity(), "Not found", Toast.LENGTH_SHORT).show();
             }
-        } else{
-            Toast.makeText(getActivity(), "Not found", Toast.LENGTH_SHORT).show();
         }
+
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (event != null && event.getAction() != KeyEvent.ACTION_DOWN) {
+            return true;
+        }
+        if (StringUtils.stringNotNullOrEmpty(mSearchView.getText().toString())
+                && getActivity() != null
+                && !getActivity
+                ().isFinishing()) {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
+
+            performSearch(mSearchView.getText().toString());
+            return true;
+        }
+        return true;
+    }
+
+    @Override
+    public void onNavigated(LatLng location, float bearing) {
+        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                new CameraPosition.Builder()
+                        .bearing(bearing)
+                        .zoom(mGoogleMap.getCameraPosition().zoom)
+                        .tilt(mGoogleMap.getCameraPosition().tilt)
+                        .target(location)
+                        .build()
+        ));
     }
 
     /**

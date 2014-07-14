@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<ListView
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  style="@style/wrap"
+  android:id="@+id/listView"
+  style="@style/match"
   android:paddingLeft="8dp"
-  android:paddingRight="8dp"
   android:background="@drawable/background"
-  >
-
-      <ListView
-          android:id="@android:id/list"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:drawSelectorOnTop="false" />
-
- 		 
-  
-</RelativeLayout>
+  android:paddingRight="8dp"
+  android:drawSelectorOnTop="false" />

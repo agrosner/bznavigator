@@ -3,15 +3,15 @@
     <string-array name="action_bar">
         <item>Settings</item>
     </string-array>
-    <string-array name="splash_list2">
-        <item>View Map</item>
-        <item>Find Nearby</item>
-        <item>Shops</item>
-        <item>Special Exhibits</item>
-        <item>Food</item>
-        <item>Exhibits</item>
-        <item>Administration</item>
-    </string-array>
+    <array name="splash_list2">
+        <item>@string/menu_view_map</item>
+        <item>@string/menu_find_nearby</item>
+        <item>@string/menu_shops</item>
+        <item>@string/menu_special_exhibits</item>
+        <item>@string/menu_food</item>
+        <item>@string/menu_exhibits</item>
+        <item>@string/menu_admin</item>
+    </array>
 
     <array name="menu_icons">
         <item>@drawable/map</item>
@@ -34,5 +34,12 @@
         <item>restrooms.txt</item>
         <item>misc.txt</item>
     </string-array>
-    
+
+    <string name="menu_view_map">View Map</string>
+    <string name="menu_find_nearby">Find Nearby</string>
+    <string name="menu_shops">Shops</string>
+    <string name="menu_special_exhibits">Special Exhibits</string>
+    <string name="menu_food">Food</string>
+    <string name="menu_exhibits">Exhibits</string>
+    <string name="menu_admin">Administration</string>
 </resources>

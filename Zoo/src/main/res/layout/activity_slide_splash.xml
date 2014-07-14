@@ -20,7 +20,7 @@
         android:id="@+id/MenuView"
         android:layout_gravity="start"
         android:layout_width="300dp"
-        style="@style/match_width">
+        style="@style/match">
 
         </FrameLayout>
 

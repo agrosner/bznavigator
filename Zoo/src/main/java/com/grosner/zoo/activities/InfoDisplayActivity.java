@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.grosner.smartinflater.annotation.SResource;
 import com.grosner.smartinflater.view.SmartInflater;
 import com.grosner.zoo.R;
+import com.grosner.zoo.location.CurrentLocationManager;
 import com.grosner.zoo.utils.HTMLScraper;
 import com.grosner.zoo.utils.MapUtils;
 import com.grosner.zoo.fragments.MapViewFragment;
@@ -86,8 +87,7 @@ public class InfoDisplayActivity extends FragmentActivity implements MenuItem.On
 
 	@Override
 	public boolean onMenuItemClick(MenuItem item) {
-        MapViewFragment MAP = (MapViewFragment) getSupportFragmentManager().findFragmentByTag("MapViewFragment");
-		MAP.getManager().navigate(MapUtils.latLngToLocation(mPosition));
+		CurrentLocationManager.getSharedManager().navigate(MapUtils.latLngToLocation(mPosition));
 		
 		String message = null;
 		/*if(MAP.enableNavigation(SCREEN.getFollowItem(), MapUtils.latLngToLocation(mPosition)))

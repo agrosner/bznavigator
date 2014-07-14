@@ -1,14 +1,7 @@
 package com.grosner.zoo.adapters;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
-import android.support.v4.app.FragmentActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -16,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.grosner.smartinflater.annotation.SResource;
+import com.grosner.smartinflater.view.SmartInflater;
 import com.grosner.zoo.R;
 
 /**
@@ -25,60 +20,61 @@ import com.grosner.zoo.R;
  */
 public class SlidingScreenListAdapter extends BaseAdapter {
 
-	private List<IconTextItem> mItems = new ArrayList<IconTextItem>();
+
+    private TypedArray mTitles;
+    private TypedArray mDrawableArray;
 	
 	public SlidingScreenListAdapter(Context context, int arrayId, int drawables){
-		String[] items = context.getResources().getStringArray(arrayId);
-        TypedArray array = context.getResources().obtainTypedArray(drawables);
-		for(int i =0; i < items.length; i++){
-			mItems.add(new IconTextItem(context, items[i], array.getResourceId(i, 0)));
-		}
+		mTitles = context.getResources().obtainTypedArray(arrayId);
+        mDrawableArray = context.getResources().obtainTypedArray(drawables);
 	}
 	
 	
 	@Override
 	public int getCount() {
-		return mItems.size();
+		return mTitles.length();
 	}
 
 	@Override
-	public Object getItem(int position) {
-		return mItems.get(position);
+	public String getItem(int position) {
+		return mTitles.getString(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return mItems.get(position).getId();
+		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		return mItems.get(position);
+        IconTextItem iconTextItem;
+        if(convertView==null){
+            iconTextItem = new IconTextItem(parent.getContext());
+        } else{
+            iconTextItem = (IconTextItem) convertView;
+        }
+
+        iconTextItem.setItem(getItem(position), mDrawableArray.getResourceId(position, 0));
+
+		return iconTextItem;
 	}
 	
 	private class IconTextItem extends LinearLayout{
 
-		private Drawable image = null;
+		@SResource private ImageView image;
 		
-		private TextView text = null;
+		@SResource private TextView name;
 		
 		@SuppressWarnings("deprecation")
-		public IconTextItem(Context context, String title, int resId){
+		public IconTextItem(Context context){
 			super(context);
-			
-			LinearLayout layout = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.icontextlistitem, null, false);
-			
-			image = context.getResources().getDrawable(resId);
-			ImageView im = (ImageView) layout.findViewById(R.id.image);
-			im.setBackgroundDrawable(image);
-			
-			
-			text = (TextView) layout.findViewById(R.id.name);
-			text.setText(title);
-			
-			addView(layout);
+            SmartInflater.inflate(this, R.layout.icontextlistitem);
 		}
-		
+
+        public void setItem(String title, int resId){
+            name.setText(title);
+            image.setImageResource(resId);
+        }
 		
 	}
 

@@ -1,1 +1,1 @@
-include ':Zoo', ':Libraries:SmartInflater'
+include ':Zoo', ':Libraries:SmartInflater', ':Libraries:ActiveAndroid'

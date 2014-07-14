@@ -81,7 +81,7 @@ public class AmenitiesFragment extends ZooFragment implements OnCheckedChangeLis
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		LinkedList<PlaceMarker> pts = null;
 		String fName = "";
-		
+
 		switch(buttonView.getId()){
 		case 0:
 			pts = ExhibitManager.getSharedInstance().getGates();

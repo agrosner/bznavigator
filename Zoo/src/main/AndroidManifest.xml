@@ -37,6 +37,9 @@
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <meta-data android:name="AA_DB_NAME" android:value="zoo.db" />
+        <meta-data android:name="AA_DB_VERSION" android:value="1" />
+
 	    <activity
             android:name="com.grosner.zoo.activities.PrefActivity"
             android:label="@string/title_activity_settings" >

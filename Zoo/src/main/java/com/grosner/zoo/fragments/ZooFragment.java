@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.grosner.smartinflater.view.SmartInflater;
+import com.grosner.zoo.FragmentUtils;
 import com.grosner.zoo.R;
 import com.grosner.zoo.activities.ZooActivity;
 import com.grosner.zoo.application.ZooApplication;
@@ -51,6 +52,21 @@ public class ZooFragment extends Fragment {
             getZooActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
             getZooActivity().getToggle().setDrawerIndicatorEnabled(true);
         }
+    }
+
+    protected Fragment switchFragment(String tag, Class clazz, Bundle bundle) {
+        if (getActivity() == null)
+            return null;
+
+        Fragment fragment = FragmentUtils.getFragment(getActivity(), clazz, tag, bundle);
+
+        if(fragment!=null){
+            if (getActivity() instanceof ZooActivity) {
+                ZooActivity ra = (ZooActivity) getActivity();
+                ra.switchContent(fragment);
+            }
+        }
+        return fragment;
     }
 
 

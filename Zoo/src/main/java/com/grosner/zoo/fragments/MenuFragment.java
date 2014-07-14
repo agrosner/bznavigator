@@ -8,49 +8,71 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.grosner.smartinflater.annotation.SMethod;
 import com.grosner.zoo.FragmentUtils;
 import com.grosner.zoo.R;
 import com.grosner.zoo.activities.ZooActivity;
+import com.grosner.zoo.application.ZooApplication;
 import com.grosner.zoo.constants.UserConstants;
 import com.grosner.zoo.adapters.SlidingScreenListAdapter;
 
-public class MenuFragment extends ListFragment implements UserConstants{
+public class MenuFragment extends ZooFragment implements UserConstants{
+
+    private SlidingScreenListAdapter mAdapter;
 
 	@Override
 	public void onCreate(Bundle instance){
 		super.onCreate(instance);
 
-	}
-	
-	@Override
-	public void onSaveInstanceState(Bundle outState){
-		super.onSaveInstanceState(outState);
-		
-	}
-	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle instance){
-		super.onCreateView(inflater, container, instance);
-		View v = inflater.inflate(R.layout.fragment_slide_list, container, false);
-		
-		SlidingScreenListAdapter icontextlist=  new SlidingScreenListAdapter(this.getActivity(), 
-				R.array.splash_list2, R.array.menu_icons);
-		
-		setListAdapter(icontextlist);
-		return v;
+        mLayout = R.layout.fragment_slide_list;
+        mTitle = getString(R.string.bronx_zoo);
 	}
 
-	@Override
-	public void onListItemClick(ListView lv, View v, int position, long id) {
-		if(position==6){
-			switchToMap();
-			if(getActivity() instanceof ZooActivity){
-				ZooActivity act = (ZooActivity) getActivity();
-				//act.getSlidingMenu().showSecondaryMenu(true);
-			}
-		} else{
-            goToFragment(position);
-		}
+    @SMethod
+    private void onCreateListView(ListView listView){
+        listView.setAdapter(mAdapter = new SlidingScreenListAdapter(listView.getContext(),
+                R.array.splash_list2, R.array.menu_icons));
+    }
+	
+
+	@SMethod
+	public void onItemClickListView(int position) {
+        Bundle bundle;
+        String title = mAdapter.getItem(position);
+
+        if (title.equals(ZooApplication.getResourceString(R.string.menu_view_map))) {
+            switchToMap();
+        } else {
+            String tag = null;
+            PlaceFragment.PlaceType placeType = null;
+            bundle = new Bundle();
+            if(title.equals(ZooApplication.getResourceString(R.string.menu_find_nearby))){
+                placeType = PlaceFragment.PlaceType.NEARBY;
+                tag = "Nearby";
+            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_shops))) {
+                placeType = PlaceFragment.PlaceType.SHOPS;
+                tag = "Shops";
+            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_special_exhibits))) {
+                placeType = PlaceFragment.PlaceType.SPECIAL;
+                tag = "Special";
+            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_food))) {
+                placeType = PlaceFragment.PlaceType.FOOD;
+                tag = "Food";
+            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_exhibits))) {
+                placeType = PlaceFragment.PlaceType.EXHIBITS;
+                tag = "Exhibits";
+            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_admin))) {
+                placeType = PlaceFragment.PlaceType.ADMIN;
+                tag = "Admin";
+            }
+            if(placeType!=null) {
+                bundle.putSerializable("Type", placeType);
+                FragmentUtils.goToFragment(getZooActivity(), tag+PlaceFragment.class.getSimpleName(),
+                        PlaceFragment.class, bundle, true);
+            }
+        }
+
+        getZooActivity().getDrawer().closeDrawers();
 	}
 	
 	/**
@@ -58,61 +80,6 @@ public class MenuFragment extends ListFragment implements UserConstants{
 	 */
 	public MapViewFragment switchToMap(){
 		return (MapViewFragment) switchFragment("MapViewFragment", MapViewFragment.class, null);
-	}
-	
-	// the meat of switching the above fragment
-	private Fragment switchFragment(String tag, Class clazz, Bundle bundle) {
-		if (getActivity() == null)
-			return null;
-
-        Fragment fragment = FragmentUtils.getFragment(getActivity(), clazz, tag, bundle);
-
-        if(fragment!=null){
-            if (getActivity() instanceof ZooActivity) {
-                ZooActivity ra = (ZooActivity) getActivity();
-                ra.switchContent(fragment);
-            }
-        }
-        return fragment;
-	}
-	
-	public void goToFragment(int position){
-        Bundle bundle;
-        switch(position){
-            case 0:
-            switchToMap();
-            break;
-		case 1:
-            bundle = new Bundle();
-            bundle.putSerializable("Type", PlaceFragment.PlaceType.NEARBY);
-            switchFragment("Nearby", PlaceFragment.class, bundle);
-            break;
-		case 2:
-            bundle = new Bundle();
-            bundle.putSerializable("Type", PlaceFragment.PlaceType.SHOPS);
-            switchFragment("Shops", PlaceFragment.class, bundle);
-            break;
-        case 3:
-            bundle = new Bundle();
-            bundle.putSerializable("Type", PlaceFragment.PlaceType.SPECIAL);
-            switchFragment("Special", PlaceFragment.class, bundle);
-            break;
-        case 4:
-            bundle = new Bundle();
-            bundle.putSerializable("Type", PlaceFragment.PlaceType.FOOD);
-            switchFragment("Food", PlaceFragment.class, bundle);
-            break;
-        case 5:
-            bundle = new Bundle();
-            bundle.putSerializable("Type", PlaceFragment.PlaceType.EXHIBITS);
-            switchFragment("Exhibits", PlaceFragment.class, bundle);
-            break;
-        case 7:
-            bundle = new Bundle();
-            bundle.putSerializable("Type", PlaceFragment.PlaceType.ADMIN);
-            switchFragment("Admin", PlaceFragment.class, bundle);
-            break;
-        }
 	}
 	
 }

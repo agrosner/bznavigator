@@ -18,5 +18,10 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="view_all_on_map">View All On Map</string>
+    <string name="search">Search</string>
+    <string name="fragment_map">MapViewFragment</string>
+    <string name="no_provider_error">No provider enabled. Please check settings and allow locational services.</string>
+    <string name="cannot_find_current_location">Cannot find current location</string>
+    <string name="now_following_current_location">Now Following Current Location, Tap Map to Cancel</string>
 
 </resources>

@@ -2,11 +2,13 @@ package com.grosner.zoo;
 
 import android.location.Location;
 
+import com.grosner.zoo.database.PlaceObject;
 import com.grosner.zoo.markers.PlaceMarker;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class provides operations on creating and manipulating place data
@@ -46,11 +48,11 @@ public class PlaceController {
 	 * @param currentLoc
 	 * @param points
 	 */
-	public static void reOrderByDistance(LinkedList<PlaceMarker> points, final Location currentLoc){
-		Collections.sort(points, new Comparator<PlaceMarker>(){
+	public static void reOrderByDistance(List<PlaceObject> points, final Location currentLoc){
+		Collections.sort(points, new Comparator<PlaceObject>(){
 
 			@Override
-			public int compare(PlaceMarker lhs, PlaceMarker rhs) {
+			public int compare(PlaceObject lhs, PlaceObject rhs) {
 				if(currentLoc!=null)
 					return Float.valueOf(lhs.getLocation().distanceTo(currentLoc)).compareTo(rhs.getLocation().distanceTo(currentLoc));
 				else return 0;

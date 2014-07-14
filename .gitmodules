@@ -1,3 +1,6 @@
 [submodule "Libraries/SmartInflater"]
 	path = Libraries/SmartInflater
 	url = https://github.com/agrosner/SmartInflater.git
+[submodule "Libraries/ActiveAndroid"]
+	path = Libraries/ActiveAndroid
+	url = https://github.com/agrosner/ActiveAndroid.git

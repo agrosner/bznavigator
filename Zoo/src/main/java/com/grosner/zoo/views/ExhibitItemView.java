@@ -12,6 +12,8 @@ import com.grosner.smartinflater.view.SmartInflater;
 import com.grosner.zoo.PlaceController;
 import com.grosner.zoo.R;
 import com.grosner.zoo.application.ZooApplication;
+import com.grosner.zoo.database.PlaceObject;
+import com.grosner.zoo.location.CurrentLocationManager;
 import com.grosner.zoo.markers.PlaceMarker;
 import com.grosner.zoo.utils.Operations;
 
@@ -47,11 +49,11 @@ public class ExhibitItemView extends RelativeLayout {
     protected void setupUI(){
         SmartInflater.inflate(this, R.layout.view_exhibit_item);
 
-        int pad = (int) Operations.getDip(getContext(), 20);
+        int pad = Operations.dp(20);
         setPadding(pad, pad, pad,pad);
     }
 
-    public void setPlace(PlaceMarker place, Location currentLocation){
+    public void setPlace(PlaceObject place){
         String title;
         String drawablePath;
         String distance;
@@ -61,15 +63,15 @@ public class ExhibitItemView extends RelativeLayout {
             distance = "";
         } else{
             title = place.getName();
-            drawablePath = place.getDrawablePath();
-            distance = PlaceController.calculateDistanceString(currentLocation, place.getLocation());
+            drawablePath = place.getDrawable();
+            distance = PlaceController.calculateDistanceString(CurrentLocationManager.getSharedManager().getLastKnownLocation(),
+                    place.getLocation());
         }
 
         this.title.setText(title);
 
         if(!drawablePath.equals("0")){
-            int drawableId = ZooApplication.getContext().getResources().getIdentifier(drawablePath, "drawable",
-                    ZooApplication.getContext().getPackageName());
+            int drawableId = ZooApplication.getResourceId(drawablePath, "drawable");
             image.setImageDrawable(ZooApplication.getContext().getResources().getDrawable(drawableId));
         } else{
             image.setImageDrawable(null);

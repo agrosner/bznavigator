@@ -50,7 +50,8 @@ public class OverlayManager {
 		for(String fName: list){
 			if(fName.endsWith(".txt")){
 				Scanner scan = new Scanner(assets.open(mPolylineFolder+"/"+fName));
-				PolylineOptions polylineOptions = new PolylineOptions().color(Color.parseColor("#FCF357")).width(Operations.getDip(con, 5)).geodesic(true);
+				PolylineOptions polylineOptions = new PolylineOptions().color(Color.parseColor("#FCF357"))
+                        .width(Operations.dpFloat(5)).geodesic(true);
 				while(scan.hasNext()){
 					String line = scan.next();
 					String[] values = line.split(",");
@@ -67,7 +68,7 @@ public class OverlayManager {
 	public static void readPolygonFiles(Context con) throws IOException{
 		if(mPolygonOptions!=null) return;
 		
-		mPolygonOptions = new LinkedList<PolygonOptions>();
+		mPolygonOptions = new LinkedList<>();
 		
 		AssetManager assets = con.getAssets();
 		String[] list = assets.list(mPolygonFolder);

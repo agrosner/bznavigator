@@ -43,6 +43,7 @@ dependencies {
     provided 'org.projectlombok:lombok:1.14.0'
 
     compile project(':Libraries:SmartInflater')
+    compile project(':Libraries:ActiveAndroid')
 
     compile fileTree(dir: 'libs/', include: '*.jar')
 
