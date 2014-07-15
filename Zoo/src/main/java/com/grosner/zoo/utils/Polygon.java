@@ -1,5 +1,7 @@
 package com.grosner.zoo.utils;
 
+import android.location.Location;
+
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -33,6 +35,10 @@ public class Polygon {
      */
     public boolean contains(LatLng g){
     	return contains((int)(g.longitude*1E6), (int)(g.latitude*1E6));
+    }
+
+    public boolean contains(Location location){
+        return contains((int)(location.getLongitude()*1E6), (int)(location.getLatitude()*1E6));
     }
 
     /**

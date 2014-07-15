@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.grosner.zoo.application.ZooApplication;
 import com.grosner.zoo.database.PlaceObject;
+import com.grosner.zoo.utils.StringUtils;
 
 /**
  * It will hold information regarding a place to display on the map as well as distance and resource information.
@@ -26,7 +27,7 @@ public class PlaceMarker implements Serializable{
 	
 	private Location mLocation = null;
 	
-	private int mIconId = 0;
+	protected int mIconId = 0;
 	
 	private int mId = -1;
 	
@@ -48,7 +49,7 @@ public class PlaceMarker implements Serializable{
 
     public PlaceMarker place(PlaceObject placeObject){
         mPoint = new LatLng(placeObject.getLatitude(), placeObject.getLongitude());
-        mIconId = ZooApplication.getResourceId(placeObject.getDrawable(), "id");
+        mIconId = ZooApplication.getResourceId(placeObject.getDrawable(), "drawable");
         mName = placeObject.getName();
         mLink = placeObject.getLink();
         return this;
@@ -103,7 +104,10 @@ public class PlaceMarker implements Serializable{
 		if(mPoint!=null){
 			MarkerOptions options = 
 					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(mIconId))
-					.title(mName).position(mPoint).snippet(mLink);
+					.title(mName).position(mPoint);
+            if(StringUtils.stringNotNullOrEmpty(mLink)){
+                options.snippet(mLink);
+            }
 			if(draggable){
 				options.draggable(draggable);
 				map.setOnMarkerDragListener(listener);
@@ -184,7 +188,7 @@ public class PlaceMarker implements Serializable{
 	 * @return
 	 */
 	public String getLink(){
-		if(!mLink.equals(""))
+		if(StringUtils.stringNotNullOrEmpty(mLink))
 			return HTML_PREFIX + mLink + HTML_POSTFIX;
 		else return mLink;
 	}

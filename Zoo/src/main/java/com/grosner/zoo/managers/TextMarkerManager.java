@@ -2,6 +2,8 @@ package com.grosner.zoo.managers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import android.content.Context;
@@ -14,9 +16,13 @@ import android.graphics.Color;
 import android.location.Location;
 import com.grosner.zoo.activities.ZooActivity;
 import com.grosner.zoo.application.ZooApplication;
+import com.grosner.zoo.database.PlaceManager;
+import com.grosner.zoo.database.PlaceObject;
 import com.grosner.zoo.fragments.MapViewFragment;
+import com.grosner.zoo.fragments.PlaceFragment;
 import com.grosner.zoo.markers.PlaceMarker;
 import com.grosner.zoo.markers.TextMarker;
+import com.grosner.zoo.singletons.ExhibitManager;
 
 /**
  * This class manages and provides functionality to display text labels
@@ -68,6 +74,19 @@ public class TextMarkerManager implements OnMarkerClickListener{
 		if(!mMarkers.isEmpty())
 			mMarkers.clear();
 	}
+
+    public void loadMarkers(){
+        List<PlaceObject> exhibits = PlaceManager.getManager().getList(PlaceFragment.PlaceType.EXHIBITS.name());
+        for(PlaceObject placeObject: exhibits){
+            mMarkers.add(new TextMarker().place(placeObject));
+        }
+
+        List<PlaceObject> special = PlaceManager.getManager().getList(PlaceFragment.PlaceType.SPECIAL.name());
+        for(PlaceObject placeObject: special){
+            mMarkers.add(new TextMarker().place(placeObject));
+        }
+
+    }
 	
 	/**
 	 * Reads in multiple files into the textmarkermanager
@@ -76,12 +95,12 @@ public class TextMarkerManager implements OnMarkerClickListener{
 	 */
 	public void readInData(String...fNames) throws IOException{
 		if(!mMarkers.isEmpty()) mMarkers.clear();
-		
+
 		for(String file: fNames){
 			readInData(file, false);
 		}
 	}
-	
+
 	/**
 	 * Reads in data into A textmarkermanager to display text labels on the map
 	 * @param fName
@@ -104,24 +123,24 @@ public class TextMarkerManager implements OnMarkerClickListener{
 					if(lineArray[0].toLowerCase().contains("restroom")){
 						lineArray[0] = "Restroom";
 					}
-					
+
 					if(fName.equals("admin.txt")){
 						lineArray[0]+="(Staff Only)";
 					}
 					int drawableId = ZooApplication.getContext().getResources().getIdentifier(lineArray[1], "drawable", ZooApplication.getContext().getPackageName());
 
-					TextMarker marker = ((TextMarker) 
+					TextMarker marker = ((TextMarker)
 							new TextMarker()
 							.point(new LatLng(lat, lon))
-							.name(lineArray[0])).setImage(ZooApplication.getContext().getResources(), drawableId);
-					
+							.name(lineArray[0])).setImage(drawableId);
+
 					//optional link included
 					if(lineArray.length>=5){
 						marker.link(lineArray[4]);
 					}
-					
+
 					mMarkers.add(marker);
-				} 
+				}
 			}
 		}
 		mScanner.close();

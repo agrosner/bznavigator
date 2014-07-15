@@ -7,4 +7,7 @@
     <color name="active_orange">#FFA31D</color>
     <color name="inactive_orange">#FFCB72</color>
     <color name="google_white">#BBEFF5E6</color>
+    <color name="curious_blue">#4189B9</color>
+    <color name="transparent_black">#AA000000</color>
+    <color name="actionbar_color">#6D8A8C</color>
 </resources>

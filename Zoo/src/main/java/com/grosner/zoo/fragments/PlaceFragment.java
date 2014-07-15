@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.widget.ListView;
 
 import com.grosner.smartinflater.annotation.SMethod;
@@ -24,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public class PlaceFragment extends ZooFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class PlaceFragment extends ZooFragment {
 
     public enum PlaceType implements Serializable {
         EXHIBITS, FOOD, SPECIAL, SHOPS, ADMIN, NEARBY, GATES, PARKING,
@@ -78,10 +77,7 @@ public class PlaceFragment extends ZooFragment implements SwipeRefreshLayout.OnR
      * The view that holds all of the child placeitem views
      */
     @SResource
-    private ListView exhibitList = null;
-
-    @SResource
-    private SwipeRefreshLayout swipeRefresh;
+    private ListView listView = null;
 
     private ExhibitAdapter mAdapter;
 
@@ -97,14 +93,9 @@ public class PlaceFragment extends ZooFragment implements SwipeRefreshLayout.OnR
         mType = (PlaceType) getArguments().getSerializable("Type");
 
         mTitle = mType.toTitleString();
-        mLayout = R.layout.fragment_place;
+        mLayout = R.layout.fragment_listview;
     }
 
-
-    @SMethod
-    private void onCreateSwipeRefresh(SwipeRefreshLayout swipeRefresh) {
-        swipeRefresh.setOnRefreshListener(this);
-    }
 
     @Override
     public void onResume() {
@@ -116,53 +107,51 @@ public class PlaceFragment extends ZooFragment implements SwipeRefreshLayout.OnR
      * Refreshes a list based on the amount of params passed to it
      */
     public void refresh() {
-        exhibitList.setAdapter(mAdapter = new ExhibitAdapter(mType));
-        swipeRefresh.setRefreshing(false);
-    }
-
-    @Override
-    public void onRefresh() {
-        refresh();
+        listView.setAdapter(mAdapter = new ExhibitAdapter(mType));
     }
 
     @SMethod
-    private void onItemClickExhibitList(int position) {
-        MenuFragment list = (MenuFragment) getActivity().getSupportFragmentManager().findFragmentByTag("MenuFragment");
-
+    private void onItemClickListView(int position) {
         if (position == -1) {
             getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.bronxzoostore.com")));
         } else {
-            Bundle bundle = new Bundle();
-            if (position > 0) {
-                bundle.putSerializable("PlaceMarker", mAdapter.getItem(position));
-            } else if (position == 0) {
-                ArrayList<PlaceObject> placeList = null;
-                if (mType != PlaceType.NEARBY) {
-                    placeList = (ArrayList<PlaceObject>) mAdapter.getObjects();
-                } else {
-                    List<PlaceObject> objects = mAdapter.getObjects();
-                    Collections.sort(objects, new Comparator<PlaceObject>() {
+            MapViewFragment map = (MapViewFragment) getActivity().getSupportFragmentManager().findFragmentByTag(getString(R.string.fragment_map));
+            if(map!=null) {
 
-                        @Override
-                        public int compare(PlaceObject lhs, PlaceObject rhs) {
-                            Location loc = CurrentLocationManager.getSharedManager().getLastKnownLocation();
+                if (position > 0) {
+                    map.addPlace(new PlaceMarker().place(mAdapter.getItem(position)));
+                } else if (position == 0) {
+                    ArrayList<PlaceObject> placeList;
+                    if (mType != PlaceType.NEARBY) {
+                        placeList = (ArrayList<PlaceObject>) mAdapter.getObjects();
+                    } else {
+                        List<PlaceObject> objects = mAdapter.getObjects();
+                        Collections.sort(objects, new Comparator<PlaceObject>() {
 
-                            return Float.valueOf(lhs.getLocation().distanceTo(loc))
-                                    .compareTo(rhs.getLocation().distanceTo(loc));
+                            @Override
+                            public int compare(PlaceObject lhs, PlaceObject rhs) {
+                                Location loc = CurrentLocationManager.getSharedManager().getLastKnownLocation();
+
+                                return Float.valueOf(lhs.getLocation().distanceTo(loc))
+                                        .compareTo(rhs.getLocation().distanceTo(loc));
+                            }
+
+                        });
+                        List<PlaceObject> reducePoints = new LinkedList<>();
+                        while (reducePoints.size() != 10) {
+                            reducePoints.add(objects.get(reducePoints.size()));
                         }
-
-                    });
-                    List<PlaceObject> reducePoints = new LinkedList<>();
-                    while (reducePoints.size() != 10) {
-                        reducePoints.add(objects.get(reducePoints.size()));
+                        placeList = (ArrayList<PlaceObject>) reducePoints;
                     }
-                    placeList = (ArrayList<PlaceObject>) reducePoints;
+                    ArrayList<PlaceMarker> placeMarkers = new ArrayList<>();
+                    for(PlaceObject place: placeList){
+                        placeMarkers.add(new PlaceMarker().place(place));
+                    }
+                    map.addPlaceList(placeMarkers);
                 }
-                bundle.putSerializable("PlaceList", placeList);
             }
-
-            switchFragment(getString(R.string.fragment_map), MapViewFragment.class, bundle);
-
+            getZooActivity().closeDrawers();
+            getZooActivity().onBackPressed();
         }
     }
 }

@@ -15,6 +15,7 @@ import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -24,6 +25,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.grosner.zoo.R;
+import com.grosner.zoo.application.ZooApplication;
 
 /**
  * Provides handy utils for scraping html code from the zoos web pages
@@ -38,8 +40,8 @@ public class HTMLScraper {
 	 * @throws IOException 
 	 * @throws ClientProtocolException 
 	 */
-	public void getInfoContent(Context con, LinearLayout layout, String link) throws ClientProtocolException, IOException{
-		new DownloadHtmlTask(con, link, layout).execute();
+	public void getInfoContent(LinearLayout layout, String link) throws ClientProtocolException, IOException{
+		new DownloadHtmlTask(link, layout).execute();
 	}
 	
 	public class DownloadHtmlTask extends AsyncTask<Void, Void, Void>{
@@ -50,19 +52,16 @@ public class HTMLScraper {
 		
 		private LinearLayout mLayout;
 		
-		private Context mCtx;
-		
 		private ProgressBar mBar;
 		
-		public DownloadHtmlTask(Context con, String link, LinearLayout layout){
+		public DownloadHtmlTask(String link, LinearLayout layout){
 			mLink = link;
 			mLayout = layout;
-			mCtx = con;
 		}
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			mBar = new ProgressBar(mCtx);
+			mBar = new ProgressBar(ZooApplication.getContext());
 			mBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			mLayout.addView(mBar);
 			
@@ -91,17 +90,17 @@ public class HTMLScraper {
 			for(Element e: el){
 				if(Tag.valueOf("h2").equals(e.tag()) && !e.text().equals("")){
 					
-					TextView header = new TextView(mCtx);
+					TextView header = new TextView(mLayout.getContext());
 					header.setText(e.text());
 					header.setTextSize(25);
-					header.setTextColor(mCtx.getResources().getColor(R.color.forestgreen));
+					header.setTextColor(Color.BLACK);
 					mLayout.addView(header);
 					
 				} else if(Tag.valueOf("p").equals(e.tag()) && !e.text().equals("")){
-					TextView para = new TextView(mCtx);
+					TextView para = new TextView(mLayout.getContext());
 					para.setText(Html.fromHtml(e.html()));
 					para.setTextSize(15);
-					para.setTextColor(mCtx.getResources().getColor(android.R.color.white));
+					para.setTextColor(mLayout.getContext().getResources().getColor(android.R.color.white));
 					para.setMovementMethod(LinkMovementMethod.getInstance());
 					para.setLinksClickable(true);
 					mLayout.addView(para);

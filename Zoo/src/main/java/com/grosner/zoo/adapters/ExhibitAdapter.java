@@ -1,10 +1,12 @@
 package com.grosner.zoo.adapters;
 
+import android.location.Location;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.activeandroid.interfaces.CollectionReceiver;
+import com.google.android.gms.maps.LocationSource;
 import com.grosner.zoo.PlaceController;
 import com.grosner.zoo.database.PlaceManager;
 import com.grosner.zoo.database.PlaceObject;
@@ -22,7 +24,7 @@ import java.util.List;
  * Contributors: {}
  * Description:
  */
-public class ExhibitAdapter extends BaseAdapter implements CollectionReceiver<PlaceObject>{
+public class ExhibitAdapter extends BaseAdapter implements CollectionReceiver<PlaceObject>, LocationSource.OnLocationChangedListener {
 
     private List<PlaceObject> mObjects;
 
@@ -32,6 +34,7 @@ public class ExhibitAdapter extends BaseAdapter implements CollectionReceiver<Pl
         } else{
             PlaceManager.getManager().fetchAll(this);
         }
+        CurrentLocationManager.getSharedManager().activate(this);
     }
 
     @Override
@@ -70,6 +73,12 @@ public class ExhibitAdapter extends BaseAdapter implements CollectionReceiver<Pl
         mObjects = object;
         PlaceController.reOrderByDistance(mObjects,
                 CurrentLocationManager.getSharedManager().getLastKnownLocation());
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        PlaceController.reOrderByDistance(mObjects,location);
         notifyDataSetChanged();
     }
 }

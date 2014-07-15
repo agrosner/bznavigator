@@ -2,16 +2,19 @@ package com.grosner.zoo.activities;
 
 import java.io.IOException;
 
+import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import org.apache.http.client.ClientProtocolException;
 
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.grosner.smartinflater.annotation.SResource;
 import com.grosner.smartinflater.view.SmartInflater;
+import com.grosner.zoo.PlaceController;
 import com.grosner.zoo.R;
 import com.grosner.zoo.location.CurrentLocationManager;
 import com.grosner.zoo.utils.HTMLScraper;
@@ -24,15 +27,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class InfoDisplayActivity extends FragmentActivity implements MenuItem.OnMenuItemClickListener {
+public class InfoDisplayActivity extends FragmentActivity implements MenuItem.OnMenuItemClickListener, LocationSource.OnLocationChangedListener {
 
 	private LatLng mPosition;
 
     public static ZooActivity SCREEN;
 
     @SResource private TextView title, distance, info;
-    private String mTitle, mDistance, mSnippet;
-	
+
+    private Location mLocation;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,15 +45,16 @@ public class InfoDisplayActivity extends FragmentActivity implements MenuItem.On
         //PowerInflater.loadBundle(this, getIntent().getExtras());
 		
 		getActionBar().setTitle("Information Page");
-		title.setText(mTitle);
-        distance.setText(mDistance);
+		title.setText(getIntent().getStringExtra("Title"));
+        CurrentLocationManager.getSharedManager().activate(this);
 		info.setVisibility(View.GONE);
+
+        mLocation =  MapUtils.latLngToLocation((LatLng) getIntent().getParcelableExtra("LatLng"));
 
 		//now we PWN their web page code for information
 		try {
-			new HTMLScraper().getInfoContent(this, 
-					(LinearLayout)findViewById(R.id.info_page), 
-					mSnippet);
+			new HTMLScraper().getInfoContent((LinearLayout)findViewById(R.id.info_page),
+                    getIntent().getStringExtra("Snippet"));
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -99,4 +104,8 @@ public class InfoDisplayActivity extends FragmentActivity implements MenuItem.On
 		return true;
 	}
 
+    @Override
+    public void onLocationChanged(Location location) {
+        distance.setText(PlaceController.calculateDistanceString(location,mLocation));
+    }
 }

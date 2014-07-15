@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generated with http://android-holo-colors.com -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <style name="Zoo" parent="@style/_Zoo"/>
+
+  <style name="_Zoo" parent="android:Theme.Holo.Light.DarkActionBar">
+      
+    <item name="android:actionBarItemBackground">@drawable/selectable_background_zoo</item>
+    <item name="android:popupMenuStyle">@style/PopupMenu.Zoo</item>
+    <item name="android:dropDownListViewStyle">@style/DropDownListView.Zoo</item>
+    <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Zoo</item>
+    <item name="android:actionDropDownStyle">@style/DropDownNav.Zoo</item>
+    <item name="android:actionBarStyle">@style/ActionBar.Solid.Zoo</item>
+    <item name="android:actionModeBackground">@drawable/cab_background_top_zoo</item>
+    <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_zoo</item>
+    <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Zoo</item>
+    <item name="android:actionOverflowButtonStyle">@style/OverflowStyleZoo</item>
+    <item name="android:windowActionBarOverlay">true</item>
+    <item name="android:windowContentOverlay">@null</item>
+
+    <item name="android:editTextBackground">@drawable/zoo_edit_text_holo_light</item>
+
+    <item name="android:textColorHighlight">#994189b9</item>
+    <item name="android:textSelectHandleLeft">@drawable/zoo_text_select_handle_left</item>
+    <item name="android:textSelectHandleRight">@drawable/zoo_text_select_handle_right</item>
+    <item name="android:textSelectHandle">@drawable/zoo_text_select_handle_middle</item>
+
+    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewZoo</item>
+
+    <item name="android:listChoiceIndicatorMultiple">@drawable/zoo_btn_check_holo_light</item>
+
+    <item name="android:listChoiceIndicatorSingle">@drawable/zoo_btn_radio_holo_light</item>
+
+    <item name="android:buttonStyle">@style/ButtonZoo</item>
+
+    <item name="android:imageButtonStyle">@style/ImageButtonZoo</item>
+
+    <item name="android:dropDownSpinnerStyle">@style/SpinnerZoo</item>
+
+    <item name="android:progressBarStyleHorizontal">@style/ProgressBarZoo</item>
+
+    <item name="android:seekBarStyle">@style/SeekBarZoo</item>
+
+    <item name="android:ratingBarStyle">@style/RatingBarZoo</item>
+
+    <item name="android:ratingBarStyleIndicator">@style/RatingBarBigZoo</item>
+
+    <item name="android:ratingBarStyleSmall">@style/RatingBarSmallZoo</item>
+
+    <item name="android:buttonStyleToggle">@style/ToggleZoo</item>
+
+    <item name="android:listChoiceBackgroundIndicator">@drawable/zoo_list_selector_holo_light</item>
+
+    <item name="android:activatedBackgroundIndicator">@drawable/zoo_activated_background_holo_light</item>
+
+    <item name="android:fastScrollThumbDrawable">@drawable/zoo_fastscroll_thumb_holo</item>
+
+  </style>
+  
+  <style name="ActionBar.Solid.Zoo" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
+      <item name="android:background">@drawable/ab_solid_zoo</item>
+      <item name="android:backgroundStacked">@drawable/ab_stacked_solid_zoo</item>
+      <item name="android:backgroundSplit">@drawable/ab_bottom_solid_zoo</item>
+      <item name="android:progressBarStyle">@style/ProgressBar.Zoo</item>
+      <item name="android:titleTextStyle">@style/ActionBarText</item>
+  </style>
+
+    <style name="ActionBarText" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="OverflowStyleZoo" parent="@android:style/Widget.Holo.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_action_overflow</item>
+    </style>
+
+
+    <style name="ActionBar.Transparent.Zoo" parent="@android:style/Widget.Holo.Light.ActionBar">
+      <item name="android:background">@drawable/ab_transparent_zoo</item>
+      <item name="android:progressBarStyle">@style/ProgressBar.Zoo</item>
+  </style>
+  
+  <style name="PopupMenu.Zoo" parent="@android:style/Widget.Holo.Light.ListPopupWindow">
+      <item name="android:popupBackground">@drawable/menu_dropdown_panel_zoo</item>
+  </style>
+  
+  <style name="DropDownListView.Zoo" parent="@android:style/Widget.Holo.Light.ListView.DropDown">
+      <item name="android:listSelector">@drawable/selectable_background_zoo</item>
+  </style>
+  
+  <style name="ActionBarTabStyle.Zoo" parent="@android:style/Widget.Holo.Light.ActionBar.TabView">
+      <item name="android:background">@drawable/tab_indicator_ab_zoo</item>
+  </style>
+  
+  <style name="DropDownNav.Zoo" parent="@android:style/Widget.Holo.Light.Spinner">
+      <item name="android:background">@drawable/spinner_background_ab_zoo</item>
+      <item name="android:popupBackground">@drawable/menu_dropdown_panel_zoo</item>
+      <item name="android:dropDownSelector">@drawable/selectable_background_zoo</item>
+  </style>
+  
+  <style name="ProgressBar.Zoo" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal">
+      <item name="android:progressDrawable">@drawable/progress_horizontal_zoo</item>
+  </style>
+  
+  <style name="ActionButton.CloseMode.Zoo" parent="@android:style/Widget.Holo.Light.ActionButton.CloseMode">
+      <item name="android:background">@drawable/btn_cab_done_zoo</item>
+  </style>
+  
+  <!-- this style is only referenced in a Light.DarkActionBar based theme -->
+  <style name="Theme.Zoo.Widget" parent="@android:style/Theme.Holo">
+      <item name="android:popupMenuStyle">@style/PopupMenu.Zoo</item>
+      <item name="android:dropDownListViewStyle">@style/DropDownListView.Zoo</item>
+  </style>
+
+
+
+</resources>

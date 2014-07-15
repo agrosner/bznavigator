@@ -15,6 +15,7 @@
         style="@style/wrap"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/icon"
+        android:textSize="20sp"
         android:text="Name"
         android:textColor="@android:color/white" />
     

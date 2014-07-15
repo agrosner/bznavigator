@@ -1,6 +1,7 @@
 package com.grosner.zoo.fragments;
 
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import com.grosner.zoo.R;
 import com.grosner.zoo.markers.PlaceMarker;
 import com.grosner.zoo.singletons.ExhibitManager;
 import com.grosner.zoo.utils.MapUtils;
+import com.grosner.zoo.utils.Operations;
 
 import java.util.LinkedList;
 
@@ -35,7 +37,14 @@ public class AmenitiesFragment extends ZooFragment implements OnCheckedChangeLis
 	 public View onCreateView(LayoutInflater inflater, ViewGroup container,
           Bundle savedInstanceState) {
 		LinearLayout layout = new LinearLayout(getActivity());
+        TypedValue tv = new TypedValue();
+        if (container.getContext().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
+        {
+            int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+            layout.setPadding(0, actionBarHeight, 0,0);
+        }
 		layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setBackgroundColor(getResources().getColor(R.color.transparent_black));
 		
 		layout.addView(createIconCheckBox("Gates", R.drawable.fordham, 0));
 		layout.addView(createIconCheckBox("Restrooms", R.drawable.bathroom, 1));

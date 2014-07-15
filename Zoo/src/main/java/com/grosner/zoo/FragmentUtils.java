@@ -23,7 +23,7 @@ public class FragmentUtils {
 
     public static void goToFragment(FragmentActivity activity, String fragmentName, Class fragmentClass, Bundle extras,
                              boolean backstack,
-                             boolean popBackStack) {
+                             boolean popBackStack, int contentArea) {
         //getSliderModule().closeMenu();
         Fragment testFrag = activity.getSupportFragmentManager().findFragmentByTag(fragmentName);
         if (testFrag == null || !testFrag.isVisible()) {
@@ -36,11 +36,17 @@ public class FragmentUtils {
                 if (extras != null) {
                     fragment.setArguments(extras);
                 }
-                replaceFragment(activity, fragment, backstack, R.id.ContentView, fragmentName);
+                replaceFragment(activity, fragment, backstack, contentArea, fragmentName);
             } catch (Throwable e) {
             }
         }
 
+    }
+
+    public static void goToFragment(FragmentActivity activity, String fragmentName, Class fragmentClass, Bundle extras,
+                                    boolean backstack,
+                                    boolean popBackStack) {
+        goToFragment(activity, fragmentName, fragmentClass, extras, backstack, popBackStack, R.id.ContentView);
     }
 
     public static Fragment getFragment(FragmentActivity activity, Class fragmentClass, String tag, Bundle extras){

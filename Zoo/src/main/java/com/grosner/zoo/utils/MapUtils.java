@@ -2,6 +2,7 @@ package com.grosner.zoo.utils;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import android.support.v4.app.FragmentActivity;
@@ -55,7 +56,7 @@ public class MapUtils {
 	 * @param map
 	 * @param places
 	 */
-	public static void moveToBounds(Location myLocation, GoogleMap map, LinkedList<PlaceMarker> places){
+	public static void moveToBounds(Location myLocation, GoogleMap map, List<PlaceMarker> places){
 		LatLngBounds.Builder builder = new LatLngBounds.Builder();
 		for(PlaceMarker place: places){
 			builder.include(place.getPoint());
@@ -142,9 +143,7 @@ public class MapUtils {
 	public static void startInfoActivity(ZooActivity act, final Marker marker){
 		Intent i = new Intent(act, InfoDisplayActivity.class);
 		i.putExtra("Title", marker.getTitle());
-		i.putExtra("Distance", PlaceController.calculateDistanceString(
-                CurrentLocationManager.getSharedManager().getLastKnownLocation(),
-						latLngToLocation(marker.getPosition())));
+		i.putExtra("LatLng", marker.getPosition());
 		i.putExtra("Snippet", marker.getSnippet());
 		//i.putExtra("act", act);
 		i.putExtra("Position", marker.getPosition());
@@ -166,10 +165,10 @@ public class MapUtils {
 				PlaceController.calculateDistanceString(CurrentLocationManager.getSharedManager().getLastKnownLocation(),
 						latLngToLocation(marker.getPosition())), 
 				R.id.distance);
-		if(!marker.getSnippet().equals("")){
+		if(StringUtils.stringNotNullOrEmpty(marker.getSnippet())){
 			v.findViewById(R.id.info).setVisibility(View.GONE);
 			try {
-				new HTMLScraper().getInfoContent(act,(LinearLayout) v.findViewById(R.id.info_page), marker.getSnippet());
+				new HTMLScraper().getInfoContent((LinearLayout) v.findViewById(R.id.info_page), marker.getSnippet());
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

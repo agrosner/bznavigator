@@ -7,6 +7,9 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.grosner.zoo.application.ZooApplication;
+import com.grosner.zoo.database.PlaceObject;
+import com.grosner.zoo.utils.Operations;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -57,11 +60,6 @@ public class TextMarker extends PlaceMarker implements Serializable{
 	private Bitmap mImage =null;
 	
 	/**
-	 * The resources of the map
-	 */
-	private static Resources mRes = null;
-	
-	/**
 	 * Whether to use the image associated with this marker
 	 */
 	private boolean mUseImage = false;
@@ -70,6 +68,11 @@ public class TextMarker extends PlaceMarker implements Serializable{
 	 * Whether this text has focus (icon appears next to text and text is displayed at all zoom levels)
 	 */
 	private boolean hasFocus = false;
+
+    public TextMarker place(PlaceObject placeObject){
+        super.place(placeObject);
+        return setImage(mIconId);
+    }
 	
 	public TextMarker color(int color){
 		mColor = color;
@@ -92,10 +95,8 @@ public class TextMarker extends PlaceMarker implements Serializable{
 	 * @param id
 	 * @return
 	 */
-	public TextMarker setImage(Resources res, int id){
-		mImage = BitmapFactory.decodeResource(res, id);
-		if(mRes==null)
-			mRes = res;
+	public TextMarker setImage(int id){
+		mImage = BitmapFactory.decodeResource(ZooApplication.getContext().getResources(), id);
 		return this;
 	}
 	
@@ -140,7 +141,7 @@ public class TextMarker extends PlaceMarker implements Serializable{
 	 */
 	private void generateBitmap(){
 		//scale DIP pixels
-		float scale = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE, mRes.getDisplayMetrics());
+		float scale = Operations.dp(TEXT_SIZE);
 		Paint text = new Paint();
 		text.setTextSize(scale);
 		text.setStrokeWidth(0);

@@ -50,7 +50,7 @@ public class OverlayManager {
 		for(String fName: list){
 			if(fName.endsWith(".txt")){
 				Scanner scan = new Scanner(assets.open(mPolylineFolder+"/"+fName));
-				PolylineOptions polylineOptions = new PolylineOptions().color(Color.parseColor("#FCF357"))
+				PolylineOptions polylineOptions = new PolylineOptions().color(Color.parseColor("#F3FFF4"))
                         .width(Operations.dpFloat(5)).geodesic(true);
 				while(scan.hasNext()){
 					String line = scan.next();
@@ -91,9 +91,9 @@ public class OverlayManager {
 				scan.close();
 				int color = Color.BLACK;
 				if(zIndex==1){
-					color = Color.parseColor("#F0F0F0");
+					color = Color.parseColor("#A9BDB0");
 				} else if(zIndex==0){
-					color = Color.parseColor("#FCF357");
+					color = Color.parseColor("#E7E7E7");
 				}
 				mPolygonOptions.add(options.fillColor(color).zIndex(zIndex));
 			}

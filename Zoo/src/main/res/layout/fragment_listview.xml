@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ListView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/listView"
+  style="@style/match"
+  android:paddingLeft="8dp"
+  android:background="@color/curious_blue"
+  android:paddingRight="8dp"
+  android:drawSelectorOnTop="false" />

@@ -1,17 +1,11 @@
 package com.grosner.zoo.fragments;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.grosner.smartinflater.annotation.SMethod;
 import com.grosner.zoo.FragmentUtils;
 import com.grosner.zoo.R;
-import com.grosner.zoo.activities.ZooActivity;
 import com.grosner.zoo.application.ZooApplication;
 import com.grosner.zoo.constants.UserConstants;
 import com.grosner.zoo.adapters.SlidingScreenListAdapter;
@@ -24,7 +18,7 @@ public class MenuFragment extends ZooFragment implements UserConstants{
 	public void onCreate(Bundle instance){
 		super.onCreate(instance);
 
-        mLayout = R.layout.fragment_slide_list;
+        mLayout = R.layout.fragment_listview;
         mTitle = getString(R.string.bronx_zoo);
 	}
 
@@ -68,11 +62,9 @@ public class MenuFragment extends ZooFragment implements UserConstants{
             if(placeType!=null) {
                 bundle.putSerializable("Type", placeType);
                 FragmentUtils.goToFragment(getZooActivity(), tag+PlaceFragment.class.getSimpleName(),
-                        PlaceFragment.class, bundle, true);
+                        PlaceFragment.class, bundle, true, false, R.id.MenuView);
             }
         }
-
-        getZooActivity().getDrawer().closeDrawers();
 	}
 	
 	/**

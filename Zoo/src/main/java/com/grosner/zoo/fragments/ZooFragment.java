@@ -47,10 +47,10 @@ public class ZooFragment extends Fragment {
 
         if(showBack){
             getZooActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-            getZooActivity().getToggle().setDrawerIndicatorEnabled(false);
+            getZooActivity().setDrawerIndicatorEnabled(false);
         } else{
             getZooActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-            getZooActivity().getToggle().setDrawerIndicatorEnabled(true);
+            getZooActivity().setDrawerIndicatorEnabled(true);
         }
     }
 

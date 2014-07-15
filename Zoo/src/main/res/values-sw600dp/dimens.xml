@@ -5,4 +5,8 @@
          screen margins) for sw600dp devices (e.g. 7" tablets) here.
     -->
 
+    <dimen name="slidingmenu_offset">300dp</dimen>
+
+    <integer name="num_cols">1</integer>
+
 </resources>

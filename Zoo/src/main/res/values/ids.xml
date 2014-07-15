@@ -2,4 +2,5 @@
 <resources>
     <item name="logout" type="id" />
     <item name="search" type="id" />
+    <item name="menu_amenities" type="id" />
 </resources>

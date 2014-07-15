@@ -37,15 +37,17 @@ public class PlaceManager extends DBManager<PlaceObject>{
      * Reads all the files into the DB
      */
     public void readAllFiles(){
-        getQueue().add(new DBRequest() {
-            @Override
-            public void run() {
-                String[] files = ExhibitManager.DATA_FILES;
-                for(String file: files){
-                    readDataIntoDB(file);
+        if(getCount()==0) {
+            getQueue().add(new DBRequest() {
+                @Override
+                public void run() {
+                    String[] files = ExhibitManager.DATA_FILES;
+                    for (String file : files) {
+                        readDataIntoDB(file);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void readDataIntoDB(String fName){

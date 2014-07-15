@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">BZ Navigator</string>
+    <string name="app_name">BZ Explorer</string>
     <string name="google_api_key">AIzaSyBGrW-QJGoeBXQ23JIcpSaQU826UPSnhHc</string>
 
     <string name="menu_settings">Settings</string>
@@ -23,5 +23,6 @@
     <string name="no_provider_error">No provider enabled. Please check settings and allow locational services.</string>
     <string name="cannot_find_current_location">Cannot find current location</string>
     <string name="now_following_current_location">Now Following Current Location, Tap Map to Cancel</string>
+    <string name="amenities">Amenities</string>
 
 </resources>

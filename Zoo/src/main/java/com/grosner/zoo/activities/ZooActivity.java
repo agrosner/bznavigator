@@ -1,15 +1,13 @@
 package com.grosner.zoo.activities;
 
 import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -17,41 +15,28 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.model.LatLng;
-
-import de.appetites.android.menuItemSearchAction.MenuItemSearchAction;
-import de.appetites.android.menuItemSearchAction.SearchPerformListener;
-
+import com.grosner.zoo.DrawerSlideView;
 import com.grosner.zoo.FragmentUtils;
 import com.grosner.zoo.fragments.MenuFragment;
 import com.grosner.zoo.fragments.AmenitiesFragment;
-import com.grosner.zoo.PlaceController;
 import com.grosner.zoo.fragments.PlaceFragment;
 import com.grosner.zoo.R;
-import com.grosner.zoo.singletons.ExhibitManager;
-import com.grosner.zoo.utils.Operations;
 import com.grosner.zoo.utils.ZooDialog;
 import com.grosner.zoo.fragments.MapViewFragment;
-import com.grosner.zoo.markers.PlaceMarker;
 
 /**
  * Class displays the main menu that will switch between different fragments
  * @author Andrew Grosner
  *
  */
-public class ZooActivity extends FragmentActivity implements OnClickListener {
+public class ZooActivity extends FragmentActivity implements OnClickListener, DrawerLayout.DrawerListener {
 
 	protected static final String TAG = "SlidingScreenActivity";
 
@@ -66,10 +51,18 @@ public class ZooActivity extends FragmentActivity implements OnClickListener {
 
     private ActionBarDrawerToggle mToggle;
 
+    private DrawerSlideView mSlider;
+
+    private TextView mActionBarTitleView;
+
+    private float mDrawerOffset;
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mToggle.onConfigurationChanged(newConfig);
+        if(mToggle!=null) {
+            mToggle.onConfigurationChanged(newConfig);
+        }
     }
 
     @Override
@@ -77,7 +70,7 @@ public class ZooActivity extends FragmentActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 
-        setContentView(R.layout.activity_slide_splash);
+        setContentView(R.layout.activity_zoo);
         getActionBar().show();
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowHomeEnabled(true);
@@ -139,8 +132,13 @@ public class ZooActivity extends FragmentActivity implements OnClickListener {
         Fragment fragment = FragmentUtils.getFragment(MenuFragment.class);
         FragmentUtils.replaceFragment(this, fragment, false, R.id.MenuView, "MenuFragment");
 
-        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mToggle = new ActionBarDrawerToggle(this, mDrawer, R.drawable.ic_drawer, R.string.open, R.string.close);
+        View drawer = findViewById(R.id.drawer_layout);
+        if(drawer!=null && drawer instanceof DrawerLayout) {
+            mDrawer = (DrawerLayout) drawer;
+            mDrawer.setDrawerListener(this);
+            mToggle = new ActionBarDrawerToggle(this, mDrawer, R.drawable.ic_drawer, R.string.open, R.string.close);
+            mSlider = new DrawerSlideView(getActionBar(), getResources().getColor(R.color.actionbar_color), DrawerSlideView.Mode.ALPHA);
+        }
 
         Fragment map = FragmentUtils.getFragment(MapViewFragment.class);
         //mContent = new WeakReference<Fragment>(map);
@@ -148,12 +146,18 @@ public class ZooActivity extends FragmentActivity implements OnClickListener {
 
         Fragment amentities = FragmentUtils.getFragment(AmenitiesFragment.class);
         FragmentUtils.replaceFragment(this, amentities, false, R.id.AmenitiesView, getString(R.string.fragment_amenities));
+
+        int actionBarTitleId = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");
+        if (actionBarTitleId > 0) {
+            mActionBarTitleView = (TextView) findViewById(actionBarTitleId);
+            mActionBarTitleView.setTextColor(Color.BLACK);
+        }
 	}
-	
-	
+
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-        if(!mToggle.onOptionsItemSelected(item)) {
+        if(mToggle==null || !mToggle.onOptionsItemSelected(item)) {
             switch (item.getItemId()) {
                 case android.R.id.home:
                     //toggle();
@@ -167,7 +171,9 @@ public class ZooActivity extends FragmentActivity implements OnClickListener {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mToggle.syncState();
+        if(mToggle!=null) {
+            mToggle.syncState();
+        }
     }
 
     /**
@@ -218,11 +224,62 @@ public class ZooActivity extends FragmentActivity implements OnClickListener {
 		
 	}
 
-    public DrawerLayout getDrawer() {
-        return mDrawer;
+    public void closeDrawers(){
+        if(mDrawer!=null){
+            mDrawer.closeDrawers();
+        }
     }
 
-    public ActionBarDrawerToggle getToggle() {
-        return mToggle;
+    public void openDrawer(int gravity){
+        if(mDrawer!=null){
+            mDrawer.openDrawer(gravity);
+        }
+    }
+
+    public float getDrawerOffset(){
+        return mDrawerOffset;
+    }
+
+    public void setDrawerIndicatorEnabled(boolean enabled){
+        if(mToggle!=null){
+             mToggle.setDrawerIndicatorEnabled(enabled);
+        }
+    }
+
+    @Override
+    public void onDrawerSlide(View view, float v) {
+        mSlider.onDrawerSlide(v);
+
+        MapViewFragment mapViewFragment = (MapViewFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.fragment_map));
+        if(mapViewFragment!=null){
+            mapViewFragment.onDrawerSlide(v);
+        }
+    }
+
+    @Override
+    public void onDrawerOpened(View view) {
+
+    }
+
+    @Override
+    public void onDrawerClosed(View view) {
+
+    }
+
+    @Override
+    public void onDrawerStateChanged(int i) {
+
+    }
+
+    /**
+     * Returns the title view of the actionbar
+     * @return
+     */
+    public TextView getActionBarTitleView(){
+        return mActionBarTitleView;
+    }
+
+    public void closeKeyboards() {
+
     }
 }

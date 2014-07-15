@@ -6,6 +6,7 @@
 	>
        	<RelativeLayout 
        		style="@style/match"
+            android:layout_marginTop="?android:attr/actionBarSize"
        	    >
        	    <ImageButton 
        	        android:layout_alignParentRight="true"
@@ -32,6 +33,7 @@
        	        android:layout_toLeftOf="@id/toggle"
        	        android:layout_alignParentTop="true"
        	        android:id="@+id/clear"
+                android:visibility="gone"
        	        style="@style/gmap_button"
        	        android:src="@drawable/exit"
        	        />

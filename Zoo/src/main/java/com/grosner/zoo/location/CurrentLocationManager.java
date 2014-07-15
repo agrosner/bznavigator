@@ -1,5 +1,6 @@
 package com.grosner.zoo.location;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -79,7 +80,7 @@ public class CurrentLocationManager implements LocationSource{
 	
 	private LinkedList<Runnable> mFirstFix = new LinkedList<Runnable>();
 	
-	private LinkedList<OnLocationChangedListener> mLocationListeners = new LinkedList<OnLocationChangedListener>();
+	private LinkedList<WeakReference<OnLocationChangedListener>> mLocationListeners = new LinkedList<>();
 
     private ArrayList<OnNavigateListener> mNavigationListeners = new ArrayList<>();
 	
@@ -142,8 +143,11 @@ public class CurrentLocationManager implements LocationSource{
 									.build()));
 						}*/
 					}
-					for(OnLocationChangedListener run: mLocationListeners){
-						run.onLocationChanged(location);
+					for(WeakReference<OnLocationChangedListener> run: mLocationListeners){
+                        OnLocationChangedListener onLocationChangedListener = run.get();
+                        if(onLocationChangedListener!=null) {
+                            onLocationChangedListener.onLocationChanged(location);
+                        }
 					}
 				}
 			
@@ -244,8 +248,18 @@ public class CurrentLocationManager implements LocationSource{
 	@Override
 	public void activate(OnLocationChangedListener listener) {
 		if(!locationAvailable)	return;
-		if(listener!=null && !mLocationListeners.contains(listener)){
-			mLocationListeners.add(listener);
+		if(listener!=null){
+            boolean found = false;
+            for(WeakReference<OnLocationChangedListener> run: mLocationListeners){
+                OnLocationChangedListener onLocationChangedListener = run.get();
+                if(onLocationChangedListener!=null && onLocationChangedListener.equals(listener)) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                mLocationListeners.add(new WeakReference<>(listener));
+            }
 			Log.d("CurrentLocationManager", mLocationListeners.size() + " are activated");
 		}
 		if (!mMyLocationEnabled) {
