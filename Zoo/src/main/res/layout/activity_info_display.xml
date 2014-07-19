@@ -10,9 +10,7 @@
     <TextView 
         android:id="@+id/title"
         style="@style/main_text"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:textSize="30dip"
+        android:textSize="30sp"
         android:text="Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
@@ -21,16 +19,19 @@
 	    style="@style/main_text"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-	    android:layout_alignParentRight="true"
-        android:layout_alignBottom="@id/title"
+        android:layout_below="@id/title"
 	    android:text="0ft"
 	    android:textColor="@android:color/white"
-	    android:textSize="25dip" />
+	    android:textSize="25sp" />
+        />
+    <it.sephiroth.android.library.widget.HListView
+        android:id="@+id/horizontalListView"
+        style="@style/match_width"
         />
 	<TextView 
 	    android:id="@+id/info"
 	    android:layout_marginTop="10dip"
-	    android:layout_below="@id/title"
+	    android:layout_below="@id/distance"
 	    android:layout_alignParentLeft="true"
 	    android:text="No information available yet."
         android:layout_height="wrap_content"
@@ -42,7 +43,7 @@
 	    style="@style/wrap"
 	    >
 	    <LinearLayout 
-	        android:id="@+id/info_page"
+	        android:id="@+id/infoPage"
 	        style="@style/wrap"
 	        android:orientation="vertical"
 	        >

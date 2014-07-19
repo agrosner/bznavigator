@@ -36,7 +36,7 @@ public class TextMarkerManager implements OnMarkerClickListener{
     /**
 	 * Holds the textmarker data
 	 */
-	private ArrayList<TextMarker> mMarkers = new ArrayList<TextMarker>();
+	private final ArrayList<TextMarker> mMarkers = new ArrayList<TextMarker>();
 	
 	/**
 	 * The parent fragment associated with this manager
@@ -68,11 +68,13 @@ public class TextMarkerManager implements OnMarkerClickListener{
 	public void reset(GoogleMap map, Context context){
 		mMap = map;
         mContext = context;
-        for(TextMarker m: mMarkers){
-			m.remove();
-		}
-		if(!mMarkers.isEmpty())
-			mMarkers.clear();
+        synchronized (mMarkers) {
+            for (TextMarker m : mMarkers) {
+                m.remove();
+            }
+            if (!mMarkers.isEmpty())
+                mMarkers.clear();
+        }
 	}
 
     public void loadMarkers(){
@@ -255,9 +257,11 @@ public class TextMarkerManager implements OnMarkerClickListener{
 	 * @param zoom
 	 */
 	public void refreshData(float zoom){
-		for(TextMarker text: mMarkers){
-			text.refreshWithZoom(mMap, zoom);
-		}
+        synchronized (mMarkers) {
+            for (TextMarker text : mMarkers) {
+                text.refreshWithZoom(mMap, zoom);
+            }
+        }
 	}
 	
 	/**
@@ -268,10 +272,12 @@ public class TextMarkerManager implements OnMarkerClickListener{
 	public void changeTextLabelColor(int color, float zoom){
 		if(color!=mTextColor){
 			mTextColor = color;
-			for(TextMarker text: mMarkers){
-				text.color(color);
-				text.refreshWithZoom(mMap, zoom);
-			}
+            synchronized (mMarkers) {
+                for (TextMarker text : mMarkers) {
+                    text.color(color);
+                    text.refreshWithZoom(mMap, zoom);
+                }
+            }
 		}
 	}
 

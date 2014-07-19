@@ -1,19 +1,13 @@
 package com.grosner.zoo.fragments;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
-
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputFilter;
@@ -32,7 +26,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,35 +34,42 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-
+import com.grosner.painter.IconPainter;
+import com.grosner.painter.slider.ColorSlider;
+import com.grosner.painter.slider.SliderUtils;
 import com.grosner.smartinflater.annotation.SMethod;
 import com.grosner.smartinflater.annotation.SResource;
 import com.grosner.smartinflater.view.SmartInflater;
-import com.grosner.zoo.DrawerSlideUtils;
-import com.grosner.zoo.DrawerSlideView;
 import com.grosner.zoo.R;
-import com.grosner.zoo.activities.InfoDisplayActivity;
 import com.grosner.zoo.activities.ZooActivity;
-import com.grosner.zoo.location.OnNavigateListener;
-import com.grosner.zoo.singletons.ExhibitManager;
-import com.grosner.zoo.utils.Operations;
-import com.grosner.zoo.singletons.Preference;
-import com.grosner.zoo.location.CurrentLocationManager;
-import com.grosner.zoo.utils.MapUtils;
-import com.grosner.zoo.managers.OverlayManager;
-import com.grosner.zoo.markers.PlaceMarker;
+import com.grosner.zoo.adapters.ExhibitAdapter;
 import com.grosner.zoo.adapters.PlaceMarkerWindowAdapter;
+import com.grosner.zoo.database.PlaceObject;
+import com.grosner.zoo.location.CurrentLocationManager;
+import com.grosner.zoo.location.OnNavigateListener;
+import com.grosner.zoo.managers.OverlayManager;
 import com.grosner.zoo.managers.TextMarkerManager;
+import com.grosner.zoo.markers.PlaceMarker;
+import com.grosner.zoo.singletons.ExhibitManager;
+import com.grosner.zoo.singletons.Preference;
+import com.grosner.zoo.utils.DeviceInfo;
+import com.grosner.zoo.utils.MapUtils;
 import com.grosner.zoo.utils.Polygon;
 import com.grosner.zoo.utils.StringUtils;
+import com.grosner.zoo.utils.ViewUtils;
 import com.grosner.zoo.utils.ZooDialog;
-import com.grosner.zoo.views.ClearableTextView;
-import com.grosner.zoo.views.InstantAutoComplete;
+import com.grosner.zoo.widgets.ClearableTextView;
+import com.grosner.zoo.widgets.ExhibitItemView;
+import com.grosner.zoo.widgets.InstantAutoComplete;
+import com.grosner.zoo.widgets.RestrictedMapView;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import de.appetites.android.menuItemSearchAction.SearchPerformListener;
 
@@ -79,7 +79,7 @@ import de.appetites.android.menuItemSearchAction.SearchPerformListener;
  * @author Andrew Grosner
  *
  */
-public class MapViewFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener,
+public class MapViewFragment extends Fragment implements OnClickListener, OnCameraChangeListener,
         OnInfoWindowClickListener, MenuItem.OnMenuItemClickListener, GoogleMap.OnMapClickListener,
         SearchPerformListener, TextWatcher, TextView.OnEditorActionListener,
         MenuItem.OnActionExpandListener, OnNavigateListener {
@@ -143,8 +143,9 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	
 	@SResource private ImageButton toggle, clear, overview, myLocation;
 
-    private DrawerSlideView mLocationSlide, mSearchSlide;
-	private View[] loaders;
+    private ColorSlider mSearchSlider, mLocationSlider;
+
+    private IconPainter mMapPainter;
 
     /**
      * Holds a reference to the follow icon
@@ -152,6 +153,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
     private MenuItem followItem;
 
     private MenuItem parkItem;
+
+    private MenuItem searchItem;
 
     MenuItem mExpandedItem = null;
 
@@ -177,6 +180,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
      */
     public LinkedList<PlaceMarker> selected = new LinkedList<PlaceMarker>();
 
+    private ExhibitAdapter mSearchAdapter;
+
+    @SResource private RestrictedMapView mapView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,79 +192,79 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
         setHasOptionsMenu(true);
 
         try {
-            readPolygonCoords();
+            mPolygon = MapUtils.readPolygonCoords(getActivity());
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        mMapBounds = new LatLngBounds.Builder();
+        try {
+            MapUtils.generatePolygon(getActivity(), mMapBounds);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        mSearchSlider = new ColorSlider(getResources().getColor(R.color.actionbar_color),
+                Color.WHITE).with(new IconPainter());
+        mLocationSlider = new ColorSlider(getResources().getColor(R.color.actionbar_color),
+                Color.WHITE).with(new IconPainter());
+        mMapPainter = new IconPainter(getResources().getColor(R.color.icon_color));
     }
 
-    private void readPolygonCoords() throws IOException {
-        Scanner file = new Scanner(this.getResources().getAssets().open("mapraw.txt"));
-        LinkedList<Integer> x = new LinkedList<>();
-        LinkedList<Integer> y = new LinkedList<>();
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        ViewGroup layout = (ViewGroup) SmartInflater.inflate(this, R.layout.fragment_map);
 
-        while(file.hasNext()){
-            String line = file.nextLine();
-            String[] lValues = line.split(",");
-            double latitude = Double.valueOf(lValues[1]);
-            double longitude = Double.valueOf(lValues[0]);
-            y.add((int)(latitude*1E6));
-            x.add((int)(longitude*1E6));
+        mapView.setVisibleRegion(15, 20, mMapBounds.build());
+        mapView.onCreate(savedInstanceState);
+        mapView.initialize();
+        CurrentLocationManager.getSharedManager().registerOnNavigateListener(this);
+        return layout;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mMapPainter.paint(view.findViewById(R.id.clear),
+                toggle, myLocation, overview);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        mapView.onResume();
+        if(mGoogleMap==null){
+            mGoogleMap = mapView.getMap();
+            if(mGoogleMap!=null){
+                setUpMap(getActivity().getLayoutInflater());
+            }
+        } else{
+            CurrentLocationManager.getSharedManager().activate();
         }
-
-        int[] xs = new int[x.size()];
-        int[] ys = new int[y.size()];
-        for(int i =0; i < xs.length; i++){
-            xs[i] = x.poll();
-            ys[i] = y.poll();
-        }
-
-        mPolygon = new Polygon(xs, ys,xs.length);
-
-        file.close();
     }
 
     @Override
 	public void onPause(){
 		super.onPause();
-		
+        mapView.onPause();
 		CurrentLocationManager.getSharedManager().deactivate();
 	}
 	
-	@Override
-	public void onResume(){
-		super.onResume();
-
-        getActivity().getActionBar().setTitle(getString(R.string.bronx_zoo));
-
-		if(mGoogleMap==null){
-			mGoogleMap = super.getMap();
-			if(mGoogleMap!=null){
-				setUpMap(getActivity().getLayoutInflater());
-			}
-		} else{
-			CurrentLocationManager.getSharedManager().activate();
-		}
-	}
-	
-	@Override
-	 public View onCreateView(LayoutInflater inflater, ViewGroup container,
-           Bundle savedInstanceState) {
-		ViewGroup v = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
-		View layout = SmartInflater.inflate(this, R.layout.fragment_map);
-		
-		loaders = Operations.findViewByIds(layout, R.id.loading, R.id.loading_text);
-
-		v.addView(layout);
-
-        CurrentLocationManager.getSharedManager().registerOnNavigateListener(this);
-		return v;
-	}
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mapView.onDestroy();
+        mapView = null;
         CurrentLocationManager.getSharedManager().unRegisterOnNavigateListener(this);
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
     }
 
     @Override
@@ -269,7 +276,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
             mSearch = new ClearableTextView(getActivity());
             mSearchView = mSearch.eText;
 
-            int pad = Operations.dp(8);
+            int pad = DeviceInfo.dp(8);
 
             mSearchView.setTextColor(Color.BLACK);
             mSearchView.setPadding(pad, 0, pad, 0);
@@ -282,29 +289,29 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
             mSearchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    RelativeLayout layout = (RelativeLayout) view;
-                    if (layout != null) {
-                        String text = ((TextView) layout.getChildAt(0)).getText().toString();
-                        if (text!=null && !text.isEmpty()) {
+                    ExhibitItemView exhibitItemView = ((ExhibitItemView) view);
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
 
-                            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
-                                    Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
-                        }
+                    if(mExpandedItem!=null) {
+                        mExpandedItem.collapseActionView();
                     }
+                    onClickClear();
+                    addPlace(new PlaceMarker().place(exhibitItemView.getPlace()));
                 }
             });
 
 
             //TODO: add all exhibits adapter here
-            //mSearchView.setAdapter(new ExhibitAdapter());
+            mSearchView.setAdapter(mSearchAdapter = new ExhibitAdapter(PlaceFragment.PlaceType.SEARCH));
 
         }
         //adds the searchbar to the actionbar
-        final MenuItem search = menu.add(0, R.id.search, 0, getString(R.string.search))
+        searchItem = menu.add(0, R.id.search, 0, getString(R.string.search))
                 .setActionView(mSearch).setOnActionExpandListener(this)
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_search));
-        search.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT | MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
         inflater.inflate(R.menu.activity_sliding_screen, menu);
 
@@ -312,16 +319,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
         followItem.setIcon(getResources().getDrawable(isTracking? R.drawable.ic_action_location_blue : R.drawable.ic_action_location));
         followItem.setOnMenuItemClickListener(this);
 
-        mLocationSlide = new DrawerSlideView(followItem, getResources().getColor(R.color.actionbar_color), Color.WHITE, DrawerSlideView.Mode.COLOR);
-        mLocationSlide.onDrawerSlide(0);
-        mSearchSlide = new DrawerSlideView(search, getResources().getColor(R.color.actionbar_color), Color.WHITE, DrawerSlideView.Mode.COLOR);
-        mSearchSlide.onDrawerSlide(0);
+        mSearchSlider.onSlide(0, searchItem);
+        mLocationSlider.onSlide(0, followItem);
 
         parkItem = menu.findItem(R.id.park).setOnMenuItemClickListener(this);
-
-        menu.add(0, R.id.menu_amenities, 0 ,getString(R.string.amenities))
-                .setOnMenuItemClickListener(this)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        menu.findItem(R.id.menu_amenities).setOnMenuItemClickListener(this);
 
         onMenuItemCreated(menu);
 
@@ -329,7 +331,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    search.collapseActionView();
+                    searchItem.collapseActionView();
                 }
             }, 25);
         }
@@ -399,7 +401,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
             if(CurrentLocationManager.getSharedManager().isNavigating()){
                 disableNavigation(item);
-            } else	toggleFollow(true, mLocationSlide);
+            } else	toggleFollow(true);
             return true;
         } else if(id == R.id.park){
             if(isParked()){
@@ -448,20 +450,22 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
     public void onMapClick(LatLng point) {
         MapViewFragment map = (MapViewFragment) getFragmentManager().findFragmentByTag("MapViewFragment");
         if(map.isTracking())
-            map.toggleFollow(false, mLocationSlide);
+            map.toggleFollow(false);
     }
 
     @SMethod
     private void onClickToggle(){
         if(!isSatelliteMap){
             mGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            mTextMarkerManager.changeTextLabelColor(Color.MAGENTA,mCurrentZoom);
+            mTextMarkerManager.changeTextLabelColor(Color.MAGENTA, mCurrentZoom);
             toggle.setImageResource(R.drawable.ic_action_map);
         } else{
             mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             mTextMarkerManager.changeTextLabelColor(Color.BLACK,mCurrentZoom);
             toggle.setImageResource(R.drawable.ic_action_globe);
         }
+
+        mMapPainter.paint(toggle);
 
         isSatelliteMap = !isSatelliteMap;
     }
@@ -473,14 +477,24 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
     @SMethod
     private void onClickMyLocation(){
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLng(MapUtils.locationToLatLng(mGoogleMap.getMyLocation())));
+        LatLng latLng = MapUtils.locationToLatLng(mGoogleMap.getMyLocation());
+        if(mMapBounds.build().contains(latLng)) {
+            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        } else{
+            String message;
+            if(latLng==null){
+                message = getString(R.string.cannot_find_current_location);
+            } else{
+                message = getString(R.string.user_outside_map_error);
+            }
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+        }
     }
 
 	@Override
 	public void onClick(View v) {
 		int id = v.getId();
 		PlaceMarker place = selected.get(id-1);
-		searchPlace(place);
 		onClickClear();
 		addPlace(place);
 	}
@@ -490,10 +504,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * @param inflater
 	 */
 	private void setUpMap(LayoutInflater inflater){
-
-		final MapViewFragment frag = this;
-
-		mGoogleMap.setOnCameraChangeListener(this);
+        mapView.setOnCameraChangeListener(this);
 		mGoogleMap.setMyLocationEnabled(true);
 		mGoogleMap.setInfoWindowAdapter(new PlaceMarkerWindowAdapter(inflater));
 		mGoogleMap.setOnInfoWindowClickListener(this);
@@ -521,16 +532,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
    		getZooActivity().notifyLocationSet();
    		
    		if(ExhibitManager.getSharedInstance().getAllPlaces().isEmpty())
-   			new LoadDataTask(getZooActivity(), frag).execute();
+   			new LoadDataTask(getZooActivity(), this).execute();
    		
-   		mMapBounds = new LatLngBounds.Builder();
-		try {
-			MapUtils.generatePolygon(getActivity(), mMapBounds);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			
    		new LoadMapDataTask().execute();
 	}
 	
@@ -582,8 +585,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * @param places
 	 */
 	public void addPlaceList(List<PlaceMarker> places){
-		Operations.addView(getView().findViewById(R.id.clear));
-		MapUtils.moveToBounds(CurrentLocationManager.getSharedManager().getLastKnownLocation(), mGoogleMap, places);
+		ViewUtils.setViewsVisible(clear);
+        Location lastLoc = CurrentLocationManager.getSharedManager().getLastKnownLocation();
+		MapUtils.moveToBounds(lastLoc, mGoogleMap, places,
+                mPolygon!=null && lastLoc!=null && mPolygon.contains(lastLoc));
 		for(PlaceMarker place: places){
 			//if not within the text marker manager, we add icon to map
 			if(!mTextMarkerManager.addFocus(place))
@@ -628,12 +633,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 
 	@Override
 	public void onInfoWindowClick(Marker marker) {
-		if(marker.getSnippet()==null || marker.getSnippet().equals("")) {
-            MapUtils.showExhibitInfoDialog(getActivity(), marker);
-        } else {
-			InfoDisplayActivity.SCREEN = getZooActivity();
-			MapUtils.startInfoActivity(getZooActivity(), marker);
-		}
+        MapUtils.startInfoActivity(getZooActivity(), marker);
 	}
 	
 	/**
@@ -667,11 +667,11 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	 * @param item
 	 * @return whether we follow or not
 	 */
-	public boolean toggleFollow(boolean showMessage, DrawerSlideView slide){
+	public boolean toggleFollow(boolean showMessage){
 		if(!isTracking){
 			if(CurrentLocationManager.getSharedManager().getLastKnownLocation()!=null) {
-                slide.setStartColor(getResources().getColor(R.color.curious_blue));
-                slide.setEndColor(getResources().getColor(R.color.curious_blue));
+                mLocationSlider.setStartColor(getResources().getColor(R.color.curious_blue));
+                mLocationSlider.setEndColor(getResources().getColor(R.color.curious_blue));
                 MapUtils.animateTo(mGoogleMap, CurrentLocationManager.getSharedManager().getLastKnownLocation());
                 isTracking = true;
                 Toast.makeText(getActivity(), getString(R.string.now_following_current_location),
@@ -681,8 +681,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
                         Toast.LENGTH_LONG).show();
             }
 		} else{
-			slide.setStartColor(getResources().getColor(R.color.actionbar_color));
-            slide.setEndColor(Color.WHITE);
+			mLocationSlider.setStartColor(getResources().getColor(R.color.actionbar_color));
+            mLocationSlider.setEndColor(Color.WHITE);
 			isTracking = false;
 			Toast.makeText(getActivity(), "Following Off", Toast.LENGTH_SHORT).show();
 		}
@@ -699,7 +699,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	
 	public boolean enableNavigation(MenuItem item, Location locationTo){
 		isTracking = false;
-		if(toggleFollow(true, mLocationSlide)){
+		if(toggleFollow(true)){
 			CurrentLocationManager.getSharedManager().navigate(locationTo);
 			return true;
 		} else return false;
@@ -708,7 +708,7 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 	public void disableNavigation(MenuItem item){
 		//this will disable following
 		isTracking = true;
-		toggleFollow(true, mLocationSlide);
+		toggleFollow(true);
 		
 		CurrentLocationManager.getSharedManager().disableNavigation();
 	}
@@ -797,17 +797,6 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 		return isParked;
 	}
 
-    /**
-     * Switches to map, collapses search bar, hides the searchlist, and sends the query to the server
-     * @param place
-     */
-    public void searchPlace(PlaceMarker place){
-        MenuFragment list = (MenuFragment) getFragmentManager().findFragmentByTag
-                ("MenuFragment");
-        list.switchToMap();
-        //Operations.removeView(searchList);
-    }
-
     @Override
     public void afterTextChanged(Editable s) {}
 
@@ -817,39 +806,12 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
         /*if(searchList!=null) {
             searchList.removeAllViews();
         }*/
-        selected.clear();
     }
 
     @Override
     public void onTextChanged(final CharSequence s, int start, int before, int count) {
         if(s.length()>0){
-            //searchList.removeAllViews();
-            MapViewFragment map = (MapViewFragment) getFragmentManager().findFragmentByTag
-                    ("MapViewFragment");
-            LinkedList<PlaceMarker> exhibits = ExhibitManager.getSharedInstance().getAllPlaces();
-            for(int i =0; i < exhibits.size(); i++){
-                PlaceMarker place = exhibits.get(i);
-                if(place.getName().toLowerCase().startsWith(s.toString().toLowerCase()))
-                    selected.add(place);
-            }
-
-            Collections.sort(selected, new Comparator<PlaceMarker>() {
-
-                @Override
-                public int compare(PlaceMarker lhs, PlaceMarker rhs) {
-                    Boolean lstart = lhs.getName().toLowerCase().startsWith(s.toString().toLowerCase());
-                    Boolean rstart = rhs.getName().toLowerCase().startsWith(s.toString().toLowerCase());
-
-                    return lstart.compareTo(rstart);
-
-                }
-
-            });
-
-            int size = selected.size();
-            for(int i = 0; i < size; i++){
-                //searchList.addView(PlaceController.createExhibitItem(map.getLastKnownLocation(), i+1, selected.get(i), map));
-            }
+            mSearchAdapter.getFilter().filter(s);
         }
     }
 
@@ -870,11 +832,10 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
             String querie = query.toLowerCase();
 
             boolean found = false;
-            PlaceMarker placeFound = null;
+            PlaceObject placeFound = null;
 
-            MapViewFragment map = (MapViewFragment) getFragmentManager().findFragmentByTag
-                    ("MapViewFragment");
-            for(PlaceMarker place: ExhibitManager.getSharedInstance().getAllPlaces()){
+            List<PlaceObject> placeObjects = mSearchAdapter.getObjects();
+            for(PlaceObject place: placeObjects){
                 String name = place.getName().toLowerCase();
                 if(name.equals(querie)){
                     found = true;
@@ -884,9 +845,8 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
             }
 
             if(found){
-                searchPlace(placeFound);
-                map.onClickClear();
-                map.addPlace(placeFound);
+                onClickClear();
+                addPlace(new PlaceMarker().place(placeFound));
             } else{
                 Toast.makeText(getActivity(), "Not found", Toast.LENGTH_SHORT).show();
             }
@@ -977,23 +937,26 @@ public class MapViewFragment extends SupportMapFragment implements OnClickListen
 			mTextMarkerManager.addToMap();
 			mTextMarkerManager.refreshData(mGoogleMap.getCameraPosition().zoom);
 			mGoogleMap.setOnMarkerClickListener(mTextMarkerManager);
-			
-			for(View v: loaders){
-				v.setVisibility(View.GONE);
-			}
+			ViewUtils.setViewsGone(MapViewFragment.this, R.id.loading, R.id.loading_text);
 		}
 	}
 
+
+
     public void onDrawerSlide(float offset){
-        mLocationSlide.onDrawerSlide(offset);
-        mSearchSlide.onDrawerSlide(offset);
+        mSearchSlider.onSlide(offset, searchItem);
+        mLocationSlider.onSlide(offset, followItem);
         TextView titleView = getZooActivity().getActionBarTitleView();
         if(titleView!=null){
-            titleView.setTextColor(DrawerSlideUtils.calculateColor(offset, Color.BLACK, Color.WHITE));
+            titleView.setTextColor(SliderUtils.calculateColor(offset, Color.BLACK, Color.WHITE));
         }
     }
 
     protected ZooActivity getZooActivity(){
         return (ZooActivity) getActivity();
+    }
+
+    protected GoogleMap getMap(){
+        return mGoogleMap;
     }
 }

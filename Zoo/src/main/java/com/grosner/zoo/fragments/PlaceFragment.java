@@ -14,6 +14,7 @@ import com.grosner.zoo.database.PlaceObject;
 import com.grosner.zoo.location.CurrentLocationManager;
 import com.grosner.zoo.markers.PlaceMarker;
 import com.grosner.zoo.singletons.ExhibitManager;
+import com.nhaarman.listviewanimations.swinginadapters.prepared.SwingLeftInAnimationAdapter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class PlaceFragment extends ZooFragment {
 
     public enum PlaceType implements Serializable {
         EXHIBITS, FOOD, SPECIAL, SHOPS, ADMIN, NEARBY, GATES, PARKING,
-        RESTROOMS, MISC;
+        RESTROOMS, MISC, SEARCH;
 
         public String toString() {
             return name().toLowerCase(Locale.ENGLISH);
@@ -81,6 +82,8 @@ public class PlaceFragment extends ZooFragment {
 
     private ExhibitAdapter mAdapter;
 
+    private SwingLeftInAnimationAdapter mAnimationAdapter;
+
     public boolean isEmpty() {
         return mAdapter == null || mAdapter.getCount() == 0;
     }
@@ -96,18 +99,17 @@ public class PlaceFragment extends ZooFragment {
         mLayout = R.layout.fragment_listview;
     }
 
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        refresh();
+    @SMethod
+    private void onCreateListView(ListView listView){
+        mAnimationAdapter = new SwingLeftInAnimationAdapter(mAdapter = new ExhibitAdapter(mType));
+        mAnimationAdapter.setAbsListView(listView);
+        listView.setAdapter(mAnimationAdapter);
     }
 
-    /**
-     * Refreshes a list based on the amount of params passed to it
-     */
-    public void refresh() {
-        listView.setAdapter(mAdapter = new ExhibitAdapter(mType));
+    public void refresh(){
+        if(mAdapter!=null) {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @SMethod

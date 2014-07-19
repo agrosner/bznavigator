@@ -1,1 +1,1 @@
-include ':Zoo', ':Libraries:SmartInflater', ':Libraries:ActiveAndroid'
+include ':Zoo', ':Libraries:SmartInflater', ':Libraries:ActiveAndroid', ':Libraries:Painter:library'

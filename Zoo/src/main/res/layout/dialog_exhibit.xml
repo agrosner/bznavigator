@@ -42,7 +42,7 @@
 	    style="@style/wrap"
 	    >
 	    <LinearLayout 
-	        android:id="@+id/info_page"
+	        android:id="@+id/infoPage"
 	        style="@style/wrap"
 	        android:orientation="vertical"
 	        >

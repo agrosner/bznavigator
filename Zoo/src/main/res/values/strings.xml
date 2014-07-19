@@ -24,5 +24,11 @@
     <string name="cannot_find_current_location">Cannot find current location</string>
     <string name="now_following_current_location">Now Following Current Location, Tap Map to Cancel</string>
     <string name="amenities">Amenities</string>
+    <string name="core_device_size">handset</string>
+    <string name="no_description_available">No description available.</string>
+    <string name="open_in_web">Open In Web</string>
+    <string name="favorite">Favorite</string>
+    <string name="no_snippet_available">No web page for this item.</string>
+    <string name="user_outside_map_error">You are outside the Zoo boundary.</string>
 
 </resources>

@@ -1,7 +1,5 @@
 package com.grosner.zoo.activities;
 
-import java.lang.ref.WeakReference;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -16,20 +14,25 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.TextView;
 
-import com.grosner.zoo.DrawerSlideView;
+import com.grosner.painter.actionbar.ActionBarAlphaSlider;
 import com.grosner.zoo.FragmentUtils;
-import com.grosner.zoo.fragments.MenuFragment;
-import com.grosner.zoo.fragments.AmenitiesFragment;
-import com.grosner.zoo.fragments.PlaceFragment;
 import com.grosner.zoo.R;
-import com.grosner.zoo.utils.ZooDialog;
+import com.grosner.zoo.fragments.AmenitiesFragment;
 import com.grosner.zoo.fragments.MapViewFragment;
+import com.grosner.zoo.fragments.MenuFragment;
+import com.grosner.zoo.fragments.PlaceFragment;
+import com.grosner.zoo.utils.DeviceUtils;
+import com.grosner.zoo.utils.ZooDialog;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Class displays the main menu that will switch between different fragments
@@ -51,7 +54,7 @@ public class ZooActivity extends FragmentActivity implements OnClickListener, Dr
 
     private ActionBarDrawerToggle mToggle;
 
-    private DrawerSlideView mSlider;
+    private ActionBarAlphaSlider mSlider;
 
     private TextView mActionBarTitleView;
 
@@ -80,15 +83,11 @@ public class ZooActivity extends FragmentActivity implements OnClickListener, Dr
 		DisplayMetrics display = new DisplayMetrics();
     	this.getWindowManager().getDefaultDisplay().getMetrics(display);
     	int screensize = this.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-                
-    	if(screensize >= Configuration.SCREENLAYOUT_SIZE_LARGE)	isLargeScreen = true;
-    	
-    	if(isLargeScreen){
-    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    	} else{
-    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    	}
-		
+
+        if(!DeviceUtils.isTablet()) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
 		//cancel button used for both dialogs
 		OnClickListener cancel = new OnClickListener() {
 			
@@ -136,8 +135,10 @@ public class ZooActivity extends FragmentActivity implements OnClickListener, Dr
         if(drawer!=null && drawer instanceof DrawerLayout) {
             mDrawer = (DrawerLayout) drawer;
             mDrawer.setDrawerListener(this);
-            mToggle = new ActionBarDrawerToggle(this, mDrawer, R.drawable.ic_drawer, R.string.open, R.string.close);
-            mSlider = new DrawerSlideView(getActionBar(), getResources().getColor(R.color.actionbar_color), DrawerSlideView.Mode.ALPHA);
+            if(!DeviceUtils.isTablet() || getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                mToggle = new ActionBarDrawerToggle(this, mDrawer, R.drawable.ic_drawer, R.string.open, R.string.close);
+                mSlider = new ActionBarAlphaSlider(false, getActionBar(), getResources().getColor(R.color.actionbar_color));
+            }
         }
 
         Fragment map = FragmentUtils.getFragment(MapViewFragment.class);
@@ -147,15 +148,32 @@ public class ZooActivity extends FragmentActivity implements OnClickListener, Dr
         Fragment amentities = FragmentUtils.getFragment(AmenitiesFragment.class);
         FragmentUtils.replaceFragment(this, amentities, false, R.id.AmenitiesView, getString(R.string.fragment_amenities));
 
-        int actionBarTitleId = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");
-        if (actionBarTitleId > 0) {
-            mActionBarTitleView = (TextView) findViewById(actionBarTitleId);
-            mActionBarTitleView.setTextColor(Color.BLACK);
+        if(!DeviceUtils.isTablet() || getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            int actionBarTitleId = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");
+            if (actionBarTitleId > 0) {
+                mActionBarTitleView = (TextView) findViewById(actionBarTitleId);
+                mActionBarTitleView.setTextColor(Color.BLACK);
+            }
         }
 	}
 
+    @Override
+    public void onBackPressed() {
+        if(getSupportFragmentManager().getBackStackEntryCount()==0 && mDrawer.isDrawerOpen(Gravity.LEFT)){
+            mDrawer.closeDrawers();
+        } else {
+            super.onBackPressed();
+        }
+    }
 
-	@Override
+    @Override
+    public void onPanelClosed(int featureId, Menu menu) {
+        super.onPanelClosed(featureId, menu);
+        //call this since the actionbar gets cached somehow
+        supportInvalidateOptionsMenu();
+    }
+
+    @Override
 	public boolean onOptionsItemSelected(MenuItem item) {
         if(mToggle==null || !mToggle.onOptionsItemSelected(item)) {
             switch (item.getItemId()) {
@@ -248,11 +266,12 @@ public class ZooActivity extends FragmentActivity implements OnClickListener, Dr
 
     @Override
     public void onDrawerSlide(View view, float v) {
-        mSlider.onDrawerSlide(v);
-
-        MapViewFragment mapViewFragment = (MapViewFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.fragment_map));
-        if(mapViewFragment!=null){
-            mapViewFragment.onDrawerSlide(v);
+        if(mSlider!=null) {
+            mSlider.onSlide(v);
+            MapViewFragment mapViewFragment = (MapViewFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.fragment_map));
+            if (mapViewFragment != null) {
+                mapViewFragment.onDrawerSlide(v);
+            }
         }
     }
 

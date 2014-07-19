@@ -13,6 +13,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.grosner.smartinflater.view.SmartInflater;
 import com.grosner.zoo.R;
 import com.grosner.zoo.database.PlaceManager;
+import com.grosner.zoo.singletons.ExhibitManager;
 
 /**
  * Created By: andrewgrosner
@@ -39,6 +40,7 @@ public class ZooApplication extends AAApplication{
         }
 
         PlaceManager.getManager().readAllFiles();
+        ExhibitManager.getSharedInstance().getAllPlaces();
     }
 
     public static Context getContext(){

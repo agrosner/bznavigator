@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.grosner.zoo.widgets.NoOnKeyDrawerLayout
+    android:id="@+id/drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:id="@+id/ContentView"
+        style="@style/match"
+        >
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/MenuView"
+        android:layout_width="300dp"
+        android:layout_gravity="start"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        style="@style/match"/>
+    <FrameLayout
+        android:id="@+id/AmenitiesView"
+        android:layout_width="300dp"
+        android:layout_gravity="end"
+        style="@style/match">
+
+    </FrameLayout>
+</com.grosner.zoo.widgets.NoOnKeyDrawerLayout>

@@ -1,7 +1,10 @@
 package com.grosner.zoo.database;
 
+import android.location.Location;
+
 import com.activeandroid.interfaces.ObjectReceiver;
 import com.activeandroid.manager.DBManager;
+import com.activeandroid.query.Select;
 import com.activeandroid.runtime.DBRequest;
 import com.grosner.zoo.application.ZooApplication;
 import com.grosner.zoo.fragments.PlaceFragment;
@@ -91,5 +94,9 @@ public class PlaceManager extends DBManager<PlaceObject>{
 
     public List<PlaceObject> getList(String placeType){
         return getAllWithColumnValue("placeType", placeType);
+    }
+
+    public PlaceObject getPlaceByName(String title){
+        return new Select().from(mObjectClass).where("name = ?", title).executeSingle();
     }
 }

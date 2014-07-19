@@ -7,7 +7,7 @@ import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 
 import com.grosner.zoo.R;
-import com.grosner.zoo.utils.Operations;
+import com.grosner.zoo.utils.ViewUtils;
 
 public class PlaceMarkerWindowAdapter implements InfoWindowAdapter{
 
@@ -25,7 +25,7 @@ public class PlaceMarkerWindowAdapter implements InfoWindowAdapter{
 
 	@Override
 	public View getInfoWindow(Marker marker) {
-		Operations.setViewText(mWindow, marker.getTitle(), R.id.name);
+		ViewUtils.setViewText(mWindow, marker.getTitle(), R.id.name);
 		return mWindow;
 	}
 

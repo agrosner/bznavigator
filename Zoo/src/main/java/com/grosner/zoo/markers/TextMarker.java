@@ -9,9 +9,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.grosner.zoo.application.ZooApplication;
 import com.grosner.zoo.database.PlaceObject;
-import com.grosner.zoo.utils.Operations;
+import com.grosner.zoo.utils.DeviceInfo;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -20,7 +19,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
-import android.util.TypedValue;
 
 /**
  * Very useful in displaying text-only marker labels
@@ -141,7 +139,7 @@ public class TextMarker extends PlaceMarker implements Serializable{
 	 */
 	private void generateBitmap(){
 		//scale DIP pixels
-		float scale = Operations.dp(TEXT_SIZE);
+		float scale = DeviceInfo.dp(TEXT_SIZE);
 		Paint text = new Paint();
 		text.setTextSize(scale);
 		text.setStrokeWidth(0);

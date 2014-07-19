@@ -268,7 +268,6 @@ public class CurrentLocationManager implements LocationSource{
             	cr.setAccuracy(Criteria.ACCURACY_FINE);
             	String provider = mManager.getBestProvider(cr, true);
             	mManager.requestLocationUpdates(provider, 1000, 0, mListener);
-            	Toast.makeText(mContext, provider + " enabled", Toast.LENGTH_LONG).show();
             } catch(Exception e) {
             	deactivate();
                 Toast.makeText(mContext, "Location is not turned on", Toast.LENGTH_LONG).show();

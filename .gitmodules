@@ -4,3 +4,6 @@
 [submodule "Libraries/ActiveAndroid"]
 	path = Libraries/ActiveAndroid
 	url = https://github.com/agrosner/ActiveAndroid.git
+[submodule "Libraries/Painter"]
+	path = Libraries/Painter
+	url = https://github.com/agrosner/Painter.git

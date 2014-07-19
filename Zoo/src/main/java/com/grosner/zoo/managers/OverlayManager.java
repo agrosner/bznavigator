@@ -1,13 +1,16 @@
 package com.grosner.zoo.managers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 
+import com.activeandroid.manager.SingleDBManager;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
@@ -15,7 +18,9 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import com.grosner.zoo.utils.Operations;
+import com.grosner.zoo.database.PathObject;
+import com.grosner.zoo.database.PathPointObject;
+import com.grosner.zoo.utils.DeviceInfo;
 
 /**
  * Manages polygons and polylines displayed on the map. Reads them from files and puts them on the map
@@ -44,25 +49,51 @@ public class OverlayManager {
 	private static void readPolylineFiles(Context con) throws IOException{
 		if(mPolylineOptions !=null)	return;
 	
-		mPolylineOptions = new LinkedList<PolylineOptions>();
-		AssetManager assets = con.getAssets();
-		String[] list = assets.list(mPolylineFolder);
-		for(String fName: list){
-			if(fName.endsWith(".txt")){
-				Scanner scan = new Scanner(assets.open(mPolylineFolder+"/"+fName));
-				PolylineOptions polylineOptions = new PolylineOptions().color(Color.parseColor("#F3FFF4"))
-                        .width(Operations.dpFloat(5)).geodesic(true);
-				while(scan.hasNext()){
-					String line = scan.next();
-					String[] values = line.split(",");
-					if(values.length==2){
-						polylineOptions.add(new LatLng(Double.valueOf(values[0]), Double.valueOf(values[1])));
-					}
-				}
-				scan.close();
-				mPolylineOptions.add(polylineOptions);
-			}
-		}
+		mPolylineOptions = new LinkedList<>();
+
+        //if data not in DB yet
+        if(SingleDBManager.getSharedInstance().getCount(PathPointObject.class)==0) {
+            AssetManager assets = con.getAssets();
+            String[] list = assets.list(mPolylineFolder);
+            for (String fName : list) {
+                if (fName.endsWith(".txt")) {
+                    Scanner scan = new Scanner(assets.open(mPolylineFolder + "/" + fName));
+                    PathObject pathObject = new PathObject();
+                    pathObject.setName(fName);
+                    pathObject.save();
+
+                    List<PathPointObject> pathPointObjects = new ArrayList<>();
+
+                    int order = 0;
+                    while (scan.hasNext()) {
+                        String line = scan.next();
+                        String[] values = line.split(",");
+                        if (values.length == 2) {
+                            PathPointObject pathPointObject = new PathPointObject();
+                            pathPointObject.setSort_order(order);
+                            pathPointObject.setLatitude(Double.valueOf(values[0]));
+                            pathPointObject.setLongitude(Double.valueOf(values[1]));
+                            pathPointObject.setPath_name(fName);
+                            pathPointObjects.add(pathPointObject);
+                        }
+                        order++;
+                    }
+                    scan.close();
+                    SingleDBManager.getSharedInstance().addAll(pathPointObjects);
+                }
+            }
+        }
+
+        List<PathObject> pathObjects = SingleDBManager.getSharedInstance().getAll(PathObject.class);
+        for(PathObject pathObject: pathObjects){
+            PolylineOptions polylineOptions = new PolylineOptions().color(Color.parseColor("#F3FFF4"))
+                    .width(DeviceInfo.dpFloat(5)).geodesic(true);
+            List<PathPointObject> pathPointObjects = pathObject.points();
+            for(PathPointObject pathPointObject: pathPointObjects){
+                polylineOptions.add(new LatLng(pathPointObject.getLatitude(), pathPointObject.getLongitude()));
+            }
+            mPolylineOptions.add(polylineOptions);
+        }
 	}
 	
 	public static void readPolygonFiles(Context con) throws IOException{

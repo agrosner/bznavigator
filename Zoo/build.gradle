@@ -36,14 +36,17 @@ android {
 dependencies {
     compile 'com.google.android.gms:play-services:4.2.+'
     compile 'com.android.support:support-v4:20.+'
+    compile 'com.nhaarman.listviewanimations:library:+'
     compile 'com.commonsware.cwac:merge:1.0.1'
     compile 'com.squareup.picasso:picasso:2.1.1'
+    compile 'it.sephiroth.android.library.horizontallistview:library:+'
 
     compile 'com.nhaarman.listviewanimations:library:2.6.+'
-    provided 'org.projectlombok:lombok:1.14.0'
+    provided 'org.projectlombok:lombok:1.14.+'
 
     compile project(':Libraries:SmartInflater')
     compile project(':Libraries:ActiveAndroid')
+    compile project(':Libraries:Painter:library')
 
     compile fileTree(dir: 'libs/', include: '*.jar')
 

@@ -56,12 +56,12 @@ public class MapUtils {
 	 * @param map
 	 * @param places
 	 */
-	public static void moveToBounds(Location myLocation, GoogleMap map, List<PlaceMarker> places){
+	public static void moveToBounds(Location myLocation, GoogleMap map, List<PlaceMarker> places, boolean isInMap){
 		LatLngBounds.Builder builder = new LatLngBounds.Builder();
 		for(PlaceMarker place: places){
 			builder.include(place.getPoint());
 		}
-		if(myLocation!=null)
+		if(isInMap && myLocation!=null)
 			builder.include(locationToLatLng(myLocation));
 		try{
 			map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 10));
@@ -106,7 +106,11 @@ public class MapUtils {
 	}
 	
 	public static LatLng locationToLatLng(Location loc){
-		return new LatLng(loc.getLatitude(), loc.getLongitude());
+        if(loc!=null) {
+            return new LatLng(loc.getLatitude(), loc.getLongitude());
+        } else{
+            return null;
+        }
 	}
 	
 	public static Location latLngToLocation(LatLng lat){
@@ -151,60 +155,6 @@ public class MapUtils {
 	}
 	
 	/**
-	 * Shows exhibit information in the form of a custom dialog. This dialog should
-	 * poll the server for exhibit information in the near future
-    	 * @param marker
-	 */
-	public static void showExhibitInfoDialog(final FragmentActivity act, final Marker marker){
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(act);
-		View v = LayoutInflater.from(act).inflate(R.layout.dialog_exhibit, null);
-		
-		Operations.setViewText(v, marker.getTitle(), R.id.title);
-		Operations.setViewText(v, 
-				PlaceController.calculateDistanceString(CurrentLocationManager.getSharedManager().getLastKnownLocation(),
-						latLngToLocation(marker.getPosition())), 
-				R.id.distance);
-		if(StringUtils.stringNotNullOrEmpty(marker.getSnippet())){
-			v.findViewById(R.id.info).setVisibility(View.GONE);
-			try {
-				new HTMLScraper().getInfoContent((LinearLayout) v.findViewById(R.id.info_page), marker.getSnippet());
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		builder.setView(v);	
-		final AlertDialog dialog = builder.create(); 
-		
-		OnClickListener onclick = new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				int id = v.getId();
-				if(id == R.id.exit){
-					dialog.cancel();
-				} else if(id == R.id.navigate){
-					CurrentLocationManager.getSharedManager().navigate(latLngToLocation(marker.getPosition()));
-					MapViewFragment map = (MapViewFragment) act.getSupportFragmentManager().findFragmentByTag("MapViewFragment");
-						//map.enableNavigation(((SlidingScreenActivity) act).getFollowItem(), latLngToLocation(marker.getPosition()));
-					dialog.dismiss();
-					Toast.makeText(act, "Now navigating to " + marker.getTitle(), Toast.LENGTH_SHORT).show();
-				}
-			}
-			
-		};
-		Operations.setOnClickListeners(v, onclick, R.id.exit, R.id.navigate);
-		
-		dialog.show();
-		
-	}
-	
-	/**
 	 * Determines whether two locations are exactly the same (such that the latitude and longitude are exact matches)
 	 * @param loc1
 	 * @param loc2
@@ -213,5 +163,31 @@ public class MapUtils {
 	public static boolean locationsEqual(Location loc1, Location loc2){
 		return (loc1.getLatitude()==loc2.getLatitude()) && (loc1.getLongitude()==loc2.getLongitude());
 	}
-	
+
+    public static Polygon readPolygonCoords(Context context) throws IOException {
+        Scanner file = new Scanner(context.getResources().getAssets().open("mapraw.txt"));
+        LinkedList<Integer> x = new LinkedList<>();
+        LinkedList<Integer> y = new LinkedList<>();
+
+        while(file.hasNext()){
+            String line = file.nextLine();
+            String[] lValues = line.split(",");
+            double latitude = Double.valueOf(lValues[1]);
+            double longitude = Double.valueOf(lValues[0]);
+            y.add((int)(latitude*1E6));
+            x.add((int)(longitude*1E6));
+        }
+
+        int[] xs = new int[x.size()];
+        int[] ys = new int[y.size()];
+        for(int i =0; i < xs.length; i++){
+            xs[i] = x.poll();
+            ys[i] = y.poll();
+        }
+
+        Polygon polygon = new Polygon(xs, ys,xs.length);
+
+        file.close();
+        return polygon;
+    }
 }

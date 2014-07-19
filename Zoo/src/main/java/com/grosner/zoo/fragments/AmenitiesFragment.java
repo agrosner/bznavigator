@@ -16,7 +16,6 @@ import com.grosner.zoo.R;
 import com.grosner.zoo.markers.PlaceMarker;
 import com.grosner.zoo.singletons.ExhibitManager;
 import com.grosner.zoo.utils.MapUtils;
-import com.grosner.zoo.utils.Operations;
 
 import java.util.LinkedList;
 

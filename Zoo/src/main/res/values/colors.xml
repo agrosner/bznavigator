@@ -10,4 +10,6 @@
     <color name="curious_blue">#4189B9</color>
     <color name="transparent_black">#AA000000</color>
     <color name="actionbar_color">#6D8A8C</color>
+
+    <color name="icon_color">#585858</color>
 </resources>

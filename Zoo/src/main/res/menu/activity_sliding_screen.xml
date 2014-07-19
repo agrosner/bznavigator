@@ -7,7 +7,14 @@
         android:orderInCategory="1"
         android:showAsAction="ifRoom|withText"
         />
-    <item 
+    <item
+        android:id="@+id/menu_amenities"
+        android:title="@string/amenities"
+        android:orderInCategory="2"
+        android:showAsAction="withText"
+        />
+
+    <item
         android:id="@+id/park"
         android:title="Save Parking Location"
         android:icon="@drawable/ic_action_key"
