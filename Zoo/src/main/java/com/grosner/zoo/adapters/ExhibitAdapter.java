@@ -37,7 +37,9 @@ public class ExhibitAdapter extends BaseAdapter implements CollectionReceiver<Pl
     private boolean isDropDown = false;
 
     public ExhibitAdapter(PlaceFragment.PlaceType placeType) {
-        if(!placeType.equals(PlaceFragment.PlaceType.NEARBY) && !placeType.equals(PlaceFragment.PlaceType.SEARCH)) {
+        if(placeType.equals(PlaceFragment.PlaceType.PINS)){
+            PlaceManager.getManager().fetchAllWithColumnValue("1", "isFavorite", this);
+        } else if(!placeType.equals(PlaceFragment.PlaceType.NEARBY) && !placeType.equals(PlaceFragment.PlaceType.SEARCH)) {
             PlaceManager.getManager().fetchAllWithColumnValue(placeType.name(), "placeType", this);
         } else{
             isDropDown = placeType.equals(PlaceFragment.PlaceType.SEARCH);

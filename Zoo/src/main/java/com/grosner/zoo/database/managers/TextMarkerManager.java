@@ -1,8 +1,7 @@
-package com.grosner.zoo.managers;
+package com.grosner.zoo.database.managers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -14,6 +13,8 @@ import com.google.android.gms.maps.model.Marker;
 
 import android.graphics.Color;
 import android.location.Location;
+
+import com.grosner.zoo.R;
 import com.grosner.zoo.activities.ZooActivity;
 import com.grosner.zoo.application.ZooApplication;
 import com.grosner.zoo.database.PlaceManager;
@@ -22,7 +23,6 @@ import com.grosner.zoo.fragments.MapViewFragment;
 import com.grosner.zoo.fragments.PlaceFragment;
 import com.grosner.zoo.markers.PlaceMarker;
 import com.grosner.zoo.markers.TextMarker;
-import com.grosner.zoo.singletons.ExhibitManager;
 
 /**
  * This class manages and provides functionality to display text labels
@@ -284,7 +284,8 @@ public class TextMarkerManager implements OnMarkerClickListener{
 	@Override
 	public boolean onMarkerClick(Marker marker) {
 		if(contains(marker))	{
-            MapViewFragment fragment = (MapViewFragment) ((ZooActivity)mContext).getSupportFragmentManager().findFragmentByTag("MapViewFragment");
+            MapViewFragment fragment = (MapViewFragment) ((ZooActivity)mContext)
+                    .getSupportFragmentManager().findFragmentByTag(ZooApplication.getResourceString(R.string.fragment_map));
             if(fragment!=null)
 			    fragment.addPlaceMove(mMarkers.get(indexOf(marker)));
 			return true;

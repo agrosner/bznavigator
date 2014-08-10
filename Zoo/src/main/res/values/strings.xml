@@ -30,5 +30,8 @@
     <string name="favorite">Favorite</string>
     <string name="no_snippet_available">No web page for this item.</string>
     <string name="user_outside_map_error">You are outside the Zoo boundary.</string>
+    <string name="description">Description</string>
+    <string name="schedule">Schedule</string>
+    <string name="fragment_place_categories">PlaceCategoriesFragment</string>
 
 </resources>

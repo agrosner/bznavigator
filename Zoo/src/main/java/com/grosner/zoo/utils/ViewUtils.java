@@ -58,6 +58,9 @@ public class ViewUtils {
         }
     }
 
+    public static void setViewsGone(View...views) {
+        setViewVisibility(View.GONE, views);
+    }
 
     public static void setViewsGone(Object view, int fid, int...views) {
         setViewVisibility(view, View.GONE, fid, views);

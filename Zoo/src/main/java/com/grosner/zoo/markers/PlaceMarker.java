@@ -40,12 +40,8 @@ public class PlaceMarker implements Serializable{
 	/**
 	 * The common prefix for all links
 	 */
-	public static String HTML_PREFIX = "http://bronxzoo.com/animals-and-exhibits/";
+	public static String HTML_PREFIX = "http://new.bronxzoo.com/";
 	
-	/**
-	 * Common link ending
-	 */
-	public static String HTML_POSTFIX =".aspx";
 
     public PlaceMarker place(PlaceObject placeObject){
         mPoint = new LatLng(placeObject.getLatitude(), placeObject.getLongitude());
@@ -189,7 +185,7 @@ public class PlaceMarker implements Serializable{
 	 */
 	public String getLink(){
 		if(StringUtils.stringNotNullOrEmpty(mLink))
-			return HTML_PREFIX + mLink + HTML_POSTFIX;
+			return HTML_PREFIX + mLink;
 		else return mLink;
 	}
 	

@@ -61,5 +61,19 @@
         <item name="android:padding">5dip</item>
         <item name="android:layout_margin">10dip</item>
     </style>
-    
+
+    <style name="description_title" parent="match_width">
+        <item name="android:textColor">@color/description_text_color</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:layout_marginLeft">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginRight">@dimen/activity_horizontal_margin</item>
+    </style>
+
+    <style name="description_text" parent="match_width">
+        <item name="android:textColor">@color/description_text_text_color</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:layout_margin">@dimen/activity_horizontal_margin</item>
+    </style>
+
 </resources>

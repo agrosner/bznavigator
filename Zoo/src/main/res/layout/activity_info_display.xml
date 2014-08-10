@@ -1,56 +1,86 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
     style="@style/match"
-    android:background="@color/curious_blue"
+    android:fillViewport="true"
+    android:background="@color/background_color"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="?android:attr/actionBarSize"
     tools:context=".InfoDisplayActivity" >
-    <TextView 
-        android:id="@+id/title"
-        style="@style/main_text"
-        android:textSize="30sp"
-        android:text="Title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-	    android:id="@+id/distance"
-	    style="@style/main_text"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_below="@id/title"
-	    android:text="0ft"
-	    android:textColor="@android:color/white"
-	    android:textSize="25sp" />
-        />
-    <it.sephiroth.android.library.widget.HListView
-        android:id="@+id/horizontalListView"
-        style="@style/match_width"
-        />
-	<TextView 
-	    android:id="@+id/info"
-	    android:layout_marginTop="10dip"
-	    android:layout_below="@id/distance"
-	    android:layout_alignParentLeft="true"
-	    android:text="No information available yet."
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-	    style="@style/main_text"
-	    />
-	<ScrollView 
-	    android:layout_below="@id/info"
-	    style="@style/wrap"
-	    >
-	    <LinearLayout 
-	        android:id="@+id/infoPage"
-	        style="@style/wrap"
-	        android:orientation="vertical"
-	        >
-	        
-	    </LinearLayout>
-	</ScrollView>
 
-	
+    <RelativeLayout
+        android:background="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/placeImage"
+            tools:layout_height="300dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/title"
+            style="@style/main_text"
+            android:textSize="30sp"
+            tools:text="Title"
+            android:background="@color/background_color"
+            android:textColor="@color/orange_text_color"
+            android:gravity="end"
+            android:layout_alignParentRight="true"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingLeft="@dimen/activity_vertical_margin"
+            android:layout_above="@+id/distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/distance"
+            style="@style/main_text"
+            android:layout_alignParentRight="true"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:gravity="end"
+            android:background="@color/background_color"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignLeft="@+id/title"
+            android:layout_alignBottom="@+id/placeImage"
+            tools:text="0ft"
+            android:textColor="@color/orange_text_color"
+            android:textSize="25sp" />
+        <RelativeLayout
+            android:id="@+id/detailsContainer"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:layout_below="@id/distance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/description_bg"
+            >
+            <TextView
+                android:id="@+id/descriptionTitle"
+                android:text="@string/description"
+                style="@style/description_title" />
+            <TextView
+                android:id="@+id/description"
+                android:layout_below="@id/descriptionTitle"
+                tools:text=""
+                style="@style/description_text" />
+
+            <TextView
+                android:id="@+id/scheduleTitle"
+                android:text="@string/schedule"
+                android:layout_below="@id/description"
+                style="@style/description_title" />
+            <TextView
+                android:id="@+id/schedule"
+                android:layout_below="@id/scheduleTitle"
+                tools:text=""
+                style="@style/description_text" />
+
+       </RelativeLayout>
+
+       <it.sephiroth.android.library.widget.HListView
+           android:id="@+id/hListView"
+           android:layout_height="@dimen/feature_container_height"
+           android:layout_below="@id/detailsContainer"
+           style="@style/match_width"/>
+
+    </RelativeLayout>
+</ScrollView>

@@ -51,8 +51,8 @@ import com.grosner.zoo.adapters.PlaceMarkerWindowAdapter;
 import com.grosner.zoo.database.PlaceObject;
 import com.grosner.zoo.location.CurrentLocationManager;
 import com.grosner.zoo.location.OnNavigateListener;
-import com.grosner.zoo.managers.OverlayManager;
-import com.grosner.zoo.managers.TextMarkerManager;
+import com.grosner.zoo.database.managers.OverlayManager;
+import com.grosner.zoo.database.managers.TextMarkerManager;
 import com.grosner.zoo.markers.PlaceMarker;
 import com.grosner.zoo.singletons.ExhibitManager;
 import com.grosner.zoo.singletons.Preference;
@@ -206,10 +206,10 @@ public class MapViewFragment extends Fragment implements OnClickListener, OnCame
         }
 
         mSearchSlider = new ColorSlider(getResources().getColor(R.color.actionbar_color),
-                Color.WHITE).with(new IconPainter());
+                getResources().getColor(R.color.actionbar_text_color)).with(new IconPainter());
         mLocationSlider = new ColorSlider(getResources().getColor(R.color.actionbar_color),
-                Color.WHITE).with(new IconPainter());
-        mMapPainter = new IconPainter(getResources().getColor(R.color.icon_color));
+                getResources().getColor(R.color.actionbar_text_color)).with(new IconPainter());
+        mMapPainter = new IconPainter(true, getResources().getColor(R.color.icon_color));
     }
 
     @Override
@@ -506,7 +506,7 @@ public class MapViewFragment extends Fragment implements OnClickListener, OnCame
 	private void setUpMap(LayoutInflater inflater){
         mapView.setOnCameraChangeListener(this);
 		mGoogleMap.setMyLocationEnabled(true);
-		mGoogleMap.setInfoWindowAdapter(new PlaceMarkerWindowAdapter(inflater));
+		mGoogleMap.setInfoWindowAdapter(new PlaceMarkerWindowAdapter());
 		mGoogleMap.setOnInfoWindowClickListener(this);
    		mGoogleMap.getUiSettings().setCompassEnabled(false);
    		mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -948,7 +948,7 @@ public class MapViewFragment extends Fragment implements OnClickListener, OnCame
         mLocationSlider.onSlide(offset, followItem);
         TextView titleView = getZooActivity().getActionBarTitleView();
         if(titleView!=null){
-            titleView.setTextColor(SliderUtils.calculateColor(offset, Color.BLACK, Color.WHITE));
+            titleView.setTextColor(SliderUtils.calculateColor(offset, Color.BLACK, getResources().getColor(R.color.actionbar_text_color)));
         }
     }
 

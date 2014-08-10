@@ -5,7 +5,7 @@
 
   <style name="Zoo" parent="@style/_Zoo"/>
 
-  <style name="_Zoo" parent="android:Theme.Holo.Light.DarkActionBar">
+  <style name="_Zoo" parent="android:Theme.Holo">
       
     <item name="android:actionBarItemBackground">@drawable/selectable_background_zoo</item>
     <item name="android:popupMenuStyle">@style/PopupMenu.Zoo</item>

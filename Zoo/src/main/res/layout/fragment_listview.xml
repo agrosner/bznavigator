@@ -4,6 +4,6 @@
   android:id="@+id/listView"
   style="@style/match"
   android:paddingLeft="8dp"
-  android:background="@color/curious_blue"
+  android:background="@color/background_color"
   android:paddingRight="8dp"
   android:drawSelectorOnTop="false" />

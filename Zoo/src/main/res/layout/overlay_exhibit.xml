@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/wrap"
-    android:background="@drawable/custom_info_bubble"
-     >
+    android:padding="@dimen/list_padding"
+    >
      <RelativeLayout 
          android:id="@+id/relframe"
          style="@style/wrap"
+         android:background="@color/background_color"
+         android:padding="@dimen/list_padding"
          >
           <TextView 
             android:layout_alignParentLeft="true"
@@ -18,9 +20,9 @@
         	/>
           <ImageView 
               android:layout_toRightOf="@id/name"
-              android:id="@+id/arrow"
+              android:id="@+id/info"
               style="@style/wrap"
-              android:src="@drawable/ic_action_arrow_right"
+              android:src="@drawable/ic_action_info"
               />
      </RelativeLayout>
    

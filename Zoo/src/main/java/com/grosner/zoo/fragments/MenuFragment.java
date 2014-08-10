@@ -6,13 +6,13 @@ import android.widget.ListView;
 import com.grosner.smartinflater.annotation.SMethod;
 import com.grosner.zoo.FragmentUtils;
 import com.grosner.zoo.R;
+import com.grosner.zoo.adapters.MenuAdapter;
 import com.grosner.zoo.application.ZooApplication;
 import com.grosner.zoo.constants.UserConstants;
-import com.grosner.zoo.adapters.SlidingScreenListAdapter;
 
 public class MenuFragment extends ZooFragment implements UserConstants{
 
-    private SlidingScreenListAdapter mAdapter;
+    private MenuAdapter mAdapter;
 
 	@Override
 	public void onCreate(Bundle instance){
@@ -24,7 +24,7 @@ public class MenuFragment extends ZooFragment implements UserConstants{
 
     @SMethod
     private void onCreateListView(ListView listView){
-        listView.setAdapter(mAdapter = new SlidingScreenListAdapter(listView.getContext(),
+        listView.setAdapter(mAdapter = new MenuAdapter(listView.getContext(),
                 R.array.splash_list2, R.array.menu_icons));
     }
 	
@@ -40,24 +40,16 @@ public class MenuFragment extends ZooFragment implements UserConstants{
             String tag = null;
             PlaceFragment.PlaceType placeType = null;
             bundle = new Bundle();
-            if(title.equals(ZooApplication.getResourceString(R.string.menu_find_nearby))){
+            if(title.equals(ZooApplication.getResourceString(R.string.menu_view_pins))){
+                placeType = PlaceFragment.PlaceType.PINS;
+                tag = "Pins";
+            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_find_nearby))){
                 placeType = PlaceFragment.PlaceType.NEARBY;
                 tag = "Nearby";
-            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_shops))) {
-                placeType = PlaceFragment.PlaceType.SHOPS;
-                tag = "Shops";
-            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_special_exhibits))) {
-                placeType = PlaceFragment.PlaceType.SPECIAL;
-                tag = "Special";
-            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_food))) {
-                placeType = PlaceFragment.PlaceType.FOOD;
-                tag = "Food";
-            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_exhibits))) {
-                placeType = PlaceFragment.PlaceType.EXHIBITS;
-                tag = "Exhibits";
-            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_admin))) {
-                placeType = PlaceFragment.PlaceType.ADMIN;
-                tag = "Admin";
+            } else if(title.equals(ZooApplication.getResourceString(R.string.menu_place_categories))){
+                FragmentUtils.goToFragment(getZooActivity(), getString(R.string.fragment_place_categories),
+                        PlaceCategoriesFragment.class,
+                        null, true, false, R.id.MenuView);
             }
             if(placeType!=null) {
                 bundle.putSerializable("Type", placeType);

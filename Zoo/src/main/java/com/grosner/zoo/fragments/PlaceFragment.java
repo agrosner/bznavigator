@@ -28,7 +28,7 @@ public class PlaceFragment extends ZooFragment {
 
     public enum PlaceType implements Serializable {
         EXHIBITS, FOOD, SPECIAL, SHOPS, ADMIN, NEARBY, GATES, PARKING,
-        RESTROOMS, MISC, SEARCH;
+        RESTROOMS, MISC, SEARCH, PINS;
 
         public String toString() {
             return name().toLowerCase(Locale.ENGLISH);
@@ -123,9 +123,9 @@ public class PlaceFragment extends ZooFragment {
                 if (position > 0) {
                     map.addPlace(new PlaceMarker().place(mAdapter.getItem(position)));
                 } else if (position == 0) {
-                    ArrayList<PlaceObject> placeList;
+                    List<PlaceObject> placeList;
                     if (mType != PlaceType.NEARBY) {
-                        placeList = (ArrayList<PlaceObject>) mAdapter.getObjects();
+                        placeList = mAdapter.getObjects();
                     } else {
                         List<PlaceObject> objects = mAdapter.getObjects();
                         Collections.sort(objects, new Comparator<PlaceObject>() {
@@ -143,7 +143,7 @@ public class PlaceFragment extends ZooFragment {
                         while (reducePoints.size() != 10) {
                             reducePoints.add(objects.get(reducePoints.size()));
                         }
-                        placeList = (ArrayList<PlaceObject>) reducePoints;
+                        placeList = reducePoints;
                     }
                     ArrayList<PlaceMarker> placeMarkers = new ArrayList<>();
                     for(PlaceObject place: placeList){

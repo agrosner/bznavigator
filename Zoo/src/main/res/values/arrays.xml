@@ -5,7 +5,13 @@
     </string-array>
     <array name="splash_list2">
         <item>@string/menu_view_map</item>
+        <item>@string/menu_view_pins</item>
         <item>@string/menu_find_nearby</item>
+        <item>@string/menu_place_categories</item>
+        <item>@string/menu_browse_animals</item>
+    </array>
+
+    <array name="place_categories_list">
         <item>@string/menu_shops</item>
         <item>@string/menu_special_exhibits</item>
         <item>@string/menu_food</item>
@@ -15,7 +21,12 @@
 
     <array name="menu_icons">
         <item>@drawable/map</item>
+        <item>@drawable/ic_action_pin</item>
         <item>@drawable/find</item>
+        <item>@drawable/exhibit</item>
+    </array>
+
+    <array name="place_icons">
         <item>@drawable/shop</item>
         <item>@drawable/special</item>
         <item>@drawable/food</item>
@@ -42,4 +53,7 @@
     <string name="menu_food">Food</string>
     <string name="menu_exhibits">Exhibits</string>
     <string name="menu_admin">Administration</string>
+    <string name="menu_view_pins">View Pins</string>
+    <string name="menu_place_categories">Browse Categories</string>
+    <string name="menu_browse_animals">Animals</string>
 </resources>

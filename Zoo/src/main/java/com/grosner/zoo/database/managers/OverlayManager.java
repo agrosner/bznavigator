@@ -1,4 +1,4 @@
-package com.grosner.zoo.managers;
+package com.grosner.zoo.database.managers;
 
 import java.io.IOException;
 import java.util.ArrayList;

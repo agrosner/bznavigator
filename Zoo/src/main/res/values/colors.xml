@@ -9,7 +9,14 @@
     <color name="google_white">#BBEFF5E6</color>
     <color name="curious_blue">#4189B9</color>
     <color name="transparent_black">#AA000000</color>
-    <color name="actionbar_color">#6D8A8C</color>
-
+    <color name="actionbar_color">#212426</color>
+    <color name="actionbar_text_color">#8F8773</color>
+    <color name="background_color">#202324</color>
     <color name="icon_color">#585858</color>
+
+    <color name="orange_text_color">#85754E</color>
+    <color name="description_bg">#F9F6EF</color>
+    <color name="description_text_color">#EBAC62</color>
+    <color name="description_text_text_color">#27231D</color>
+
 </resources>

@@ -18,13 +18,13 @@ import com.grosner.zoo.R;
  * @author Andrew Grosner
  * @version 1.0
  */
-public class SlidingScreenListAdapter extends BaseAdapter {
+public class MenuAdapter extends BaseAdapter {
 
 
     private TypedArray mTitles;
     private TypedArray mDrawableArray;
 	
-	public SlidingScreenListAdapter(Context context, int arrayId, int drawables){
+	public MenuAdapter(Context context, int arrayId, int drawables){
 		mTitles = context.getResources().obtainTypedArray(arrayId);
         mDrawableArray = context.getResources().obtainTypedArray(drawables);
 	}
